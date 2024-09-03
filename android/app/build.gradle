@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "br.unicamp.ic.boilerplate"
+    namespace "br.unicamp.ic.wounds"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "br.unicamp.ic.boilerplate"
+        applicationId "br.unicamp.ic.wounds"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

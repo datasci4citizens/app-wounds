@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">boilerplate</string>
-    <string name="title_activity_main">boilerplate</string>
-    <string name="package_name">br.unicamp.ic.boilerplate</string>
-    <string name="custom_url_scheme">br.unicamp.ic.boilerplate</string>
+    <string name="app_name">wounds</string>
+    <string name="title_activity_main">wounds</string>
+    <string name="package_name">br.unicamp.ic.wounds</string>
+    <string name="custom_url_scheme">br.unicamp.ic.wounds</string>
 </resources>

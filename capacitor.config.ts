@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-	appId: 'br.unicamp.ic.boilerplate',
-	appName: 'boilerplate',
+	appId: 'br.unicamp.ic.wounds',
+	appName: 'wounds',
 	webDir: 'dist',
 };
 
