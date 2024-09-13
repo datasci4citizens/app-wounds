@@ -1,9 +1,11 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import UserCreate from './routes/user/UserCreate.tsx';
+import './globals.css';
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <h1>Home!</h1>,
+    element: <UserCreate />
   },
 ]);
 
