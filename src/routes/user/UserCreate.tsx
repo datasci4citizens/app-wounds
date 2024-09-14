@@ -8,7 +8,7 @@ import { cn } from '../../lib/utils.ts'
 import { Card,
          CardHeader,
          CardTitle,
-         CardContent } from "@/components/ui/card";
+         CardContent } from '../../components/ui/card.tsx'
 import { Input } from '../../components/ui/input.tsx'
 import { Switch } from '../../components/ui/switch.tsx'
 import { Select,
@@ -33,7 +33,6 @@ import {
   FormLabel,
 } from '../../components/ui/form.tsx'
 
-// import useSWR from 'swr'
 import useSWRMutation from 'swr/mutation'
 
 const formSchema = z.object({
@@ -52,8 +51,6 @@ const formSchema = z.object({
   observations: z.string().optional(),
   accept_tcle: z.boolean()
 })
-
-// const fetcher = (...args) => fetch(...args).then(res => res.json())
 
 async function sendRequest(url, { arg }: { arg: {
   name: string;
@@ -76,8 +73,7 @@ async function sendRequest(url, { arg }: { arg: {
 }
 
 export default function UserCreate() {
-  // const { data, mutate } = useSWR('http://localhost:8000/patients', fetcher)
-  const { trigger, data, error } = useSWRMutation('http://localhost:8000/patients/', sendRequest)
+  const { trigger, data, error } = useSWRMutation('http://localhost:8000/patients', sendRequest)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -103,7 +99,7 @@ export default function UserCreate() {
 
   return (
     <div className='flex min-h-screen items-center justify-center'>
-      <Card className="w-[600px]">
+      <Card className="w-[800px]">
         <CardHeader>
           <CardTitle>Cadastro de Usuário</CardTitle>
         </CardHeader>
