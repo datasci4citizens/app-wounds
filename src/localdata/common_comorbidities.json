@@ -1,0 +1,26 @@
+{
+    "1": {
+      "cid11_code": "5A10",
+      "name": "Diabetes mellitus tipo 1"
+    },
+    "2": {
+      "cid11_code": "5A11",
+      "name": "Diabetes mellitus tipo 2"
+    },
+    "3": {
+      "cid11_code": "BA00",
+      "name": "Hipertensão Essencial"
+    },
+    "4": {
+      "cid11_code": "5B81",
+      "name": "Obesidade"
+    },
+    "5": {
+      "cid11_code": "8B20",
+      "name": "Acidente vascular cerebral não conhecido se isquêmico ou hemorrágico"
+    },
+    "6": {
+      "cid11_code": "5C80",
+      "name": "Hiperlipoproteinemia"
+    }
+}
