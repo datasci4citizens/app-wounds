@@ -1,0 +1,14 @@
+@startsalt
+{
+  title Adicionar nova ferida
+  Região da ferida
+  ^Selecione a região^
+  Localização da ferida
+  ^Selecione a localização^
+  Tipo da ferida
+  ^Selecione o tipo^
+  Data do começo
+  "dd/mm/aaaa"
+  [Adicionar]
+}
+@endsalt

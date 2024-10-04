@@ -1,0 +1,13 @@
+@startsalt
+{
+  title Atualização da ferida
+  Quantidade de trocas de curativo no dia
+  ^Selecione o tipo de tecido^
+  Pele ao redor da ferida
+  ^Selecione o estado da pele^
+  Bordas da ferida
+  ^Selecione o estado das bordas^
+  [ ] Teve febre nas últimas 48 horas
+  [Adicionar foto]
+}
+@endsalt

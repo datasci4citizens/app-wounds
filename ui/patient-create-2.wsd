@@ -1,0 +1,23 @@
+@startsalt
+{
+  title Cadastro de paciente
+  Altura | Peso
+  "20" | "20"
+  Comorbidades
+  ( ) Diabete tipo 1 | ( ) Hipertensão
+  ( ) Diabete tipo 2 | ( ) Obesidade
+  ( ) Hiperlipoproteinemia | ( ) AVC
+  Outras comorbidades
+  {+
+    Relacionar outras comorbidades
+    .
+    .
+    .
+  }
+  Fumante
+  ^Selecione a frequência de fumo^
+  Bebida alcoólica
+  ^Selecione a frequência^
+  [Cadastrar]
+}
+@endsalt

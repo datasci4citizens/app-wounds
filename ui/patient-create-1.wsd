@@ -1,0 +1,17 @@
+@startsalt
+{
+  title Cadastro de paciente
+  Nome*
+  "Nome"
+  Telefone
+  "(00) 00000-0000"
+  Email
+  "Email"
+  Data de nascimento*
+  "dd/mm/aaaa"
+  Cadastro do hospital
+  "Número do cadastro"
+  [Adicionar opcionais]
+  [Cadastrar]
+}
+@endsalt

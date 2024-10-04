@@ -1,0 +1,19 @@
+@startsalt
+{
+  title Atualização da ferida
+  Temperatura* | Data*
+  "20" | "dd/mm/aaaa"
+  Altura* | Largura*
+  "20" | "20"
+  Nível da dor*
+  ^0^
+  Quantidade exsudato
+  ^Selecione a quantidade^
+  Tipo de exsudato
+  ^Selecione o tipo^
+  Tipo de tecido
+  ^Selecione o tipo de tecido^
+  [Adicionar mais informações]
+  [Adicionar foto]
+}
+@endsalt
