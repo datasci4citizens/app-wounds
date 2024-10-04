@@ -12,7 +12,7 @@ import { Card,
 export default function Menu() {
   const navigate = useNavigate()
 
-  const handleNavigate = (path) => {
+  const handleNavigate = (path: string) => {
     navigate(path)
   }
 
@@ -37,6 +37,27 @@ export default function Menu() {
           >
             <UserPlus className="mr-2 h-5 w-5" />
             <span>Add User</span>
+          </Button>
+          <Button 
+            onClick={() => handleNavigate('/patient/create')}
+            className='flex w-full items-center justify-center space-x-2'
+          >
+            <UserPlus className="mr-2 h-5 w-5" />
+            <span>Add Patient</span>
+          </Button>
+          <Button 
+            onClick={() => handleNavigate('/wound/create')}
+            className='flex w-full items-center justify-center space-x-2'
+          >
+            <UserPlus className="mr-2 h-5 w-5" />
+            <span>Add Wound</span>
+          </Button>
+          <Button 
+            onClick={() => handleNavigate('/wound/update')}
+            className='flex w-full items-center justify-center space-x-2'
+          >
+            <UserPlus className="mr-2 h-5 w-5" />
+            <span>Update Wound</span>
           </Button>
         </CardContent>
       </Card>

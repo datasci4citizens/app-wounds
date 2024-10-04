@@ -1,0 +1,22 @@
+{
+  "tc": {
+    "type": "Tecido cicatrizado",
+    "description": "A ferida está completamente coberta com epitélio (nova pele)."
+  },
+  "te": {
+    "type": "Tecido de epitelização",
+    "description": "Para as feridas superficiais, aparece como um novo tecido róseo ou brilhante (pele) que se desenvolve a partir das bordas ou como “ilhas” na superfície da lesão."
+  },
+  "tg": {
+    "type": "Tecido de granulação",
+    "description": "Tecido de coloração rósea ou vermelha, de aparência brilhante, úmida e granulosa."
+  },
+  "td": {
+    "type": "Tecido desvitalizado",
+    "description": "Tecido de coloração amarela ou branca que adere ao leito da ferida e apresenta-se como cordões ou crostas grossas, podendo ainda ser mucinoso."
+  },
+  "tn": {
+    "type": "Tecido necrótico",
+    "description": "Tecido de coloração preta, marrom ou castanha que adere firmemente ao leito ou às bordas da ferida e pode apresentar-se mais endurecido ou mais amolecido, comparativamente à pele periferida."
+  }
+}

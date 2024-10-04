@@ -1,0 +1,102 @@
+{
+  "cb": {
+    "description": "Cabeça",
+    "subregions": {
+      "ft": "Frontal",
+      "pt": "Parietal",
+      "oc": "Occipital",
+      "tm": "Temporal",
+      "it": "Infratemporal"
+    }
+  },
+  "fc": {
+    "description": "Face",
+    "subregions": {
+      "ns": "Nasal",
+      "ol": "Oral",
+      "mn": "Mentoniana",
+      "or": "Orbitária",
+      "io": "Infraorbitária",
+      "jg": "Jugal (da bochecha)",
+      "zg": "Zigomática",
+      "pm": "Parotideomasseterina"
+    }
+  },
+  "pc": {
+    "description": "Pescoço",
+    "subregions": {
+      "an": "Anterior do pescoço",
+      "em": "Esternocleidomastóidea",
+      "lt": "Lateral do pescoço",
+      "pn": "Posterior do pescoço"
+    }
+  },
+  "pt": {
+    "description": "Peito",
+    "subregions": {
+      "ic": "Infraclavicular",
+      "mm": "Mamária",
+      "ax": "Axilar",
+      "es": "Esternal"
+    }
+  },
+  "ab": {
+    "description": "Abdome",
+    "subregions": {
+      "hc": "Hipocôndrica",
+      "ep": "Epigástrica",
+      "la": "Lateral (Flanco)",
+      "um": "Umbilical",
+      "ig": "Inguinal (Fossa Ilíaca)",
+      "pb": "Pubiana Ou Hipogástrica"
+    }
+  },
+  "ds": {
+    "description": "Dorso",
+    "subregions": {
+      "vt": "Vertebral",
+      "sc": "Sacra",
+      "es": "Escapular",
+      "ie": "Infraescapular",
+      "lb": "Lombar",
+      "se": "Supraescapular",
+      "iv": "Interescapulovertebral"
+    }
+  },
+  "pr": {
+    "description": "Região Perineal",
+    "subregions": {
+      "an": "Anal",
+      "ug": "Urogenital"
+    }
+  },
+  "ms": {
+    "description": "Membro Superior",
+    "subregions": {
+      "dt": "Deltóidea",
+      "ab": "Anterior Braço",
+      "pb": "Posterior do Braço",
+      "ac": "Anterior ao Cotovelo",
+      "pc": "Posterior do Cotovelo",
+      "aa": "Anterior do Antebraço",
+      "pa": "Posterior do Antebraço",
+      "dm": "Dorso da mão",
+      "pm": "Palma da mão"
+    }
+  },
+  "mi": {
+    "description": "Membro Inferior",
+    "subregions": {
+      "gl": "Glútea",
+      "ac": "Anterior da Coxa",
+      "pc": "Posterior da Coxa",
+      "aj": "Anterior do Joelho",
+      "pj": "Posterior do Joelho",
+      "pp": "Posterior da Perna",
+      "ap": "Anterior da Perna",
+      "cl": "Calcaneana",
+      "dp": "Dorso do pé",
+      "ppf": "Planta do pé"
+    }
+  }
+}
