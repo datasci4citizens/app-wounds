@@ -58,8 +58,8 @@ const WoundCreate: React.FC<WoundCreateProps> = () => {
   const watchRegion = watch('wound_region');
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <Card className="w-full max-w-md">
+    <div className="flex justify-center items-center">
+      <Card className="w-full max-w-md rounded-b-none">
         <CardHeader>
           <CardTitle>Adicionar nova ferida</CardTitle>
         </CardHeader>

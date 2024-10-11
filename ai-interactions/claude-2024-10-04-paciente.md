@@ -1,4 +1,4 @@
-Giving the following plantuml/salt specification with two screens:
+Giving the following plantuml/salt specification with two screens.
 
 First screen:
 ```

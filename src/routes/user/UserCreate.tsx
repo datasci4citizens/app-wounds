@@ -98,8 +98,8 @@ export default function UserCreate() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <Card className="w-[800px]">
+    <div className="flex items-center justify-center">
+      <Card className="w-[800px] rounded-b-none">
         <CardHeader>
           <CardTitle>Cadastro de Usuário</CardTitle>
         </CardHeader>
