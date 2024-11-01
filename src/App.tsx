@@ -6,41 +6,44 @@ import WoundCreate from './routes/wound/WoundCreate.tsx';
 import WoundUpdate from './routes/wound/WoundUpdate.tsx';
 import Menu from './routes/Menu.tsx';
 import './globals.css';
+import AppLayout from "@/components/common/AppLayout.tsx";
 
 const router = createBrowserRouter([
-	{
-		path: '/',
-		element: <Menu />,
-	},
-	{
-		path: '/user/create',
-		element: <UserCreate />,
-	},
-	{
-		path: '/patient/create',
-		element: <PatientCreate />,
-	},
-	{
-		path: '/user/list',
-		element: <UserList />,
-	},
-	{
-		path: '/wound/create',
-		element: <WoundCreate />,
-	},
-	{
-		path: '/wound/update',
-		element: <WoundUpdate />,
-	},
+    {
+        path: '/',
+        element: <Menu/>,
+    },
+    {
+        path: '/user/create',
+        element: <UserCreate/>,
+
+    },
+    {
+        path: '/patient/create',
+        element: (
+            <AppLayout>
+                <PatientCreate/>
+            </AppLayout>
+        ),
+    },
+    {
+        path: '/user/list',
+        element: <UserList/>,
+    },
+    {
+        path: '/wound/create',
+        element: <WoundCreate/>,
+    },
+    {
+        path: '/wound/update',
+        element: <WoundUpdate/>,
+    },
 ]);
 
 export function App() {
-	return (
-		<main className="bg-primary h-screen flex flex-col justify-end overflow-hidden">
-      <div className='overflow-auto'>
-        <div className='h-12' />
-      <RouterProvider router={router} />
-      </div>
-		</main>
-	);
+    return (
+        <main className="bg-primary h-screen flex flex-col justify-end overflow-hidden">
+            <RouterProvider router={router}/>
+        </main>
+    );
 }
