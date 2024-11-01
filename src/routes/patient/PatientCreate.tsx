@@ -18,10 +18,10 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import smokeFrequency from '@/localdata/smoke-frequency.json';
 import drinkFrequency from '@/localdata/drink-frequency.json';
 
-
 const FormSchema = z.object({
     name: z.string().min(1, "Campo obrigatório"),
     phone_number: z.string().optional(),
+    sex: z.string().min(1, "Campo obrigatório"),
     email: z.string().min(1, "Campo obrigatório").email("Endereço de e-mail inválido"),
     birthday: z.date().nullable().refine(date => date !== null, {message: "Campo obrigatório"}),
     hospital_id:
@@ -65,6 +65,7 @@ const PatientCreate = () => {
         defaultValues: {
             name: "",
             phone_number: "",
+            sex: "",
             email: "",
             birthday: null,
             hospital_id: "",
@@ -142,6 +143,42 @@ function PatientInfoFields({form}) {
                             <Input {...field} placeholder="(00) 00000-0000"/>
                         </FormControl>
                         <FormMessage/>
+                    </FormItem>
+                )}
+            />
+
+            <FormField
+                control={form.control}
+                name="sex"
+                render={({ field }) => (
+                    <FormItem>
+                        <div className="mb-4">
+                            <FormLabel>Sexo*</FormLabel>
+                        </div>
+                        <div className="grid grid-cols-2">
+                            <div className="flex items-center space-x-2">
+                                <FormControl>
+                                    <Checkbox
+                                        checked={field.value === "female"}
+                                        onCheckedChange={(checked) =>
+                                            field.onChange(checked ? "female" : null)
+                                        }
+                                    />
+                                </FormControl>
+                                <FormLabel className="font-normal">Feminino</FormLabel>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <FormControl>
+                                    <Checkbox
+                                        checked={field.value === "male"}
+                                        onCheckedChange={(checked) =>
+                                            field.onChange(checked ? "male" : null)
+                                        }
+                                    />
+                                </FormControl>
+                                <FormLabel className="font-normal">Masculino</FormLabel>
+                            </div>
+                        </div>
                     </FormItem>
                 )}
             />
@@ -285,7 +322,6 @@ function OptionalInfoFields({form}) {
                         </div>
                         <div className="grid grid-cols-2 gap-2">
                             {comorbidities.map((comorbidity) => (
-
                                 <FormField
                                     key={comorbidity.id}
                                     control={form.control}
