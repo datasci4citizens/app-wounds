@@ -9,6 +9,8 @@ First screen:
   "Nome"
   Telefone
   "(00) 00000-0000"
+  Sexo*
+  ( ) Masculino | ( ) Feminino
   Email
   "Email"
   Data de nascimento*
@@ -58,13 +60,14 @@ The fields are aligned with a database:
 | --- | --- | --- |
 | Nome | name | string |
 | Telefone | phone_number | string |
+| Sexo | gender | char |
 | Email | email | string |
 | Data de nascimento | birthday | date |
 | Cadastro do hospital | hospital_id | string |
 | Altura | height | integer |
 | Peso | weight | integer |
 | Comorbidades | comorbidities | text |
-| Fumante | smoker | char - dropdown values imported from the smoke-frequency.json |
+| Fumante | smoke_frequency_ | char - dropdown values imported from the smoke-frequency.json |
 | Bebida alcoólica | drink_frequency | char - dropdown values imported from the drink-frequency.json |
 
 smoke-frequency.json and drink-frequency.json are key/value pairs
