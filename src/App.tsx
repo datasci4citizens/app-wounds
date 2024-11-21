@@ -9,19 +9,24 @@ import Menu from './routes/Menu.tsx';
 import './globals.css';
 import AppLayout from "@/components/common/AppLayout.tsx";
 
+import woundRegion from '@/localdata/wound-location.json'
+import woundTypes from '@/localdata/wound-type.json'
+import exudateAmounts from '@/localdata/exudate-amount.json'
+import exudateTypes from '@/localdata/exudate-type.json'
+import tissueTypes from '@/localdata/tissue-type.json'
+
 const router = createBrowserRouter([
     {
         path: '/',
         element: <Menu/>,
     },
     {
-		path: '/login',
-		element: <LoginPage />,
-	},
-	{
+        path: '/login',
+        element: <LoginPage/>,
+    },
+    {
         path: '/user/create',
         element: <UserCreate/>,
-
     },
     {
         path: '/patient/create',
@@ -37,11 +42,17 @@ const router = createBrowserRouter([
     },
     {
         path: '/wound/create',
-        element: <WoundCreate/>,
+        element: <WoundCreate woundRegion={woundRegion} woundTypes={woundTypes}/>,
     },
     {
         path: '/wound/update',
-        element: <WoundUpdate/>,
+        element:
+            <WoundUpdate
+                exudateAmounts={exudateAmounts}
+                exudateTypes={exudateTypes}
+                tissueTypes={tissueTypes}
+            />
+
     },
 ]);
 

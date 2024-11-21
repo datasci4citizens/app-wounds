@@ -6,10 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-import exudateAmounts from '@/localdata/exudate-amount.json'
-import exudateTypes from '@/localdata/exudate-type.json'
-import tissueTypes from '@/localdata/tissue-type.json'
-
 interface ExudateOption {
   [key: string]: string;
 }
@@ -27,7 +23,7 @@ interface WoundUpdateProps {
   tissueTypes: TissueTypeOption
 }
 
-const WoundUpdate: React.FC<WoundUpdateProps> = () => {
+const WoundUpdate: React.FC<WoundUpdateProps> = ({ exudateAmounts, exudateTypes, tissueTypes })  => {
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>

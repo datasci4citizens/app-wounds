@@ -52,28 +52,36 @@ const formSchema = z.object({
   accept_tcle: z.boolean()
 })
 
-async function sendRequest(url, { arg }: { arg: {
-  name: string;
-    email: string;
-    phone_number: string;
-    birthday: Date;
-    is_smoker: boolean;
-    drink_frequency: "never" | "sometimes" | "often";
-    accept_tcle: boolean;
-    observations?: string | undefined}}) {
-  console.log('=== sending request to ===')
-  console.log(url)
-  return await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(arg)
-  }).then(res => res.json())
+async function sendRequest(
+    url: string,
+    { arg }: {
+        arg: {
+            name: string;
+            email: string;
+            phone_number: string;
+            birthday: Date;
+            is_smoker: boolean;
+            drink_frequency: "never" | "sometimes" | "often";
+            accept_tcle: boolean;
+            observations?: string;
+        };
+    }
+) {
+    console.log('=== sending request to ===');
+    console.log(url);
+    return await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(arg),
+    }).then((res) => res.json());
 }
 
+
+
 export default function UserCreate() {
-  const { trigger, data, error } = useSWRMutation('http://localhost:8000/patients', sendRequest)
+  const { trigger} = useSWRMutation('http://localhost:8000/patients', sendRequest)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -175,7 +183,10 @@ export default function UserCreate() {
                 <FormItem>
                   <FormLabel>Fumante</FormLabel>
                   <FormControl>
-                    <Switch {...field} />
+                      <Switch
+                          checked={field.value}
+                          onCheckedChange={(checked) => field.onChange(checked)}
+                      />
                   </FormControl>
                 </FormItem>
               )} />
@@ -210,7 +221,10 @@ export default function UserCreate() {
                 render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Switch {...field} />                
+                      <Switch
+                          checked={field.value}
+                          onCheckedChange={(checked) => field.onChange(checked)}
+                      />
                   </FormControl>
                   <FormLabel>Eu aceito os termos do contrato.</FormLabel>
                 </FormItem>
