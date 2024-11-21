@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form.tsx";
+import type { UseFormReturn } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import DatePicker from "@/components/common/DatePicker.tsx";
 import { isAfter, isBefore, startOfDay } from "date-fns";
@@ -67,7 +68,7 @@ const PatientCreate = () => {
             phone_number: "",
             sex: "",
             email: "",
-            birthday: null,
+            birthday: undefined,
             hospital_id: "",
             height: "",
             weight: "",
@@ -116,7 +117,7 @@ const PatientCreate = () => {
     );
 };
 
-function PatientInfoFields({form}) {
+function PatientInfoFields({form}: { form: UseFormReturn<z.infer<typeof FormSchema>> }) {
     return (
         <div className="space-y-6">
             <FormField
@@ -150,7 +151,7 @@ function PatientInfoFields({form}) {
             <FormField
                 control={form.control}
                 name="sex"
-                render={({ field }) => (
+                render={({field}) => (
                     <FormItem>
                         <div className="mb-4">
                             <FormLabel>Sexo*</FormLabel>
@@ -234,33 +235,33 @@ function PatientInfoFields({form}) {
     )
 }
 
-function OptionalInfoFields({form}) {
+function OptionalInfoFields({form}: { form: UseFormReturn<z.infer<typeof FormSchema>> }) {
     const [otherComorbidities, setOtherComorbidities] = useState(otherComorbiditiesInitialValue);
-    const [selectedComorbidity, setSelectedComorbidity] = useState([]);
-    const [otherComorbitiesInputValue, setOtherComorbitiesInputValue] = useState("");
-    const [otherComorbitiesOpen, setOtherComorbitiesOpen] = useState(false); // Local state for popover open/close
+    const [selectedComorbidity, setSelectedComorbidity] = useState<string[]>([]);
+    const [otherComorbiditiesInputValue, setOtherComorbiditiesInputValue] = useState("");
+    const [otherComorbiditiesOpen, setOtherComorbiditiesOpen] = useState(false); // Local state for popover open/close
 
-    const handleSelect = (comorbidity) => {
+    const handleSelect = (comorbidity: string) => {
         if (!selectedComorbidity.includes(comorbidity)) {
             setSelectedComorbidity([...selectedComorbidity, comorbidity]);
         }
     };
 
-    const handleRemove = (comorbidityToRemove) => {
+    const handleRemove = (comorbidityToRemove: string) => {
         setSelectedComorbidity((prevSelected) =>
             prevSelected.filter((comorbidity) => comorbidity !== comorbidityToRemove)
         );
     };
 
-    const handleAddComorbidity = () => {
+    const handleAddComorbidity = (otherComorbiditiesInputValue: string) => {
         const newComorbidity = {
-            id: otherComorbitiesInputValue.toLowerCase().replace(/\s+/g, "_"),
-            label: otherComorbitiesInputValue,
+            id: otherComorbiditiesInputValue.toLowerCase().replace(/\s+/g, "_"),
+            label: otherComorbiditiesInputValue,
         };
 
         setOtherComorbidities([...otherComorbidities, newComorbidity]);
-        handleSelect(otherComorbitiesInputValue);
-        setOtherComorbitiesInputValue(""); // Clear the input value after adding
+        handleSelect(otherComorbiditiesInputValue);
+        setOtherComorbiditiesInputValue(""); // Clear the input value after adding
     };
 
     return (
@@ -278,7 +279,7 @@ function OptionalInfoFields({form}) {
                                         <Input
                                             placeholder="1,70"
                                             {...field}
-                                            value={field.value as number}
+                                            value={field.value ? parseFloat(field.value) : undefined}
                                         />
                                     </FormControl>
                                     <span className="text-black text-base font-medium">m</span>
@@ -300,7 +301,7 @@ function OptionalInfoFields({form}) {
                                         <Input
                                             placeholder="70"
                                             {...field}
-                                            value={field.value as number}
+                                            value={field.value ? parseFloat(field.value) : undefined}
                                         />
                                     </FormControl>
                                     <span className="text-black text-base font-medium">Kg</span>
@@ -314,7 +315,7 @@ function OptionalInfoFields({form}) {
 
             <FormField
                 control={form.control}
-                name="comorbities"
+                name="comorbidities"
                 render={() => (
                     <FormItem>
                         <div className="mb-4">
@@ -337,7 +338,7 @@ function OptionalInfoFields({form}) {
                                                         checked={field.value?.includes(comorbidity.id)}
                                                         onCheckedChange={(checked) => {
                                                             return checked
-                                                                ? field.onChange([...field.value, comorbidity.id])
+                                                                ? field.onChange([...(field.value ?? []), comorbidity.id])
                                                                 : field.onChange(
                                                                     field.value?.filter(
                                                                         (value) => value !== comorbidity.id
@@ -366,8 +367,8 @@ function OptionalInfoFields({form}) {
                 render={({field}) => (
                     <FormItem className="flex flex-col">
                         <FormLabel>Outras Comorbidades</FormLabel>
-                        <Popover open={otherComorbitiesOpen}
-                                 onOpenChange={setOtherComorbitiesOpen}>
+                        <Popover open={otherComorbiditiesOpen}
+                                 onOpenChange={setOtherComorbiditiesOpen}>
                             <PopoverTrigger asChild>
                                 <FormControl>
                                     <Button
@@ -389,8 +390,8 @@ function OptionalInfoFields({form}) {
                                 <Command>
                                     <CommandInput
                                         placeholder="Procure comorbidades"
-                                        value={otherComorbitiesInputValue}
-                                        onValueChange={setOtherComorbitiesInputValue}
+                                        value={otherComorbiditiesInputValue}
+                                        onValueChange={setOtherComorbiditiesInputValue}
                                     />
                                     <CommandList>
                                         <CommandEmpty>
@@ -399,13 +400,13 @@ function OptionalInfoFields({form}) {
                                                 variant="outline"
                                                 size="icon"
                                                 onClick={() => {
-                                                    handleAddComorbidity(otherComorbitiesInputValue)
+                                                    handleAddComorbidity(otherComorbiditiesInputValue)
                                                 }}
                                                 className="flex w-full items"
                                             >
                                                 <Plus className="h-4 w-4"/>
                                                 <span
-                                                    className="ms-2">Adicionar {otherComorbitiesInputValue}</span>
+                                                    className="ms-2">Adicionar {otherComorbiditiesInputValue}</span>
                                             </Button>
                                         </CommandEmpty>
                                         <CommandGroup>
