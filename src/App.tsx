@@ -14,6 +14,7 @@ import woundTypes from '@/localdata/wound-type.json'
 import exudateAmounts from '@/localdata/exudate-amount.json'
 import exudateTypes from '@/localdata/exudate-type.json'
 import tissueTypes from '@/localdata/tissue-type.json'
+import PatientsPage from "@/routes/patient/PatientList.tsx";
 
 const router = createBrowserRouter([
     {
@@ -33,6 +34,14 @@ const router = createBrowserRouter([
         element: (
             <AppLayout>
                 <PatientCreate/>
+            </AppLayout>
+        ),
+    },
+    {
+        path: '/patient/list',
+        element: (
+            <AppLayout>
+                <PatientsPage/>
             </AppLayout>
         ),
     },
