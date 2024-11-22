@@ -16,8 +16,6 @@ import tissueTypes from '@/localdata/tissue-type.json'
 const FormSchema = z.object({
     temperature: z.number().min(0),
     date: z.date().nullable().refine(date => date !== null, {message: "Data de começo é obrigatória"}),
-    height: z.number().min(0),
-    width: z.number().min(0),
     painLevel: z.number().min(0).max(10),
     exudateAmount: z.string().optional(),
     exudateType: z.string().optional(),
@@ -30,11 +28,12 @@ export default function WoundUpdate() {
     const form = useForm<WoundFormValues>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
-            temperature: 0,
+            woundSize: 0,
             date: new Date(),
-            height: 0,
-            width: 0,
             painLevel: 0,
+            exudateAmount: "",
+            exudateType: "",
+            tissueType: "",
         },
     });
 
@@ -51,10 +50,10 @@ export default function WoundUpdate() {
                     <div className="grid grid-cols-2 gap-4">
                         <FormField
                             control={form.control}
-                            name="temperature"
+                            name="woundSize"
                             render={({field}) => (
                                 <FormItem>
-                                    <FormLabel>Temperatura*</FormLabel>
+                                    <FormLabel>Tamanho*</FormLabel>
                                     <div className="flex items-center space-x-2">
                                         <FormControl>
                                             <Input
@@ -83,46 +82,6 @@ export default function WoundUpdate() {
                                             return (isBefore(date, new Date("1900-01-01")) || isAfter(date, today));
                                         }}
                                     />
-                                    <FormMessage/>
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <FormField
-                            control={form.control}
-                            name="height"
-                            render={({field}) => (
-                                <FormItem>
-                                    <FormLabel>Altura*</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type="number"
-                                            placeholder="20"
-                                            {...field}
-                                            onChange={e => field.onChange(parseFloat(e.target.value))}
-                                        />
-                                    </FormControl>
-                                    <FormMessage/>
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="width"
-                            render={({field}) => (
-                                <FormItem>
-                                    <FormLabel>Largura*</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type="number"
-                                            placeholder="20"
-                                            {...field}
-                                            onChange={e => field.onChange(parseFloat(e.target.value))}
-                                        />
-                                    </FormControl>
                                     <FormMessage/>
                                 </FormItem>
                             )}
