@@ -4,13 +4,19 @@ import { ArrowLeft, Edit, FileText, Plus } from "lucide-react"
 import { useEffect } from "react";
 import useSWRMutation from "swr/mutation";
 import { getRequest } from "@/data/common/HttpExtensions.ts";
-import type { WoundPatient } from "@/data/common/Mapper.ts";
-import type { Wound } from "@/data/common/Mapper.ts";
+import type { Wound, WoundPatient } from "@/data/common/Mapper.ts";
+import { calculateAge } from "@/data/common/Mapper.ts";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const WoundCard = ({wound, index}: { wound: Wound, index: number }) => {
+    const navigate = useNavigate();
+
+    const handleCardClick = () => {
+        navigate('/wound/detail', {state: {wound_id: wound.wound_id}});
+    };
+
     return (
-        <Card className="mb-4 w-full shadow-sm border-b border-gray-200 cursor-pointer">
+        <Card className="mb-4 w-full shadow-sm border-b border-gray-200 cursor-pointer" onClick={handleCardClick}>
             <CardContent className="p-4 flex justify-between items-center">
                 <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">{`Ferida ${index + 1}`}</h3>
@@ -49,22 +55,41 @@ export default function PatientsWounds() {
                 woundPatient && (
                     <div className="flex flex-col h-full w-full items-center px-8">
                         <div className="flex flex-col items-center w-full">
-                            <div className="flex w-full mt-12 justify-between">
+                            <div className="flex w-full justify-between">
                                 <div
-                                    className={`border border-gray-300 rounded flex items-center justify-center cursor-pointer ms-1.5`}
+                                    className={`border border-gray-300 rounded flex items-center justify-center cursor-pointer`}
                                     onClick={() => {
                                         navigate("/patient/list")
                                     }}>
                                     <ArrowLeft className="text-black p-2" size={32}/>
                                 </div>
                                 <div
-                                    className={`border border-gray-300 rounded flex items-center justify-center cursor-pointer ms-1.5`}
+                                    className={`border border-gray-300 rounded flex items-center justify-center cursor-pointer`}
                                     onClick={() => {
                                     }}>
                                     <Edit className="text-black p-2" size={32}/>
                                 </div>
                             </div>
                             <h1 className="text-2xl font-bold mb-4 mt-4">{woundPatient.name}</h1>
+                        </div>
+
+                        <div className="flex flex-col text-sm leading-relaxed space-y-2 self-start">
+                            <p>
+                                <span
+                                    className="font-bold text-base">Idade: </span> {calculateAge(new Date(woundPatient.birthday))} anos
+                            </p>
+                            <p>
+                                <span className="font-bold text-base">Comorbidades: </span>
+                                {woundPatient.comorbidities.length > 0 ? (
+                                    woundPatient.comorbidities.map((item) => item.name).join(", ")
+                                ) : (
+                                    'Nenhuma comorbidade registrada.'
+                                )}
+                            </p>
+                            <p>
+                                <span className="font-bold text-base">Hábitos: </span> {woundPatient.drink_frequency}
+                            </p>
+                            <h1 className="text-2xl font-semibold mb-4 !mt-6">Feridas:</h1>
                         </div>
 
                         <div className="flex flex-col max-h-screen w-full overflow-y-auto mt-6 pb-6">
