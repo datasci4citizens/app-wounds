@@ -5,21 +5,27 @@ import { Plus, Search } from "lucide-react"
 import { useEffect, useState } from "react";
 import useSWRMutation from "swr/mutation";
 import { getRequest } from "@/data/common/HttpExtensions.ts";
-import type { PatientPayload } from "@/routes/patient/PatientCreate.tsx";
-import { mapPatientPayloadToPatient } from "@/data/common/Mapper.ts";
 import type { Patient } from "@/data/common/Mapper.ts";
+import { formatPatientBirthday } from "@/data/common/Mapper.ts";
 import { useNavigate } from "react-router-dom";
 
 const PatientCard = ({patient}: { patient: Patient }) => {
+    const navigate = useNavigate();
+
+    const id = patient.patient_id
+    const handleCardClick = () => {
+        navigate('/patient/wounds', {state: {patient_id: id}}); // Pass the patient data through state
+    };
+
     return (
-        <Card className="mb-4 w-full shadow-sm border-b border-gray-200 cursor-pointer">
+        <Card className="mb-4 w-full shadow-sm border-b border-gray-200 cursor-pointer" onClick={handleCardClick}>
             <CardContent className="p-4 flex justify-between items-center">
                 <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">{patient.name}</h3>
                     <div className="space-y-1 text-sm text-gray-500 leading-tight">
                         <p>Data Nascimento: {patient.birthday}</p>
-                        <p>Último atendimento: {patient.lastAppointment}</p>
-                        <p>Tipo de ferida: {patient.woundType}</p>
+                        <p>Gênero: {patient.gender}</p>
+                        <p>Telefone: {patient.phone_number}</p>
                     </div>
                 </div>
             </CardContent>
@@ -32,14 +38,14 @@ export default function PatientsPage() {
 
     const {
         data, trigger,
-    } = useSWRMutation<PatientPayload[]>('http://localhost:8000/patients/', getRequest);
+    } = useSWRMutation<Patient[]>('http://localhost:8000/patients/', getRequest);
 
     useEffect(() => {
         trigger();
     }, [trigger]);
 
     const [searchTerm, setSearchTerm] = useState('');
-    const patients: Patient[] = mapPatientPayloadToPatient(data || []);
+    const patients: Patient[] = formatPatientBirthday(data || []);
 
     const filteredPatients = patients.filter(patient =>
         patient.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -61,13 +67,15 @@ export default function PatientsPage() {
                 </div>
             </div>
 
-            <div className="flex-1 max-h-screen w-full overflow-y-auto mt-6 pb-6">
+            <div className="flex flex-col max-h-screen w-full overflow-y-auto mt-6 pb-6">
                 {filteredPatients.map((patient, index) => (
                     <PatientCard key={index} patient={patient}/>
                 ))}
             </div>
 
-            <Button type="button" className="w-full bg-sky-900 mt-6 mb-6" onClick={() => { navigate("/patient/create")}}>
+            <Button type="button" className="w-full bg-sky-900 mt-6 mb-6" onClick={() => {
+                navigate("/patient/create")
+            }}>
                 <Plus className="mr-2 h-5 w-5"/>
                 Adicionar Paciente
             </Button>
