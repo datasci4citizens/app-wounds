@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form.tsx";
+import type { UseFormReturn } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import DatePicker from "@/components/common/DatePicker.tsx";
 import { isAfter, isBefore, startOfDay } from "date-fns";
@@ -17,6 +18,26 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 // Import the frequency data
 import smokeFrequency from '@/localdata/smoke-frequency.json';
 import drinkFrequency from '@/localdata/drink-frequency.json';
+import useSWRMutation from "swr/mutation";
+import { getRequest, postRequest } from "@/data/common/HttpExtensions.ts";
+import { useNavigate } from "react-router-dom";
+
+export interface PatientPayload {
+    name: string;
+    gender?: string;
+    birthday?: string;
+    email: string;
+    hospital_registration?: string;
+    phone_number?: string;
+    height?: number;
+    weight?: number;
+    smoke_frequency?: string;
+    drink_frequency?: string;
+    accept_tcle?: boolean;
+    specialist_id?: number;
+    comorbidities?: number[];
+    comorbidities_to_add?: string[];
+}
 
 const FormSchema = z.object({
     name: z.string().min(1, "Campo obrigatório"),
@@ -24,30 +45,18 @@ const FormSchema = z.object({
     sex: z.string().min(1, "Campo obrigatório"),
     email: z.string().min(1, "Campo obrigatório").email("Endereço de e-mail inválido"),
     birthday: z.date().nullable().refine(date => date !== null, {message: "Campo obrigatório"}),
-    hospital_id:
-        z.string().optional(),
-    height:
-        z.string().optional(),
-    weight:
-        z.string().optional(),
+    hospital_id: z.string().optional(),
+    height: z.number().optional(),
+    weight: z.number().optional(),
     comorbidities:
-        z.array(z.string()).optional(), // Ensure this matches your data type
+        z.array(z.number()).optional(), // Ensure this matches your data type
     other_comorbidities:
         z.array(z.string()).optional(), // Ensure this matches your data type
-    smoker:
+    smoke_frequency:
         z.string().optional(),
     drink_frequency:
         z.string().optional()
 })
-
-const comorbidities = [
-    {id: "diabetes_1", label: "Diabete tipo 1"},
-    {id: "high_blood_pressure", label: "Hipertensão"},
-    {id: "diabetes_2", label: "Diabete tipo 2"},
-    {id: "obesity", label: "Obesidade"},
-    {id: "hyperlipoproteinemia", label: "Hiperlipoproteinemia"},
-    {id: "avc", label: "AVC"},
-] as const
 
 const otherComorbiditiesInitialValue = [
     {id: "asthma", label: "Asma"},
@@ -57,7 +66,23 @@ const otherComorbiditiesInitialValue = [
     {id: "arthritis", label: "Artrite"},
 ];
 
+interface Comorbidities {
+    cid11_code: string,
+    name: string,
+    comorbidity_id: number
+}
+
 const PatientCreate = () => {
+    const navigate = useNavigate();
+    const {trigger: postTrigger} = useSWRMutation('http://localhost:8000/patients/', postRequest);
+    const {
+        data: comorbiditiesData, trigger: getComorbiditiesTrigger,
+    } = useSWRMutation<Comorbidities[]>('http://localhost:8000/comorbidities/', getRequest);
+
+    useEffect(() => {
+        getComorbiditiesTrigger();
+    }, [getComorbiditiesTrigger]);
+
     const [showOptional, setShowOptional] = useState(false);
 
     const form = useForm<z.infer<typeof FormSchema>>({
@@ -67,13 +92,13 @@ const PatientCreate = () => {
             phone_number: "",
             sex: "",
             email: "",
-            birthday: null,
+            birthday: undefined,
             hospital_id: "",
-            height: "",
-            weight: "",
+            height: 0,
+            weight: 0,
             comorbidities: [],
             other_comorbidities: [],
-            smoker: ""
+            smoke_frequency: ""
         },
     })
 
@@ -85,9 +110,32 @@ const PatientCreate = () => {
         }
     };
 
-    const onSubmit = (data: z.infer<typeof FormSchema>) => {
-        console.log(data);
-        // Handle form submission
+    const onSubmit = async (data: z.infer<typeof FormSchema>) => {
+        try {
+            const payload: PatientPayload = {
+                name: data.name,
+                gender: data.sex,
+                birthday: data.birthday ? data.birthday.toISOString().split('T')[0] : "",
+                email: data.email,
+                hospital_registration: data.hospital_id,
+                phone_number: data.phone_number,
+                height: data.height,
+                weight: data.weight,
+                smoke_frequency: data.smoke_frequency,
+                drink_frequency: data.drink_frequency,
+                accept_tcle: true,
+                specialist_id: 1,
+                comorbidities: data.comorbidities,
+                comorbidities_to_add: data.other_comorbidities,
+            };
+
+            console.log('Sending payload:', payload);
+            await postTrigger(payload);
+            return navigate("/patient/list")
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            throw error;
+        }
     };
 
     return (
@@ -100,7 +148,7 @@ const PatientCreate = () => {
                     {!showOptional ? (
                         <PatientInfoFields form={form}/>
                     ) : (
-                        <OptionalInfoFields form={form}/>
+                        <OptionalInfoFields form={form} comorbiditiesData={comorbiditiesData || []}/>
                     )}
 
                     <Button type="button" className="w-full bg-sky-900" onClick={onToggleShowOptional}>
@@ -116,7 +164,7 @@ const PatientCreate = () => {
     );
 };
 
-function PatientInfoFields({form}) {
+function PatientInfoFields({form}: { form: UseFormReturn<z.infer<typeof FormSchema>> }) {
     return (
         <div className="space-y-6">
             <FormField
@@ -150,7 +198,7 @@ function PatientInfoFields({form}) {
             <FormField
                 control={form.control}
                 name="sex"
-                render={({ field }) => (
+                render={({field}) => (
                     <FormItem>
                         <div className="mb-4">
                             <FormLabel>Sexo*</FormLabel>
@@ -234,33 +282,33 @@ function PatientInfoFields({form}) {
     )
 }
 
-function OptionalInfoFields({form}) {
+function OptionalInfoFields({form, comorbiditiesData = []}: { form: UseFormReturn<z.infer<typeof FormSchema>>, comorbiditiesData: Comorbidities[] }) {
     const [otherComorbidities, setOtherComorbidities] = useState(otherComorbiditiesInitialValue);
-    const [selectedComorbidity, setSelectedComorbidity] = useState([]);
-    const [otherComorbitiesInputValue, setOtherComorbitiesInputValue] = useState("");
-    const [otherComorbitiesOpen, setOtherComorbitiesOpen] = useState(false); // Local state for popover open/close
+    const [selectedComorbidity, setSelectedComorbidity] = useState<string[]>([]);
+    const [otherComorbiditiesInputValue, setOtherComorbiditiesInputValue] = useState("");
+    const [otherComorbiditiesOpen, setOtherComorbiditiesOpen] = useState(false); // Local state for popover open/close
 
-    const handleSelect = (comorbidity) => {
+    const handleSelect = (comorbidity: string) => {
         if (!selectedComorbidity.includes(comorbidity)) {
             setSelectedComorbidity([...selectedComorbidity, comorbidity]);
         }
     };
 
-    const handleRemove = (comorbidityToRemove) => {
+    const handleRemove = (comorbidityToRemove: string) => {
         setSelectedComorbidity((prevSelected) =>
             prevSelected.filter((comorbidity) => comorbidity !== comorbidityToRemove)
         );
     };
 
-    const handleAddComorbidity = () => {
+    const handleAddComorbidity = (otherComorbiditiesInputValue: string) => {
         const newComorbidity = {
-            id: otherComorbitiesInputValue.toLowerCase().replace(/\s+/g, "_"),
-            label: otherComorbitiesInputValue,
+            id: otherComorbiditiesInputValue.toLowerCase().replace(/\s+/g, "_"),
+            label: otherComorbiditiesInputValue,
         };
 
         setOtherComorbidities([...otherComorbidities, newComorbidity]);
-        handleSelect(otherComorbitiesInputValue);
-        setOtherComorbitiesInputValue(""); // Clear the input value after adding
+        handleSelect(otherComorbiditiesInputValue);
+        setOtherComorbiditiesInputValue(""); // Clear the input value after adding
     };
 
     return (
@@ -278,7 +326,7 @@ function OptionalInfoFields({form}) {
                                         <Input
                                             placeholder="1,70"
                                             {...field}
-                                            value={field.value as number}
+                                            value={field.value}
                                         />
                                     </FormControl>
                                     <span className="text-black text-base font-medium">m</span>
@@ -300,7 +348,7 @@ function OptionalInfoFields({form}) {
                                         <Input
                                             placeholder="70"
                                             {...field}
-                                            value={field.value as number}
+                                            value={field.value}
                                         />
                                     </FormControl>
                                     <span className="text-black text-base font-medium">Kg</span>
@@ -314,40 +362,39 @@ function OptionalInfoFields({form}) {
 
             <FormField
                 control={form.control}
-                name="comorbities"
+                name="comorbidities"
                 render={() => (
                     <FormItem>
                         <div className="mb-4">
                             <FormLabel>Comorbidades</FormLabel>
                         </div>
                         <div className="grid grid-cols-2 gap-2">
-                            {comorbidities.map((comorbidity) => (
+                            {comorbiditiesData.map((comorbidity) => (
                                 <FormField
-                                    key={comorbidity.id}
+                                    key={comorbidity.comorbidity_id}
                                     control={form.control}
                                     name="comorbidities"
                                     render={({field}) => {
                                         return (
                                             <FormItem
-                                                key={comorbidity.id}
                                                 className="flex flex-row items-start space-x-3 space-y-0"
                                             >
                                                 <FormControl>
                                                     <Checkbox
-                                                        checked={field.value?.includes(comorbidity.id)}
+                                                        checked={field.value?.includes(comorbidity.comorbidity_id)}
                                                         onCheckedChange={(checked) => {
                                                             return checked
-                                                                ? field.onChange([...field.value, comorbidity.id])
+                                                                ? field.onChange([...(field.value ?? []), comorbidity.comorbidity_id])
                                                                 : field.onChange(
                                                                     field.value?.filter(
-                                                                        (value) => value !== comorbidity.id
+                                                                        (value) => value !== comorbidity.comorbidity_id
                                                                     )
                                                                 )
                                                         }}
                                                     />
                                                 </FormControl>
                                                 <FormLabel className="font-normal">
-                                                    {comorbidity.label}
+                                                    {comorbidity.name}
                                                 </FormLabel>
                                             </FormItem>
                                         )
@@ -366,8 +413,8 @@ function OptionalInfoFields({form}) {
                 render={({field}) => (
                     <FormItem className="flex flex-col">
                         <FormLabel>Outras Comorbidades</FormLabel>
-                        <Popover open={otherComorbitiesOpen}
-                                 onOpenChange={setOtherComorbitiesOpen}>
+                        <Popover open={otherComorbiditiesOpen}
+                                 onOpenChange={setOtherComorbiditiesOpen}>
                             <PopoverTrigger asChild>
                                 <FormControl>
                                     <Button
@@ -389,8 +436,8 @@ function OptionalInfoFields({form}) {
                                 <Command>
                                     <CommandInput
                                         placeholder="Procure comorbidades"
-                                        value={otherComorbitiesInputValue}
-                                        onValueChange={setOtherComorbitiesInputValue}
+                                        value={otherComorbiditiesInputValue}
+                                        onValueChange={setOtherComorbiditiesInputValue}
                                     />
                                     <CommandList>
                                         <CommandEmpty>
@@ -399,13 +446,13 @@ function OptionalInfoFields({form}) {
                                                 variant="outline"
                                                 size="icon"
                                                 onClick={() => {
-                                                    handleAddComorbidity(otherComorbitiesInputValue)
+                                                    handleAddComorbidity(otherComorbiditiesInputValue)
                                                 }}
                                                 className="flex w-full items"
                                             >
                                                 <Plus className="h-4 w-4"/>
                                                 <span
-                                                    className="ms-2">Adicionar {otherComorbitiesInputValue}</span>
+                                                    className="ms-2">Adicionar {otherComorbiditiesInputValue}</span>
                                             </Button>
                                         </CommandEmpty>
                                         <CommandGroup>
@@ -443,6 +490,7 @@ function OptionalInfoFields({form}) {
                         <div className="mt-2 flex flex-wrap gap-2">
                             {selectedComorbidity.map((comorbidity) => (
                                 <Button
+                                    key={comorbidity}
                                     type="button"
                                     onClick={() => {
                                         handleRemove(comorbidity)
@@ -461,7 +509,7 @@ function OptionalInfoFields({form}) {
 
             <FormField
                 control={form.control}
-                name="smoker"
+                name="smoke_frequency"
                 render={({field}) => (
                     <FormItem>
                         <FormLabel>Fumante</FormLabel>
