@@ -264,7 +264,6 @@ function PatientInfoFields({form}: { form: UseFormReturn<z.infer<typeof FormSche
                 )}
             />
 
-
             <FormField
                 control={form.control}
                 name="hospital_id"
