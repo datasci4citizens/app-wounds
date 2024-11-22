@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -18,6 +18,26 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 // Import the frequency data
 import smokeFrequency from '@/localdata/smoke-frequency.json';
 import drinkFrequency from '@/localdata/drink-frequency.json';
+import useSWRMutation from "swr/mutation";
+import { getRequest, postRequest } from "@/data/common/HttpExtensions.ts";
+import { useNavigate } from "react-router-dom";
+
+export interface PatientPayload {
+    name: string;
+    gender?: string;
+    birthday?: string;
+    email: string;
+    hospital_registration?: string;
+    phone_number?: string;
+    height?: number;
+    weight?: number;
+    smoke_frequency?: string;
+    drink_frequency?: string;
+    accept_tcle?: boolean;
+    specialist_id?: number;
+    comorbidities?: number[];
+    comorbidities_to_add?: string[];
+}
 
 const FormSchema = z.object({
     name: z.string().min(1, "Campo obrigatório"),
@@ -25,30 +45,18 @@ const FormSchema = z.object({
     sex: z.string().min(1, "Campo obrigatório"),
     email: z.string().min(1, "Campo obrigatório").email("Endereço de e-mail inválido"),
     birthday: z.date().nullable().refine(date => date !== null, {message: "Campo obrigatório"}),
-    hospital_id:
-        z.string().optional(),
-    height:
-        z.string().optional(),
-    weight:
-        z.string().optional(),
+    hospital_id: z.string().optional(),
+    height: z.number().optional(),
+    weight: z.number().optional(),
     comorbidities:
-        z.array(z.string()).optional(), // Ensure this matches your data type
+        z.array(z.number()).optional(), // Ensure this matches your data type
     other_comorbidities:
         z.array(z.string()).optional(), // Ensure this matches your data type
-    smoker:
+    smoke_frequency:
         z.string().optional(),
     drink_frequency:
         z.string().optional()
 })
-
-const comorbidities = [
-    {id: "diabetes_1", label: "Diabete tipo 1"},
-    {id: "high_blood_pressure", label: "Hipertensão"},
-    {id: "diabetes_2", label: "Diabete tipo 2"},
-    {id: "obesity", label: "Obesidade"},
-    {id: "hyperlipoproteinemia", label: "Hiperlipoproteinemia"},
-    {id: "avc", label: "AVC"},
-] as const
 
 const otherComorbiditiesInitialValue = [
     {id: "asthma", label: "Asma"},
@@ -58,7 +66,23 @@ const otherComorbiditiesInitialValue = [
     {id: "arthritis", label: "Artrite"},
 ];
 
+interface Comorbidities {
+    cid11_code: string,
+    name: string,
+    comorbidity_id: number
+}
+
 const PatientCreate = () => {
+    const navigate = useNavigate();
+    const {trigger: postTrigger} = useSWRMutation('http://localhost:8000/patients/', postRequest);
+    const {
+        data: comorbiditiesData, trigger: getComorbiditiesTrigger,
+    } = useSWRMutation<Comorbidities[]>('http://localhost:8000/comorbidities/', getRequest);
+
+    useEffect(() => {
+        getComorbiditiesTrigger();
+    }, [getComorbiditiesTrigger]);
+
     const [showOptional, setShowOptional] = useState(false);
 
     const form = useForm<z.infer<typeof FormSchema>>({
@@ -70,11 +94,11 @@ const PatientCreate = () => {
             email: "",
             birthday: undefined,
             hospital_id: "",
-            height: "",
-            weight: "",
+            height: 0,
+            weight: 0,
             comorbidities: [],
             other_comorbidities: [],
-            smoker: ""
+            smoke_frequency: ""
         },
     })
 
@@ -86,9 +110,32 @@ const PatientCreate = () => {
         }
     };
 
-    const onSubmit = (data: z.infer<typeof FormSchema>) => {
-        console.log(data);
-        // Handle form submission
+    const onSubmit = async (data: z.infer<typeof FormSchema>) => {
+        try {
+            const payload: PatientPayload = {
+                name: data.name,
+                gender: data.sex,
+                birthday: data.birthday ? data.birthday.toISOString().split('T')[0] : "",
+                email: data.email,
+                hospital_registration: data.hospital_id,
+                phone_number: data.phone_number,
+                height: data.height,
+                weight: data.weight,
+                smoke_frequency: data.smoke_frequency,
+                drink_frequency: data.drink_frequency,
+                accept_tcle: true,
+                specialist_id: 1,
+                comorbidities: data.comorbidities,
+                comorbidities_to_add: data.other_comorbidities,
+            };
+
+            console.log('Sending payload:', payload);
+            await postTrigger(payload);
+            return navigate("/patient/list")
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            throw error;
+        }
     };
 
     return (
@@ -101,7 +148,7 @@ const PatientCreate = () => {
                     {!showOptional ? (
                         <PatientInfoFields form={form}/>
                     ) : (
-                        <OptionalInfoFields form={form}/>
+                        <OptionalInfoFields form={form} comorbiditiesData={comorbiditiesData || []}/>
                     )}
 
                     <Button type="button" className="w-full bg-sky-900" onClick={onToggleShowOptional}>
@@ -235,7 +282,7 @@ function PatientInfoFields({form}: { form: UseFormReturn<z.infer<typeof FormSche
     )
 }
 
-function OptionalInfoFields({form}: { form: UseFormReturn<z.infer<typeof FormSchema>> }) {
+function OptionalInfoFields({form, comorbiditiesData = []}: { form: UseFormReturn<z.infer<typeof FormSchema>>, comorbiditiesData: Comorbidities[] }) {
     const [otherComorbidities, setOtherComorbidities] = useState(otherComorbiditiesInitialValue);
     const [selectedComorbidity, setSelectedComorbidity] = useState<string[]>([]);
     const [otherComorbiditiesInputValue, setOtherComorbiditiesInputValue] = useState("");
@@ -279,7 +326,7 @@ function OptionalInfoFields({form}: { form: UseFormReturn<z.infer<typeof FormSch
                                         <Input
                                             placeholder="1,70"
                                             {...field}
-                                            value={field.value ? parseFloat(field.value) : undefined}
+                                            value={field.value}
                                         />
                                     </FormControl>
                                     <span className="text-black text-base font-medium">m</span>
@@ -301,7 +348,7 @@ function OptionalInfoFields({form}: { form: UseFormReturn<z.infer<typeof FormSch
                                         <Input
                                             placeholder="70"
                                             {...field}
-                                            value={field.value ? parseFloat(field.value) : undefined}
+                                            value={field.value}
                                         />
                                     </FormControl>
                                     <span className="text-black text-base font-medium">Kg</span>
@@ -322,33 +369,32 @@ function OptionalInfoFields({form}: { form: UseFormReturn<z.infer<typeof FormSch
                             <FormLabel>Comorbidades</FormLabel>
                         </div>
                         <div className="grid grid-cols-2 gap-2">
-                            {comorbidities.map((comorbidity) => (
+                            {comorbiditiesData.map((comorbidity) => (
                                 <FormField
-                                    key={comorbidity.id}
+                                    key={comorbidity.comorbidity_id}
                                     control={form.control}
                                     name="comorbidities"
                                     render={({field}) => {
                                         return (
                                             <FormItem
-                                                key={comorbidity.id}
                                                 className="flex flex-row items-start space-x-3 space-y-0"
                                             >
                                                 <FormControl>
                                                     <Checkbox
-                                                        checked={field.value?.includes(comorbidity.id)}
+                                                        checked={field.value?.includes(comorbidity.comorbidity_id)}
                                                         onCheckedChange={(checked) => {
                                                             return checked
-                                                                ? field.onChange([...(field.value ?? []), comorbidity.id])
+                                                                ? field.onChange([...(field.value ?? []), comorbidity.comorbidity_id])
                                                                 : field.onChange(
                                                                     field.value?.filter(
-                                                                        (value) => value !== comorbidity.id
+                                                                        (value) => value !== comorbidity.comorbidity_id
                                                                     )
                                                                 )
                                                         }}
                                                     />
                                                 </FormControl>
                                                 <FormLabel className="font-normal">
-                                                    {comorbidity.label}
+                                                    {comorbidity.name}
                                                 </FormLabel>
                                             </FormItem>
                                         )
@@ -444,6 +490,7 @@ function OptionalInfoFields({form}: { form: UseFormReturn<z.infer<typeof FormSch
                         <div className="mt-2 flex flex-wrap gap-2">
                             {selectedComorbidity.map((comorbidity) => (
                                 <Button
+                                    key={comorbidity}
                                     type="button"
                                     onClick={() => {
                                         handleRemove(comorbidity)
@@ -462,7 +509,7 @@ function OptionalInfoFields({form}: { form: UseFormReturn<z.infer<typeof FormSch
 
             <FormField
                 control={form.control}
-                name="smoker"
+                name="smoke_frequency"
                 render={({field}) => (
                     <FormItem>
                         <FormLabel>Fumante</FormLabel>

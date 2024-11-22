@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 
-import { UserPlus, Users } from 'lucide-react'
+import { Search, UserPlus, Users } from 'lucide-react'
 
 import { Button } from '../components/ui/button.tsx'
 import { Card,
@@ -58,6 +58,13 @@ export default function Menu() {
           >
             <UserPlus className="mr-2 h-5 w-5" />
             <span>Update Wound</span>
+          </Button>
+          <Button
+              onClick={() => handleNavigate('/patient/list')}
+              className='flex w-full items-center justify-center space-x-2'
+          >
+            <Search className="mr-2 h-5 w-5" />
+            <span>List patients</span>
           </Button>
         </CardContent>
       </Card>
