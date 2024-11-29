@@ -4,7 +4,7 @@ import UserCreate from './routes/user/UserCreate.tsx';
 import UserList from './routes/user/UserList.tsx';
 import PatientCreate from './routes/patient/PatientCreate.tsx';
 import WoundCreate from './routes/wound/WoundCreate.tsx';
-import WoundUpdate from './routes/wound/WoundUpdate.tsx';
+import WoundAddUpdate from './routes/wound/WoundAddUpdate.tsx';
 import Menu from './routes/Menu.tsx';
 import './globals.css';
 import AppLayout from "@/components/common/AppLayout.tsx";
@@ -12,7 +12,8 @@ import PatientsPage from "@/routes/patient/PatientList.tsx";
 import PatientsWounds from "@/routes/patient/PatientWounds.tsx";
 import WoundDetail from "@/routes/wound/WoundDetail.tsx";
 import WoundRecordDetail from "@/routes/wound/WoundRecordDetail.tsx";
-import AddWoundImage from "@/routes/wound/AddWoundImage.tsx";
+import WoundAddUpdateImage from "@/routes/wound/WoundAddUpdateImage.tsx";
+import WoundAddUpdateConduct from "@/routes/wound/WoundAddUpdateConduct.tsx";
 
 const router = createBrowserRouter([
     {
@@ -72,13 +73,6 @@ const router = createBrowserRouter([
         ),
     },
     {
-        path: '/wound/update',
-        element:
-            <AppLayout>
-                <WoundUpdate/>
-            </AppLayout>
-    },
-    {
         path: '/wound/record-detail',
         element:
             <AppLayout>
@@ -86,10 +80,24 @@ const router = createBrowserRouter([
             </AppLayout>
     },
     {
-        path: '/wound/update/image',
+        path: '/wound/add-update',
         element:
             <AppLayout>
-                <AddWoundImage/>
+                <WoundAddUpdate/>
+            </AppLayout>
+    },
+    {
+        path: '/wound/add-update/image',
+        element:
+            <AppLayout>
+                <WoundAddUpdateImage/>
+            </AppLayout>
+    },
+    {
+        path: '/wound/add-update/conduct',
+        element:
+            <AppLayout>
+                <WoundAddUpdateConduct/>
             </AppLayout>
     },
 ]);

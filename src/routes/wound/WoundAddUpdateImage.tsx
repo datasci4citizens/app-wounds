@@ -3,7 +3,7 @@ import { ImagePlus } from 'lucide-react'
 import { Button } from '@/components/ui/button.tsx'
 import { useLocation, useNavigate } from "react-router-dom";
 
-export default function AddWoundImage() {
+export default function WoundAddUpdateImage() {
     const navigate = useNavigate();
     const location = useLocation();
     const woundId = location.state?.wound_id as number;
@@ -24,6 +24,7 @@ export default function AddWoundImage() {
 
     const onSubmit = () => {
         console.log(photoUrl)
+        navigate('/wound/add-update/conduct', {state: {wound_id: woundId}})
     }
 
     return (
@@ -66,19 +67,23 @@ export default function AddWoundImage() {
                     </label>
                 </div>
 
-                <div className="flex justify-center gap-4 mt-8">
-                    <Button type="button" onClick={handleRetake}>
-                        Tirar novamente
-                    </Button>
+                <div className="flex flex-col items-center justify-center space-y-6 !mt-8">
+                    <div className="flex justify-center gap-4">
+                        <Button type="button" onClick={handleRetake}>
+                            Tirar novamente
+                        </Button>
 
-                    <Button type="submit" disabled={!photoUrl} onClick={onSubmit}>
-                        Enviar
+                        <Button type="submit" disabled={!photoUrl} onClick={onSubmit}>
+                            Enviar
+                        </Button>
+                    </div>
+
+                    <Button type="button" onClick={() => {navigate('/wound/add-update/conduct', {state: {wound_id: woundId}});}}>
+                        Pular
                     </Button>
                 </div>
 
-                <Button type="button" onClick={() => {navigate('/wound/detail', {state: {wound_id: woundId}});}}>
-                    Pular
-                </Button>
+
             </div>
         </div>
     );

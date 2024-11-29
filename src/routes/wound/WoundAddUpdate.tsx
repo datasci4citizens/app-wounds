@@ -52,7 +52,7 @@ const FormSchema = z.object({
 
 type WoundFormValues = z.infer<typeof FormSchema>;
 
-export default function WoundUpdate() {
+export default function WoundAddUpdate() {
     const navigate = useNavigate();
     const location = useLocation();
     const woundId = location.state?.wound_id as number;
@@ -110,7 +110,7 @@ export default function WoundUpdate() {
 
             const result = await postTrigger(payload);
             console.log('Result:', result);
-            return navigate('/wound/update/image', {state: {wound_id: woundId}});
+            return navigate('/wound/add-update/image', {state: {wound_id: woundId}});
         } catch (error) {
             console.error('Error submitting form:', error);
             throw error;
