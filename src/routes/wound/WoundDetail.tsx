@@ -7,6 +7,7 @@ import type { Wound, WoundRecord } from "@/data/common/Mapper.ts";
 import { useLocation, useNavigate } from "react-router-dom";
 import { format, parseISO } from "date-fns";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible.tsx";
+import { formatDate } from "@/data/common/Mapper.ts";
 
 const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundRecord, woundId: number }) => {
     const navigate = useNavigate();
@@ -25,7 +26,7 @@ const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundReco
             <CollapsibleTrigger asChild>
                 <div className="flex flex-col w-full px-4">
                     <div className="flex justify-between items-center">
-                        <p className="text-lg font-semibold">Data</p>
+                        <p className="text-lg font-semibold">{formatDate(woundRecord.created_at)}</p>
                         {isOpen ? <ChevronsDownUp className="h-4 w-4"/> :
                             <ChevronsUpDown className="h-4 w-4"/>}
                     </div>
@@ -106,7 +107,7 @@ export default function WoundDetail() {
                             <h1 className="text-2xl font-semibold mb-4 !mt-6">Atualizações:</h1>
                         </div>
 
-                        <div className="flex flex-col max-h-screen w-full overflow-y-auto mt-6 pb-6">
+                        <div className="flex flex-col max-h-screen w-full overflow-y-auto mt-6 pb-6 space-y-2">
                             {wound.tracking_records && wound.tracking_records.length > 0 ? (
                                 wound.tracking_records.map((woundRecord, index) => (
                                     <WoundRecordCollapsable key={index} woundRecord={woundRecord} woundId={woundId}/>
@@ -118,8 +119,8 @@ export default function WoundDetail() {
                             )}
                         </div>
 
-                        <Button type="button" className="bg-sky-900 mt-6" onClick={() => {
-                            navigate('/wound/update', {state: {wound_id: woundId}});
+                        <Button type="button" className="bg-sky-900 mt-6 mb-6" onClick={() => {
+                            navigate('/wound/add-update', {state: {wound_id: woundId}});
                         }}>
                             <Plus className="mr-2 h-5 w-5"/>
                             Adicionar atualização

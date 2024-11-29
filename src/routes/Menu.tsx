@@ -53,7 +53,7 @@ export default function Menu() {
             <span>Add Wound</span>
           </Button>
           <Button 
-            onClick={() => handleNavigate('/wound/update')}
+            onClick={() => handleNavigate('/wound/add-update')}
             className='flex w-full items-center justify-center space-x-2'
           >
             <UserPlus className="mr-2 h-5 w-5" />
