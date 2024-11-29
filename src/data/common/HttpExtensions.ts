@@ -1,6 +1,7 @@
 export async function getRequest(url: string) {
     return fetch(url, {
         method: 'GET',
+        credentials: 'include',
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
@@ -8,7 +9,6 @@ export async function getRequest(url: string) {
         mode: 'cors'
     }).then(res => {
         const json = res.json()
-        console.log(json)
 
         return json
     })

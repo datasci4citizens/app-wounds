@@ -17,10 +17,6 @@ type User = {
     observations?: string;
 };
 
-const fetcher = (url: string) => fetch(url, {
-    credentials: 'include'
-}).then((res) => res.json());
-
 export function DrinkFrequencyBadge({frequency}: { frequency: DrinkFrequency }) {
     const colorMap = {
         never: "bg-gray-200 text-gray-800",
@@ -36,7 +32,7 @@ export function DrinkFrequencyBadge({frequency}: { frequency: DrinkFrequency }) 
 }
 
 export default function UserList() {
-    const {data, error, isLoading} = useSWR('http://localhost:8000/patients', fetcher)
+    const {data, error, isLoading} = useSWR('/patients')
 
     if (error) return <div>failed to load</div>
     if (isLoading) return <div>loading...</div>

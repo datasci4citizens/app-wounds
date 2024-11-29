@@ -74,6 +74,7 @@ async function sendRequest(
         headers: {
             'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(arg),
     }).then((res) => res.json());
 }

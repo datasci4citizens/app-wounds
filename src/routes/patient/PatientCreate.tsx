@@ -323,9 +323,12 @@ function OptionalInfoFields({form, comorbiditiesData = []}: { form: UseFormRetur
                                 <div className="flex items-center space-x-2">
                                     <FormControl>
                                         <Input
-                                            placeholder="1,70"
+                                            type="number"
+                                            step="0.01"
+                                            placeholder="1.70"
                                             {...field}
                                             value={field.value}
+                                            onChange={(e) => field.onChange(parseFloat(e.target.value))}
                                         />
                                     </FormControl>
                                     <span className="text-black text-base font-medium">m</span>
@@ -345,9 +348,12 @@ function OptionalInfoFields({form, comorbiditiesData = []}: { form: UseFormRetur
                                 <div className="flex items-center space-x-2">
                                     <FormControl>
                                         <Input
+                                            type="number"
+                                            step="0.01"
                                             placeholder="70"
                                             {...field}
                                             value={field.value}
+                                            onChange={(e) => field.onChange(parseFloat(e.target.value))}
                                         />
                                     </FormControl>
                                     <span className="text-black text-base font-medium">Kg</span>
