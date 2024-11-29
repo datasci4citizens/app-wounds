@@ -17,7 +17,9 @@ type User = {
     observations?: string;
 };
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+const fetcher = (url: string) => fetch(url, {
+    credentials: 'include'
+}).then((res) => res.json());
 
 export function DrinkFrequencyBadge({frequency}: { frequency: DrinkFrequency }) {
     const colorMap = {
