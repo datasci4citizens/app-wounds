@@ -106,7 +106,7 @@ export default function WoundDetail() {
                             <h1 className="text-2xl font-semibold mb-4 !mt-6">Atualizações:</h1>
                         </div>
 
-                        <div className="flex flex-col max-h-screen w-full overflow-y-auto mt-6 pb-6">
+                        <div className="flex flex-col max-h-screen w-full overflow-y-auto mt-6 pb-6 space-y-2">
                             {wound.tracking_records && wound.tracking_records.length > 0 ? (
                                 wound.tracking_records.map((woundRecord, index) => (
                                     <WoundRecordCollapsable key={index} woundRecord={woundRecord} woundId={woundId}/>
@@ -118,7 +118,7 @@ export default function WoundDetail() {
                             )}
                         </div>
 
-                        <Button type="button" className="bg-sky-900 mt-6" onClick={() => {
+                        <Button type="button" className="bg-sky-900 mt-6 mb-6" onClick={() => {
                             navigate('/wound/update', {state: {wound_id: woundId}});
                         }}>
                             <Plus className="mr-2 h-5 w-5"/>

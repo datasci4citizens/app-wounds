@@ -37,8 +37,8 @@ export default function WoundRecordDetail() {
                                 <ArrowLeft className="text-black p-2" size={32}/>
                             </div>
                             <h1 className="absolute left-1/2 transform -translate-x-1/2 text-2xl font-bold">Ferida</h1>
-                            {format(parseISO(wound.start_date), "dd/MM/yyyy")}
                         </div>
+                        {format(parseISO(wound.start_date), "dd/MM/yyyy")}
                     </div>
                 )
             )}

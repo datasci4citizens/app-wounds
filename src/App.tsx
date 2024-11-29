@@ -12,6 +12,7 @@ import PatientsPage from "@/routes/patient/PatientList.tsx";
 import PatientsWounds from "@/routes/patient/PatientWounds.tsx";
 import WoundDetail from "@/routes/wound/WoundDetail.tsx";
 import WoundRecordDetail from "@/routes/wound/WoundRecordDetail.tsx";
+import AddWoundImage from "@/routes/wound/AddWoundImage.tsx";
 
 const router = createBrowserRouter([
     {
@@ -74,14 +75,21 @@ const router = createBrowserRouter([
         path: '/wound/update',
         element:
             <AppLayout>
-                <WoundUpdate />
+                <WoundUpdate/>
             </AppLayout>
     },
     {
         path: '/wound/record-detail',
         element:
             <AppLayout>
-                <WoundRecordDetail />
+                <WoundRecordDetail/>
+            </AppLayout>
+    },
+    {
+        path: '/wound/update/image',
+        element:
+            <AppLayout>
+                <AddWoundImage/>
             </AppLayout>
     },
 ]);
