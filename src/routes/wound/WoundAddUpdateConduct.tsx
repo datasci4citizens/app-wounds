@@ -1,10 +1,8 @@
-import React from 'react'
 import { useLocation, useNavigate } from "react-router-dom";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form.tsx";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@/components/ui/input.tsx";
 import { Textarea } from "@/components/ui/textarea.tsx";
 import { Button } from "@/components/ui/button.tsx";
 
@@ -48,7 +46,6 @@ export default function WoundAddUpdateConduct() {
                                     <Textarea
                                         placeholder="Anotações extra"
                                         className="resize-none"
-                                        value={field.value}
                                         {...field}
                                     />
                                 </FormControl>
@@ -59,7 +56,7 @@ export default function WoundAddUpdateConduct() {
 
                     <FormField
                         control={form.control}
-                        name="woundSize"
+                        name="guidelines"
                         render={({field}) => (
                             <FormItem>
                                 <FormLabel>Orientações dadas ao paciente</FormLabel>
@@ -67,7 +64,6 @@ export default function WoundAddUpdateConduct() {
                                     <Textarea
                                         placeholder="Conduta"
                                         className="resize-none"
-                                        value={field.value}
                                         {...field}
                                     />
                                 </FormControl>
@@ -77,7 +73,9 @@ export default function WoundAddUpdateConduct() {
                     />
 
                     <div className="flex flex-col items-center justify-center space-y-6 !mt-8">
-                        <Button type="button" onClick={() => {navigate('/wound/detail', {state: {wound_id: woundId}});}}>
+                        <Button type="button" onClick={() => {
+                            navigate('/wound/detail', {state: {wound_id: woundId}});
+                        }}>
                             Pular
                         </Button>
 
