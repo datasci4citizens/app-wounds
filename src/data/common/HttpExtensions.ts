@@ -39,3 +39,16 @@ export async function postRequest(url: string, { arg }: { arg: any }) {  // Chan
         throw error;
     }
 }
+
+export function getBaseURL(path: string, queryParams?: Record<string, string>): string {
+    const baseURL = import.meta.env.VITE_SERVER_URL;
+    const url = new URL(path, baseURL);
+
+    if (queryParams) {
+        Object.entries(queryParams).forEach(([key, value]) => {
+            url.searchParams.append(key, value);
+        });
+    }
+
+    return url.toString();
+}

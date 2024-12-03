@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card.tsx"
 import { Plus, Search } from "lucide-react"
 import { useEffect, useState } from "react";
 import useSWRMutation from "swr/mutation";
-import { getRequest } from "@/data/common/HttpExtensions.ts";
+import { getBaseURL, getRequest } from "@/data/common/HttpExtensions.ts";
 import type { Patient } from "@/data/common/Mapper.ts";
 import { formatPatientBirthday } from "@/data/common/Mapper.ts";
 import { useNavigate } from "react-router-dom";
@@ -38,7 +38,7 @@ export default function PatientsPage() {
 
     const {
         data, trigger,
-    } = useSWRMutation<Patient[]>('http://localhost:8000/patients/', getRequest);
+    } = useSWRMutation<Patient[]>(getBaseURL("/patients/"), getRequest);
 
     useEffect(() => {
         trigger();

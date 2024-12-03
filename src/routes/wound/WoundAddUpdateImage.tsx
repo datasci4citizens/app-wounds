@@ -2,30 +2,48 @@ import React, { useState } from 'react'
 import { ImagePlus } from 'lucide-react'
 import { Button } from '@/components/ui/button.tsx'
 import { useLocation, useNavigate } from "react-router-dom";
+import useSWRMutation from "swr/mutation";
+import { getBaseURL, postRequest } from "@/data/common/HttpExtensions.ts";
 
 export default function WoundAddUpdateImage() {
     const navigate = useNavigate();
     const location = useLocation();
     const woundId = location.state?.wound_id as number;
 
-    const [photoUrl, setPhotoUrl] = useState<string | null>(null)
+    const { trigger: postTrigger } = useSWRMutation(getBaseURL("/images/"), postRequest);
+    const [photoFile, setPhotoFile] = useState<File | null>(null);
+    const [photoUrl, setPhotoUrl] = useState<string | null>(null);
 
     const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0]
+        const file = event.target.files?.[0];
         if (file) {
-            const url = URL.createObjectURL(file)
-            setPhotoUrl(url)
+            const url = URL.createObjectURL(file);
+            setPhotoFile(file);
+            setPhotoUrl(url);
         }
-    }
+    };
 
     const handleRetake = () => {
-        setPhotoUrl(null)
-    }
+        setPhotoFile(null);
+        setPhotoUrl(null);
+    };
 
-    const onSubmit = () => {
-        console.log(photoUrl)
-        navigate('/wound/add-update/conduct', {state: {wound_id: woundId}})
-    }
+    const onSubmit = async () => {
+        if (!photoFile) return;
+
+        try {
+            const payload = {
+                extension: photoUrl,
+                file: photoFile
+            };
+            const result = await postTrigger(payload);
+            console.log('Result:', result);
+            return navigate('/wound/add-update/conduct', {state: {wound_id: woundId}})
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            alert('Error uploading image. Please try again.');
+        }
+    };
 
     return (
         <div className="flex flex-col w-full h-full items-center">
@@ -61,7 +79,7 @@ export default function WoundAddUpdateImage() {
                             />
                         ) : (
                             <div className="flex items-center justify-center w-full h-full">
-                                <ImagePlus className="w-16 h-16" />
+                                <ImagePlus className="w-16 h-16"/>
                             </div>
                         )}
                     </label>
@@ -78,7 +96,9 @@ export default function WoundAddUpdateImage() {
                         </Button>
                     </div>
 
-                    <Button type="button" onClick={() => {navigate('/wound/add-update/conduct', {state: {wound_id: woundId}});}}>
+                    <Button type="button" onClick={() => {
+                        navigate('/wound/add-update/conduct', {state: {wound_id: woundId}});
+                    }}>
                         Pular
                     </Button>
                 </div>

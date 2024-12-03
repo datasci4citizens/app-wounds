@@ -1,34 +1,34 @@
-import { Skeleton } from "@/components/ui/skeleton";
-import { UserContextProvider } from "@/lib/hooks/use-user";
-import { DatabaseZapIcon } from "lucide-react";
-import { useState } from "react";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import useSWR from "swr";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { useEffect } from "react";
+import { useUser } from "@/lib/hooks/use-user";
 
 export function AuthGuard() {
-
-    const { data, error, isLoading } = useSWR('/specialists/me')
-
+    const { credentials, id, isLoading, error } = useUser();
     const navigate = useNavigate();
     const location = useLocation();
 
-    if (isLoading)
-        return (
+    useEffect(() => {
+        if (!isLoading) {
+            if (error || !credentials?.token || !id) {
+                if (location.pathname !== "/login") {
+                    console.log("Redirecting to /login...");
+                    navigate("/login");
+                }
+            } else if (location.pathname === "/") {
+                console.log("Redirecting authenticated user to /patient/list...");
+                navigate("/patient/list");
+            }
+        }
+    }, [isLoading, error, credentials, id, navigate, location]);
 
-            <div className="min-h-screen relative flex justify-center items-center">
-                <div className="z-10 h-[100px] w-[50%] bg-primary text-white border-4 rounded-xl overflow-visible flex items-center justify-center"> <Skeleton className="font-bold text-xl bg-white/0">Carregando</Skeleton>
+    if (isLoading) {
+        return <div>Loading...</div>; // Loading fallback
+    }
 
-                </div>
-            </div>
+    if (!credentials?.token || !id) {
+        // If not authenticated, don't render the content and show nothing
+        return null;
+    }
 
-        )
-
-    console.log(data)
-
-    if (!data || data.detail)
-        navigate("/login")
-
-    return <UserContextProvider value={{ name: "Miguel" }}>
-        <Outlet />
-    </UserContextProvider>
+    return <Outlet />;
 }

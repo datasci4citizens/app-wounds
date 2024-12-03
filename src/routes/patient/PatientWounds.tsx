@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card.tsx"
 import { ArrowLeft, Edit, FileText, Plus } from "lucide-react"
 import { useEffect } from "react";
 import useSWRMutation from "swr/mutation";
-import { getRequest } from "@/data/common/HttpExtensions.ts";
+import { getBaseURL, getRequest } from "@/data/common/HttpExtensions.ts";
 import type { Wound, WoundPatient } from "@/data/common/Mapper.ts";
 import { calculateAge } from "@/data/common/Mapper.ts";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -38,7 +38,7 @@ export default function PatientsWounds() {
 
     const {
         data: woundPatient, trigger, isMutating
-    } = useSWRMutation<WoundPatient>(`http://localhost:8000/patients/${patient_id}/wounds`, getRequest);
+    } = useSWRMutation<WoundPatient>(getBaseURL(`/patients/${patient_id}/wounds`), getRequest);
 
     useEffect(() => {
         trigger();

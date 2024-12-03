@@ -14,13 +14,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover
 import { cn } from "@/lib/utils.ts";
 import { Check, ChevronDown, Plus, X } from "lucide-react";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, } from "@/components/ui/command"
+import useSWRMutation from "swr/mutation";
+import { getBaseURL, getRequest, postRequest } from "@/data/common/HttpExtensions.ts";
+import { useNavigate } from "react-router-dom";
 
-// Import the frequency data
 import smokeFrequency from '@/localdata/smoke-frequency.json';
 import drinkFrequency from '@/localdata/drink-frequency.json';
-import useSWRMutation from "swr/mutation";
-import { getRequest, postRequest } from "@/data/common/HttpExtensions.ts";
-import { useNavigate } from "react-router-dom";
 
 export interface PatientPayload {
     name: string;
@@ -34,12 +33,11 @@ export interface PatientPayload {
     smoke_frequency?: string;
     drink_frequency?: string;
     accept_tcle?: boolean;
-    specialist_id?: number;
     comorbidities?: number[];
     comorbidities_to_add?: string[];
 }
 
-const FormSchema = z.object({
+const PatientFormSchema = z.object({
     name: z.string().min(1, "Campo obrigatório"),
     phone_number: z.string().optional(),
     sex: z.string().min(1, "Campo obrigatório"),
@@ -72,12 +70,14 @@ interface Comorbidities {
     comorbidity_id: number
 }
 
-const PatientCreate = () => {
+type PatientFormValues = z.infer<typeof PatientFormSchema>;
+
+export function PatientCreate() {
     const navigate = useNavigate();
-    const {trigger: postTrigger} = useSWRMutation('http://localhost:8000/patients/', postRequest);
+    const {trigger: postTrigger} = useSWRMutation(getBaseURL("/patients/"), postRequest);
     const {
         data: comorbiditiesData, trigger: getComorbiditiesTrigger,
-    } = useSWRMutation<Comorbidities[]>('http://localhost:8000/comorbidities/', getRequest);
+    } = useSWRMutation<Comorbidities[]>(getBaseURL("/comorbidities/"), getRequest);
 
     useEffect(() => {
         getComorbiditiesTrigger();
@@ -85,8 +85,8 @@ const PatientCreate = () => {
 
     const [showOptional, setShowOptional] = useState(false);
 
-    const form = useForm<z.infer<typeof FormSchema>>({
-        resolver: zodResolver(FormSchema),
+    const form = useForm<PatientFormValues>({
+        resolver: zodResolver(PatientFormSchema),
         defaultValues: {
             name: "",
             phone_number: "",
@@ -98,7 +98,8 @@ const PatientCreate = () => {
             weight: 0,
             comorbidities: [],
             other_comorbidities: [],
-            smoke_frequency: ""
+            smoke_frequency: "",
+            drink_frequency: "",
         },
     })
 
@@ -110,7 +111,7 @@ const PatientCreate = () => {
         }
     };
 
-    const onSubmit = async (data: z.infer<typeof FormSchema>) => {
+    const onSubmit = async (data: PatientFormValues) => {
         try {
             const payload: PatientPayload = {
                 name: data.name,
@@ -124,7 +125,6 @@ const PatientCreate = () => {
                 smoke_frequency: data.smoke_frequency,
                 drink_frequency: data.drink_frequency,
                 accept_tcle: true,
-                specialist_id: 1,
                 comorbidities: data.comorbidities,
                 comorbidities_to_add: data.other_comorbidities,
             };
@@ -164,7 +164,7 @@ const PatientCreate = () => {
     );
 };
 
-function PatientInfoFields({form}: { form: UseFormReturn<z.infer<typeof FormSchema>> }) {
+function PatientInfoFields({form}: { form: UseFormReturn<PatientFormValues> }) {
     return (
         <div className="space-y-6">
             <FormField
@@ -281,7 +281,10 @@ function PatientInfoFields({form}: { form: UseFormReturn<z.infer<typeof FormSche
     )
 }
 
-function OptionalInfoFields({form, comorbiditiesData = []}: { form: UseFormReturn<z.infer<typeof FormSchema>>, comorbiditiesData: Comorbidities[] }) {
+function OptionalInfoFields({form, comorbiditiesData = []}: {
+    form: UseFormReturn<PatientFormValues>,
+    comorbiditiesData: Comorbidities[]
+}) {
     const [otherComorbidities, setOtherComorbidities] = useState(otherComorbiditiesInitialValue);
     const [selectedComorbidity, setSelectedComorbidity] = useState<string[]>([]);
     const [otherComorbiditiesInputValue, setOtherComorbiditiesInputValue] = useState("");
@@ -560,5 +563,3 @@ function OptionalInfoFields({form, comorbiditiesData = []}: { form: UseFormRetur
         </div>
     )
 }
-
-export default PatientCreate;

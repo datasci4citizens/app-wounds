@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button.tsx"
 import { ArrowLeft, ChevronsDownUp, ChevronsUpDown, Plus } from "lucide-react"
 import { useEffect, useState } from "react";
 import useSWRMutation from "swr/mutation";
-import { getRequest } from "@/data/common/HttpExtensions.ts";
+import { getBaseURL, getRequest } from "@/data/common/HttpExtensions.ts";
 import type { Wound, WoundRecord } from "@/data/common/Mapper.ts";
 import { useLocation, useNavigate } from "react-router-dom";
 import { format, parseISO } from "date-fns";
@@ -68,7 +68,7 @@ export default function WoundDetail() {
 
     const {
         data: wound, trigger, isMutating
-    } = useSWRMutation<Wound>(`http://localhost:8000/wounds/${woundId}/tracking-records/`, getRequest);
+    } = useSWRMutation<Wound>(getBaseURL(`/wounds/${woundId}/tracking-records/`), getRequest);
 
     useEffect(() => {
         trigger();

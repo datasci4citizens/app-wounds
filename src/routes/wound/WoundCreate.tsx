@@ -9,7 +9,7 @@ import DatePicker from "@/components/common/DatePicker.tsx";
 import { isAfter, isBefore, startOfDay } from "date-fns";
 import { useLocation, useNavigate } from "react-router-dom";
 import useSWRMutation from "swr/mutation";
-import { postRequest } from "@/data/common/HttpExtensions.ts";
+import { getBaseURL, postRequest } from "@/data/common/HttpExtensions.ts";
 
 import woundRegion from '@/localdata/wound-location.json'
 import woundTypes from '@/localdata/wound-type.json'
@@ -34,6 +34,7 @@ interface WoundPayload {
     start_date?: string;
     end_date?: string;
     patient_id: number;
+    specialist_id: number;
 }
 
 const woundFormSchema = z.object({
@@ -60,7 +61,7 @@ export default function WoundCreate() {
         },
     });
 
-    const {trigger: postTrigger} = useSWRMutation('http://localhost:8000/wounds/', postRequest);
+    const {trigger: postTrigger} = useSWRMutation(getBaseURL("/wounds/"), postRequest);
     const [selectedRegion, setSelectedRegion] = useState<WoundRegionKey | "">("");
 
     const onSubmit = async (data: WoundFormValues) => {
@@ -73,6 +74,7 @@ export default function WoundCreate() {
                 start_date: data.start_date ? data.start_date.toISOString().split('T')[0] : "",
                 end_date: data.start_date ? data.start_date.toISOString().split('T')[0] : "",
                 patient_id: patient_id,
+                specialist_id: 1
             };
 
             console.log('Sending payload:', payload);

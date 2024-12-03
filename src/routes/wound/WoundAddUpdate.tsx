@@ -17,9 +17,11 @@ import { useState } from "react";
 import { Switch } from "@/components/ui/switch.tsx";
 import { useLocation, useNavigate } from "react-router-dom";
 import useSWRMutation from "swr/mutation";
-import { postRequest } from "@/data/common/HttpExtensions.ts";
+import { getBaseURL, postRequest } from "@/data/common/HttpExtensions.ts";
 
 interface WoundUpdatePayload {
+    wound_length: number;
+    wound_width: number;
     wound_size: string;
     exudate_amount: string;
     exudate_type: string;
@@ -73,7 +75,7 @@ export default function WoundAddUpdate() {
         },
     });
 
-    const {trigger: postTrigger} = useSWRMutation('http://localhost:8000/tracking-records/', postRequest);
+    const {trigger: postTrigger} = useSWRMutation(getBaseURL("/tracking-records/"), postRequest);
 
     const [showOptional, setShowOptional] = useState(false);
     const onToggleShowOptional = async () => {
@@ -89,6 +91,8 @@ export default function WoundAddUpdate() {
         try {
             console.log(data);
             const payload: WoundUpdatePayload = {
+                wound_length: 0,
+                wound_width: 0,
                 wound_size: data.woundSize,
                 exudate_amount: data.exudateAmount ?? "",
                 exudate_type: data.exudateType ?? "",
