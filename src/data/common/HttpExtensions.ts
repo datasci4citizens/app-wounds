@@ -1,6 +1,7 @@
 export async function getRequest(url: string) {
     return fetch(url, {
         method: 'GET',
+        credentials: 'include',
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
@@ -8,7 +9,6 @@ export async function getRequest(url: string) {
         mode: 'cors'
     }).then(res => {
         const json = res.json()
-        console.log(json)
 
         return json
     })
@@ -38,4 +38,17 @@ export async function postRequest(url: string, { arg }: { arg: any }) {  // Chan
         console.error('POST request failed:', error);
         throw error;
     }
+}
+
+export function getBaseURL(path: string, queryParams?: Record<string, string>): string {
+    const baseURL = import.meta.env.VITE_SERVER_URL;
+    const url = new URL(path, baseURL);
+
+    if (queryParams) {
+        Object.entries(queryParams).forEach(([key, value]) => {
+            url.searchParams.append(key, value);
+        });
+    }
+
+    return url.toString();
 }

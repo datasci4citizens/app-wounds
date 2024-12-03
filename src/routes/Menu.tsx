@@ -9,7 +9,7 @@ import { Card,
          CardContent,
          CardDescription } from '../components/ui/card.tsx'
 
-export default function Menu() {
+export default function Menu() { // TODO: Remove
   const navigate = useNavigate()
 
   const handleNavigate = (path: string) => {
