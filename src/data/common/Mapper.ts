@@ -45,9 +45,30 @@ export interface Wound {
     end_date: string;
     patient_id: number;
     wound_id: number;
+    tracking_records?: WoundRecord[];
 }
 
-function calculateAge(birthday: Date): string{
+export interface WoundRecord {
+    wound_size: string;
+    exudate_amount: string;
+    exudate_type: string;
+    tissue_type: string;
+    wound_edges: string;
+    skin_around_the_wound: string;
+    had_a_fever: boolean;
+    pain_level: string;
+    dressing_changes_per_day: string;
+    guidelines_to_patient: string;
+    extra_notes: string;
+    image_id: number;
+    created_at: string;
+    wound_id: number;
+    specialist_id: number;
+    tracking_record_id: number;
+    updated_at: string;
+}
+
+export function calculateAge(birthday: Date): number {
     const today = new Date();
     let age = today.getFullYear() - birthday.getFullYear();
     const month = today.getMonth();
@@ -57,7 +78,7 @@ function calculateAge(birthday: Date): string{
         age--;
     }
 
-    return `${age} Anos`;
+    return age;
 }
 
 function formatBirthDate(birthday: string | undefined): string {
@@ -73,13 +94,19 @@ function formatBirthDate(birthday: string | undefined): string {
 
     const age = calculateAge(date)
 
-    return `${day}/${month}/${year} (${age})`;
+    return `${day}/${month}/${year} (${age}) Anos`;
 }
 
 export function formatPatientBirthday(data: Patient[]): Patient[] {
-    return data?.map((patient) =>({
+    return data?.map((patient) => ({
             ...patient,
             birthday: formatBirthDate(patient.birthday),
         })
     ) || [];
 }
+
+export function formatDate(dateString: string): string {
+    const [year, month, day] = dateString.split("-");
+    return `${day}/${month}/${year}`;
+}
+
