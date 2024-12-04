@@ -17,6 +17,18 @@ export interface Patient {
     comorbidities: any[];
 }
 
+export interface Specialist {
+    email: string;
+    name: string;
+    birthday?: string;
+    state?: string;
+    city?: string;
+    specialist_id: number;
+    created_at?: string;
+    updated_at?: string;
+    patients?: Patient[];
+}
+
 export interface WoundPatient {
     name: string;
     gender: string;

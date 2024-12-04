@@ -5,7 +5,7 @@ import { Plus, Search } from "lucide-react"
 import { useEffect, useState } from "react";
 import useSWRMutation from "swr/mutation";
 import { getBaseURL, getRequest } from "@/data/common/HttpExtensions.ts";
-import type { Patient } from "@/data/common/Mapper.ts";
+import type { Patient, Specialist } from "@/data/common/Mapper.ts";
 import { formatPatientBirthday } from "@/data/common/Mapper.ts";
 import { useNavigate } from "react-router-dom";
 
@@ -38,14 +38,15 @@ export default function PatientsPage() {
 
     const {
         data, trigger,
-    } = useSWRMutation<Patient[]>(getBaseURL("/patients/"), getRequest);
+    } = useSWRMutation<Specialist>(getBaseURL("specialists//patients/"), getRequest);
+    console.log(data)
 
     useEffect(() => {
         trigger();
     }, [trigger]);
 
     const [searchTerm, setSearchTerm] = useState('');
-    const patients: Patient[] = formatPatientBirthday(data || []);
+    const patients: Patient[] = formatPatientBirthday(data?.patients || []);
 
     const filteredPatients = patients.filter(patient =>
         patient.name.toLowerCase().includes(searchTerm.toLowerCase())

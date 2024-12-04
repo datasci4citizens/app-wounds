@@ -22,7 +22,6 @@ import { getBaseURL, postRequest } from "@/data/common/HttpExtensions.ts";
 interface WoundUpdatePayload {
     wound_length: number;
     wound_width: number;
-    wound_size: string;
     exudate_amount: string;
     exudate_type: string;
     tissue_type: string;
@@ -35,8 +34,6 @@ interface WoundUpdatePayload {
     extra_notes: string;
     image_id: number;
     created_at?: string;
-    wound_id: number;
-    specialist_id: number;
 }
 
 const FormSchema = z.object({
@@ -93,7 +90,6 @@ export default function WoundAddUpdate() {
             const payload: WoundUpdatePayload = {
                 wound_length: 0,
                 wound_width: 0,
-                wound_size: data.woundSize,
                 exudate_amount: data.exudateAmount ?? "",
                 exudate_type: data.exudateType ?? "",
                 tissue_type: data.tissueType ?? "",
@@ -104,10 +100,8 @@ export default function WoundAddUpdate() {
                 dressing_changes_per_day: data.dressingChanges ?? "",
                 guidelines_to_patient: "",
                 extra_notes: "",
-                image_id: 0,
                 created_at: data.date ? data.date.toISOString().split('T')[0] : "",
                 wound_id: woundId,
-                specialist_id: 1,
             };
 
             console.log('Sending payload:', payload);

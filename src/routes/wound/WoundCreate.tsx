@@ -34,7 +34,6 @@ interface WoundPayload {
     start_date?: string;
     end_date?: string;
     patient_id: number;
-    specialist_id: number;
 }
 
 const woundFormSchema = z.object({
@@ -74,7 +73,6 @@ export default function WoundCreate() {
                 start_date: data.start_date ? data.start_date.toISOString().split('T')[0] : "",
                 end_date: data.start_date ? data.start_date.toISOString().split('T')[0] : "",
                 patient_id: patient_id,
-                specialist_id: 1
             };
 
             console.log('Sending payload:', payload);

@@ -33,8 +33,7 @@ export default function WoundAddUpdateImage() {
 
         try {
             const payload = {
-                extension: photoUrl,
-                file: photoFile
+                extension: "jpg",
             };
             const result = await postTrigger(payload);
             console.log('Result:', result);
