@@ -12,7 +12,7 @@ import { formatDate } from "@/data/common/Mapper.ts";
 const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundRecord, woundId: number }) => {
     const navigate = useNavigate();
     const handleSeeMoreButtonClick = () => {
-        navigate('/wound/record-detail', {state: {wound_id: woundId}}); // Pass the patient data through state
+        navigate('/wound/record-detail', {state: {wound_id: woundId, tracking_record_id: woundRecord.tracking_record_id}}); // Pass the patient data through state
     };
 
     const [isOpen, setIsOpen] = useState(false)

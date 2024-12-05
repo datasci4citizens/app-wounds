@@ -3,14 +3,16 @@ import { ImagePlus } from 'lucide-react'
 import { Button } from '@/components/ui/button.tsx'
 import { useLocation, useNavigate } from "react-router-dom";
 import useSWRMutation from "swr/mutation";
-import { getBaseURL, postRequest } from "@/data/common/HttpExtensions.ts";
+import { getBaseURL, patchRequest, postRequest } from "@/data/common/HttpExtensions.ts";
 
 export default function WoundAddUpdateImage() {
     const navigate = useNavigate();
     const location = useLocation();
     const woundId = location.state?.wound_id as number;
+    const woundUpdateId = location.state?.wound_update_id as number;
 
     const { trigger: postTrigger } = useSWRMutation(getBaseURL("/images/"), postRequest);
+    const { trigger: patchTrigger } = useSWRMutation(getBaseURL(`/tracking-records/${woundUpdateId}`), patchRequest);
     const [photoFile, setPhotoFile] = useState<File | null>(null);
     const [photoUrl, setPhotoUrl] = useState<string | null>(null);
 
@@ -28,6 +30,45 @@ export default function WoundAddUpdateImage() {
         setPhotoUrl(null);
     };
 
+    const updateWoundUpdateWithImageId = async (imageId: number) => {
+        console.log("imageId", imageId)
+        const payload = {
+            image_id: imageId,
+            created_at: "2024-12-04"
+        };
+
+        console.log(await patchTrigger(payload))
+    };
+
+    const uploadImageToUrl = async (url: string): Promise<boolean> => {
+        if (!photoFile) {
+            console.error("No photo file provided.");
+            return false;
+        }
+
+        try {
+            const response = await fetch(url, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "image/jpeg",
+                },
+                credentials: "include",
+                body: photoFile,
+            });
+
+            if (!response.ok) {
+                console.error(`Failed to upload image: ${response.statusText}`);
+                return false;
+            }
+
+            console.log("Image uploaded successfully.");
+            return true;
+        } catch (err) {
+            console.error("Error uploading image:", err);
+            return false;
+        }
+    };
+
     const onSubmit = async () => {
         if (!photoFile) return;
 
@@ -36,11 +77,15 @@ export default function WoundAddUpdateImage() {
                 extension: "jpg",
             };
             const result = await postTrigger(payload);
-            console.log('Result:', result);
-            return navigate('/wound/add-update/conduct', {state: {wound_id: woundId}})
+
+            const uploadSuccess = await uploadImageToUrl(result.upload_url);
+            if (uploadSuccess) {
+                await updateWoundUpdateWithImageId(result.image_id);
+                navigate('/wound/add-update/conduct', { state: { wound_id: woundId } });
+            }
         } catch (error) {
-            console.error('Error submitting form:', error);
-            alert('Error uploading image. Please try again.');
+            console.error("Error submitting form:", error);
+            alert("Error uploading image. Please try again.");
         }
     };
 
@@ -96,7 +141,7 @@ export default function WoundAddUpdateImage() {
                     </div>
 
                     <Button type="button" onClick={() => {
-                        navigate('/wound/add-update/conduct', {state: {wound_id: woundId}});
+                        navigate('/wound/add-update/conduct', {state: {wound_id: woundId, wound_update_id: woundUpdateId}});
                     }}>
                         Pular
                     </Button>

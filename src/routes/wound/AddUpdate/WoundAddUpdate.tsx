@@ -1,10 +1,10 @@
 import * as z from "zod";
 import DatePicker from "@/components/common/DatePicker.tsx";
-import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
+import { Button } from "@/components/ui/button.tsx";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, } from "@/components/ui/form.tsx";
+import { Input } from "@/components/ui/input.tsx";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select.tsx";
+import { Slider } from "@/components/ui/slider.tsx";
 import { isAfter, isBefore, startOfDay } from "date-fns";
 import type { UseFormReturn } from "react-hook-form";
 import { useForm } from "react-hook-form";
@@ -32,8 +32,8 @@ interface WoundUpdatePayload {
     dressing_changes_per_day: string;
     guidelines_to_patient: string;
     extra_notes: string;
-    image_id: number;
     created_at?: string;
+    wound_id: number;
 }
 
 const FormSchema = z.object({
@@ -108,7 +108,7 @@ export default function WoundAddUpdate() {
 
             const result = await postTrigger(payload);
             console.log('Result:', result);
-            return navigate('/wound/add-update/image', {state: {wound_id: woundId}});
+            return navigate('/wound/add-update/image', {state: {wound_id: woundId, wound_update_id: result.tracking_record_id}});
         } catch (error) {
             console.error('Error submitting form:', error);
             throw error;
