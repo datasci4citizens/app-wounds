@@ -39,7 +39,7 @@ export default function WoundAddUpdate() {
     const navigate = useNavigate();
     const location = useLocation();
     const woundId = location.state?.wound_id as number;
-    const {woundUpdate, setWoundUpdate} = useWoundUpdate();
+    const {setWoundUpdate} = useWoundUpdate();
 
     const form = useForm<WoundFormValues>({
         resolver: zodResolver(FormSchema),
@@ -82,7 +82,7 @@ export default function WoundAddUpdate() {
                 dressing_changes_per_day: data.dressingChanges ?? "",
                 guidelines_to_patient: "",
                 extra_notes: "",
-                track_date : data.date ? data.date.toISOString().split('T')[0] : "",
+                track_date: data.date ? data.date.toISOString().split('T')[0] : "",
                 wound_id: woundId,
             }));
 

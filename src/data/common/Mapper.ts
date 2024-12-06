@@ -49,6 +49,11 @@ export interface WoundPatient {
     wounds: Wound[]
 }
 
+export interface WoundRegion {
+    description: string;
+    subregions: Record<string, string>;
+}
+
 export interface Wound {
     wound_region: string;
     wound_subregion: string;

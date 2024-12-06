@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { ImagePlus } from 'lucide-react'
 import { Button } from '@/components/ui/button.tsx'
 import { useNavigate } from "react-router-dom";
@@ -8,7 +8,7 @@ import { useWoundUpdate } from "@/routes/wound/AddUpdate/context-provider/WoundU
 
 export default function WoundAddUpdateImage() {
     const navigate = useNavigate();
-    const {woundUpdate, setWoundUpdate} = useWoundUpdate();
+    const {setWoundUpdate} = useWoundUpdate();
 
     const {trigger: imagePostTrigger} = useSWRMutation(getBaseURL("/images/"), postRequest);
 

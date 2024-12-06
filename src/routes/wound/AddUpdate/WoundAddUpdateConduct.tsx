@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form.tsx";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button.tsx";
 import { useWoundUpdate } from "@/routes/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx";
 import useSWRMutation from "swr/mutation";
 import { getBaseURL, postRequest } from "@/data/common/HttpExtensions.ts";
-import { useEffect } from "react";
 
 const FormSchema = z.object({
     extraNotes: z.string().optional(),

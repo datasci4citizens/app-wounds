@@ -3,20 +3,27 @@ import { ArrowLeft, ChevronsDownUp, ChevronsUpDown, Plus } from "lucide-react"
 import { useEffect, useState } from "react";
 import useSWRMutation from "swr/mutation";
 import { getBaseURL, getRequest } from "@/data/common/HttpExtensions.ts";
-import type { Wound, WoundRecord } from "@/data/common/Mapper.ts";
+import type { Wound, WoundRecord, WoundRegion } from "@/data/common/Mapper.ts";
+import { formatDate } from "@/data/common/Mapper.ts";
 import { useLocation, useNavigate } from "react-router-dom";
 import { format, parseISO } from "date-fns";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible.tsx";
-import { formatDate } from "@/data/common/Mapper.ts";
+
+import woundRegion from '@/localdata/wound-location.json'
+import woundTypes from "@/localdata/wound-type.json";
 
 const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundRecord, woundId: number }) => {
     const navigate = useNavigate();
     const handleSeeMoreButtonClick = () => {
-        navigate('/wound/record-detail', {state: {wound_id: woundId, tracking_record_id: woundRecord.tracking_record_id}}); // Pass the patient data through state
+        navigate('/wound/record-detail', {
+            state: {
+                wound_id: woundId,
+                tracking_record_id: woundRecord.tracking_record_id
+            }
+        }); // Pass the patient data through state
     };
 
     const [isOpen, setIsOpen] = useState(false)
-    console.log(woundRecord)
 
     return (
         <Collapsible
@@ -36,7 +43,9 @@ const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundReco
                             className="flex flex-col text-sm leading-relaxed space-y-3 self-start mt-6">
                             <p>
                                 <span
-                                    className="font-semibold text-base">Tamanho: </span> {woundRecord.wound_size}
+                                    className="font-semibold text-base">Tamanho: </span>
+                                {(Number(woundRecord.wound_width) * Number(woundRecord.wound_length)).toFixed(2)}
+
                             </p>
                             <p>
                                 <span
@@ -75,6 +84,9 @@ export default function WoundDetail() {
         trigger();
     }, [trigger]);
 
+    const woundTypeList: Record<string, string> = woundTypes
+    const woundRegionList: Record<string, WoundRegion> = woundRegion
+
     return (
         <div className="h-full overflow-hidden">
             {isMutating ? (
@@ -96,10 +108,11 @@ export default function WoundDetail() {
 
                         <div className="flex flex-col text-sm leading-relaxed space-y-2 self-start mt-6">
                             <p>
-                                <span className="font-bold text-base">Local: </span> {wound.wound_region}
+                                <span
+                                    className="font-bold text-base">Local: </span> {woundRegionList[wound.wound_region]?.description || ""}
                             </p>
                             <p>
-                                <span className="font-bold text-base">Tipo: </span> {wound.wound_type}
+                                <span className="font-bold text-base">Tipo: </span> {woundTypeList[wound.wound_type]}
                             </p>
                             <p>
                                 <span className="font-bold text-base">Data inicio: </span>

@@ -69,7 +69,7 @@ export default function WoundRecordDetail() {
                             <p className="font-semibold">Tamanho</p>
                             <p>{woundRecord.wound_width} cm de largura, {woundRecord.wound_length} cm de altura
                                 (Área média: {woundRecord.wound_width && woundRecord.wound_length
-                                    ? (woundRecord.wound_width * woundRecord.wound_length).toFixed(2)
+                                    ? (Number(woundRecord.wound_width) * Number(woundRecord.wound_length)).toFixed(2)
                                     : "0"} cm²)</p>
                         </div>
 
