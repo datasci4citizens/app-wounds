@@ -14,7 +14,7 @@ export async function getRequest(url: string) {
     })
 }
 
-export async function postRequest(url: string, { arg }: { arg: any }) {  // Change the signature to match SWR's format
+export async function postRequest<T>(url: string, { arg }: { arg: T }) {  // Change the signature to match SWR's format
     try {
         const response = await fetch(url, {
             method: 'POST',
@@ -36,6 +36,32 @@ export async function postRequest(url: string, { arg }: { arg: any }) {  // Chan
         return response.json();
     } catch (error) {
         console.error('POST request failed:', error);
+        throw error;
+    }
+}
+
+export async function patchRequest(url: string, { arg }: { arg: any }) {
+    try {
+        const response = await fetch(url, {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(arg)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => null);
+            throw new Error(`Request failed with status ${response.status}: ${
+                errorData ? JSON.stringify(errorData) : 'No error details'
+            }`);
+        }
+
+        return response.json();
+    } catch (error) {
+        console.error('PATCH request failed:', error);
         throw error;
     }
 }

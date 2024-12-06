@@ -4,16 +4,23 @@ import { ArrowLeft, Edit, FileText, Plus } from "lucide-react"
 import { useEffect } from "react";
 import useSWRMutation from "swr/mutation";
 import { getBaseURL, getRequest } from "@/data/common/HttpExtensions.ts";
-import type { Wound, WoundPatient } from "@/data/common/Mapper.ts";
+import type { Wound, WoundPatient, WoundRegion } from "@/data/common/Mapper.ts";
 import { calculateAge } from "@/data/common/Mapper.ts";
 import { useLocation, useNavigate } from "react-router-dom";
+import woundTypes from '@/localdata/wound-type.json'
+import woundRegion from '@/localdata/wound-location.json'
 
 const WoundCard = ({wound, index}: { wound: Wound, index: number }) => {
     const navigate = useNavigate();
 
+    const woundTypeList: Record<string, string> = woundTypes
+    const woundRegionList: Record<string, WoundRegion> = woundRegion
+
     const handleCardClick = () => {
         navigate('/wound/detail', {state: {wound_id: wound.wound_id}});
     };
+
+    const region = woundRegionList[wound.wound_region]
 
     return (
         <Card className="mb-4 w-full shadow-sm border-b border-gray-200 cursor-pointer" onClick={handleCardClick}>
@@ -21,9 +28,9 @@ const WoundCard = ({wound, index}: { wound: Wound, index: number }) => {
                 <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">{`Ferida ${index + 1}`}</h3>
                     <div className="space-y-1 text-sm text-gray-500 leading-tight">
-                        <p>Tipo de ferida: {wound.wound_type}</p>
-                        <p>Local: {wound.wound_region}</p>
-                        <p>Subregião: {wound.wound_subregion}</p>
+                        <p>Tipo de ferida: {woundTypeList[wound.wound_type]}</p>
+                        <p>Local: {region?.description || ""}</p>
+                        <p>Subregião: {region?.subregions[wound.wound_subregion]}</p>
                     </div>
                 </div>
             </CardContent>

@@ -1,10 +1,13 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form.tsx";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "@/components/ui/textarea.tsx";
 import { Button } from "@/components/ui/button.tsx";
+import { useWoundUpdate } from "@/routes/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx";
+import useSWRMutation from "swr/mutation";
+import { getBaseURL, postRequest } from "@/data/common/HttpExtensions.ts";
 
 const FormSchema = z.object({
     extraNotes: z.string().optional(),
@@ -15,8 +18,9 @@ type ConductFormValues = z.infer<typeof FormSchema>;
 
 export default function WoundAddUpdateConduct() {
     const navigate = useNavigate();
-    const location = useLocation();
-    const woundId = location.state?.wound_id as number;
+    const {woundUpdate, setWoundUpdate} = useWoundUpdate();
+
+    const {trigger: postTrigger} = useSWRMutation(getBaseURL("/tracking-records/"), postRequest);
 
     const form = useForm<ConductFormValues>({
         resolver: zodResolver(FormSchema),
@@ -27,7 +31,16 @@ export default function WoundAddUpdateConduct() {
     });
 
     const onSubmit = async (data: ConductFormValues) => {
-        console.log(data)
+        const updatedWoundUpdate = {
+            ...woundUpdate,
+            extra_notes: data.extraNotes || "",
+            guidelines_to_patient: data.guidelines || "",
+        };
+
+        setWoundUpdate(updatedWoundUpdate);
+        await postTrigger(updatedWoundUpdate);
+
+        navigate('/wound/detail', {state: {wound_id: updatedWoundUpdate.wound_id}})
     }
 
     return (
@@ -73,12 +86,6 @@ export default function WoundAddUpdateConduct() {
                     />
 
                     <div className="flex flex-col items-center justify-center space-y-6 !mt-8">
-                        <Button type="button" onClick={() => {
-                            navigate('/wound/detail', {state: {wound_id: woundId}});
-                        }}>
-                            Pular
-                        </Button>
-
                         <Button type="submit">
                             Enviar
                         </Button>

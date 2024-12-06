@@ -17,6 +17,18 @@ export interface Patient {
     comorbidities: any[];
 }
 
+export interface Specialist {
+    email: string;
+    name: string;
+    birthday?: string;
+    state?: string;
+    city?: string;
+    specialist_id: number;
+    created_at?: string;
+    updated_at?: string;
+    patients?: Patient[];
+}
+
 export interface WoundPatient {
     name: string;
     gender: string;
@@ -37,6 +49,11 @@ export interface WoundPatient {
     wounds: Wound[]
 }
 
+export interface WoundRegion {
+    description: string;
+    subregions: Record<string, string>;
+}
+
 export interface Wound {
     wound_region: string;
     wound_subregion: string;
@@ -49,7 +66,8 @@ export interface Wound {
 }
 
 export interface WoundRecord {
-    wound_size: string;
+    wound_width: string;
+    wound_length: string;
     exudate_amount: string;
     exudate_type: string;
     tissue_type: string;
@@ -62,10 +80,11 @@ export interface WoundRecord {
     extra_notes: string;
     image_id: number;
     created_at: string;
+    updated_at: string;
+    track_date: string;
     wound_id: number;
     specialist_id: number;
     tracking_record_id: number;
-    updated_at: string;
 }
 
 export function calculateAge(birthday: Date): number {
@@ -107,6 +126,7 @@ export function formatPatientBirthday(data: Patient[]): Patient[] {
 
 export function formatDate(dateString: string): string {
     const [year, month, day] = dateString.split("-");
+
     return `${day}/${month}/${year}`;
 }
 

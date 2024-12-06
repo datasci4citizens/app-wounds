@@ -1,16 +1,17 @@
 import React, { useState } from 'react'
 import { ImagePlus } from 'lucide-react'
 import { Button } from '@/components/ui/button.tsx'
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useSWRMutation from "swr/mutation";
 import { getBaseURL, postRequest } from "@/data/common/HttpExtensions.ts";
+import { useWoundUpdate } from "@/routes/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx";
 
 export default function WoundAddUpdateImage() {
     const navigate = useNavigate();
-    const location = useLocation();
-    const woundId = location.state?.wound_id as number;
+    const {setWoundUpdate} = useWoundUpdate();
 
-    const { trigger: postTrigger } = useSWRMutation(getBaseURL("/images/"), postRequest);
+    const {trigger: imagePostTrigger} = useSWRMutation(getBaseURL("/images/"), postRequest);
+
     const [photoFile, setPhotoFile] = useState<File | null>(null);
     const [photoUrl, setPhotoUrl] = useState<string | null>(null);
 
@@ -28,20 +29,55 @@ export default function WoundAddUpdateImage() {
         setPhotoUrl(null);
     };
 
+    const uploadImageToUrl = async (url: string): Promise<boolean> => {
+        if (!photoFile) {
+            console.error("No photo file provided.");
+            return false;
+        }
+
+        try {
+            const response = await fetch(url, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "image/jpeg",
+                },
+                credentials: "include",
+                body: photoFile,
+            });
+
+            if (!response.ok) {
+                console.error(`Failed to upload image: ${response.statusText}`);
+                return false;
+            }
+
+            console.log("Image uploaded successfully.");
+            return true;
+        } catch (err) {
+            console.error("Error uploading image:", err);
+            return false;
+        }
+    };
+
     const onSubmit = async () => {
         if (!photoFile) return;
 
         try {
-            const payload = {
-                extension: photoUrl,
-                file: photoFile
+            const imagePayload = {
+                extension: "jpg",
             };
-            const result = await postTrigger(payload);
-            console.log('Result:', result);
-            return navigate('/wound/add-update/conduct', {state: {wound_id: woundId}})
+            const imageResult = await imagePostTrigger(imagePayload);
+
+            const uploadSuccess = await uploadImageToUrl(imageResult.upload_url);
+            if (uploadSuccess) {
+                setWoundUpdate((prev) => ({
+                    ...prev,
+                    image_id: imageResult.image_id
+                }));
+                navigate('/wound/add-update/conduct');
+            }
         } catch (error) {
-            console.error('Error submitting form:', error);
-            alert('Error uploading image. Please try again.');
+            console.error("Error submitting form:", error);
+            alert("Error uploading image. Please try again.");
         }
     };
 
@@ -97,7 +133,7 @@ export default function WoundAddUpdateImage() {
                     </div>
 
                     <Button type="button" onClick={() => {
-                        navigate('/wound/add-update/conduct', {state: {wound_id: woundId}});
+                        navigate('/wound/add-update/conduct');
                     }}>
                         Pular
                     </Button>
