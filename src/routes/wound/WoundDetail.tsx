@@ -16,6 +16,7 @@ const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundReco
     };
 
     const [isOpen, setIsOpen] = useState(false)
+    console.log(woundRecord)
 
     return (
         <Collapsible
@@ -26,7 +27,7 @@ const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundReco
             <CollapsibleTrigger asChild>
                 <div className="flex flex-col w-full px-4">
                     <div className="flex justify-between items-center">
-                        <p className="text-lg font-semibold">{formatDate(woundRecord.created_at)}</p>
+                        <p className="text-lg font-semibold">{formatDate(woundRecord.track_date)}</p>
                         {isOpen ? <ChevronsDownUp className="h-4 w-4"/> :
                             <ChevronsUpDown className="h-4 w-4"/>}
                     </div>

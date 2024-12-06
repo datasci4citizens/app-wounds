@@ -16,28 +16,12 @@ import tissueTypes from '@/localdata/tissue-type.json'
 import { useState } from "react";
 import { Switch } from "@/components/ui/switch.tsx";
 import { useLocation, useNavigate } from "react-router-dom";
-import useSWRMutation from "swr/mutation";
-import { getBaseURL, postRequest } from "@/data/common/HttpExtensions.ts";
+import { useWoundUpdate } from "@/routes/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx";
 
-interface WoundUpdatePayload {
-    wound_length: number;
-    wound_width: number;
-    exudate_amount: string;
-    exudate_type: string;
-    tissue_type: string;
-    wound_edges: string;
-    skin_around_the_wound: string;
-    had_a_fever: boolean;
-    pain_level: string;
-    dressing_changes_per_day: string;
-    guidelines_to_patient: string;
-    extra_notes: string;
-    created_at?: string;
-    wound_id: number;
-}
 
 const FormSchema = z.object({
-    woundSize: z.string().min(1, "Campo obrigatório"),
+    woundWidth: z.string().min(1, "Campo obrigatório"),
+    woundHeight: z.string().min(1, "Campo obrigatório"),
     date: z.date().nullable().refine(date => date !== null, {message: "Data de começo é obrigatória"}),
     painLevel: z.number().min(0).max(10),
     exudateAmount: z.string().optional(),
@@ -55,11 +39,11 @@ export default function WoundAddUpdate() {
     const navigate = useNavigate();
     const location = useLocation();
     const woundId = location.state?.wound_id as number;
+    const {woundUpdate, setWoundUpdate} = useWoundUpdate();
 
     const form = useForm<WoundFormValues>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
-            woundSize: "",
             date: new Date(),
             painLevel: 0,
             exudateAmount: "",
@@ -72,7 +56,6 @@ export default function WoundAddUpdate() {
         },
     });
 
-    const {trigger: postTrigger} = useSWRMutation(getBaseURL("/tracking-records/"), postRequest);
 
     const [showOptional, setShowOptional] = useState(false);
     const onToggleShowOptional = async () => {
@@ -84,12 +67,11 @@ export default function WoundAddUpdate() {
     };
 
     const onSubmit = async (data: WoundFormValues) => {
-        console.log(data);
         try {
-            console.log(data);
-            const payload: WoundUpdatePayload = {
-                wound_length: 0,
-                wound_width: 0,
+            await setWoundUpdate((prev) => ({
+                ...prev,
+                wound_width: parseInt(data.woundWidth),
+                wound_length: parseInt(data.woundHeight),
                 exudate_amount: data.exudateAmount ?? "",
                 exudate_type: data.exudateType ?? "",
                 tissue_type: data.tissueType ?? "",
@@ -100,15 +82,11 @@ export default function WoundAddUpdate() {
                 dressing_changes_per_day: data.dressingChanges ?? "",
                 guidelines_to_patient: "",
                 extra_notes: "",
-                created_at: data.date ? data.date.toISOString().split('T')[0] : "",
+                track_date : data.date ? data.date.toISOString().split('T')[0] : "",
                 wound_id: woundId,
-            };
+            }));
 
-            console.log('Sending payload:', payload);
-
-            const result = await postTrigger(payload);
-            console.log('Result:', result);
-            return navigate('/wound/add-update/image', {state: {wound_id: woundId, wound_update_id: result.tracking_record_id}});
+            return navigate('/wound/add-update/image');
         } catch (error) {
             console.error('Error submitting form:', error);
             throw error;
@@ -147,13 +125,31 @@ export default function WoundAddUpdate() {
 function WoundsRequiredFields({form}: { form: UseFormReturn<z.infer<typeof FormSchema>> }) {
     return (
         <div className="space-y-6">
+            <FormField
+                control={form.control}
+                name="date"
+                render={({field}) => (
+                    <FormItem>
+                        <FormLabel>Data*</FormLabel>
+                        <DatePicker
+                            field={field}
+                            disabled={(date) => {
+                                const today = startOfDay(new Date());
+                                return (isBefore(date, new Date("1900-01-01")) || isAfter(date, today));
+                            }}
+                        />
+                        <FormMessage/>
+                    </FormItem>
+                )}
+            />
+
             <div className="grid grid-cols-2 gap-4">
                 <FormField
                     control={form.control}
-                    name="woundSize"
+                    name="woundWidth"
                     render={({field}) => (
                         <FormItem>
-                            <FormLabel>Tamanho*</FormLabel>
+                            <FormLabel>Largura*</FormLabel>
                             <div className="flex items-center space-x-2">
                                 <FormControl>
                                     <Input
@@ -163,29 +159,35 @@ function WoundsRequiredFields({form}: { form: UseFormReturn<z.infer<typeof FormS
                                         value={field.value}
                                     />
                                 </FormControl>
-                                <span className="text-black text-base font-normal">cm²</span>
+                                <span className="text-black text-base font-normal">cm</span>
                             </div>
                             <FormMessage/>
                         </FormItem>
                     )}
                 />
+
                 <FormField
                     control={form.control}
-                    name="date"
+                    name="woundHeight"
                     render={({field}) => (
                         <FormItem>
-                            <FormLabel>Data*</FormLabel>
-                            <DatePicker
-                                field={field}
-                                disabled={(date) => {
-                                    const today = startOfDay(new Date());
-                                    return (isBefore(date, new Date("1900-01-01")) || isAfter(date, today));
-                                }}
-                            />
+                            <FormLabel>Altura*</FormLabel>
+                            <div className="flex items-center space-x-2">
+                                <FormControl>
+                                    <Input
+                                        type="number"
+                                        placeholder="20"
+                                        {...field}
+                                        value={field.value}
+                                    />
+                                </FormControl>
+                                <span className="text-black text-base font-normal">cm</span>
+                            </div>
                             <FormMessage/>
                         </FormItem>
                     )}
                 />
+
             </div>
 
             <FormField

@@ -42,7 +42,7 @@ export default function WoundRecordDetail() {
                             </div>
                             <h1 className="absolute left-1/2 transform -translate-x-1/2 text-2xl font-bold">Ferida</h1>
                         </div>
-                        {format(parseISO(woundRecord.created_at), "dd/MM/yyyy")}
+                        {format(parseISO(woundRecord.track_date), "dd/MM/yyyy")}
 
                         <div className="border-2 border-gray-200 rounded-lg w-full mt-8 h-[190px] overflow-hidden">
                             <label className="block text-center cursor-pointer w-full h-full">

@@ -74,10 +74,11 @@ export interface WoundRecord {
     extra_notes: string;
     image_id: number;
     created_at: string;
+    updated_at: string;
+    track_date: string;
     wound_id: number;
     specialist_id: number;
     tracking_record_id: number;
-    updated_at: string;
 }
 
 export function calculateAge(birthday: Date): number {
@@ -119,6 +120,7 @@ export function formatPatientBirthday(data: Patient[]): Patient[] {
 
 export function formatDate(dateString: string): string {
     const [year, month, day] = dateString.split("-");
+
     return `${day}/${month}/${year}`;
 }
 

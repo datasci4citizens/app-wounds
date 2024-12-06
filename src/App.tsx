@@ -14,6 +14,7 @@ import WoundAddUpdateConduct from "@/routes/wound/AddUpdate/WoundAddUpdateConduc
 import { SWRConfig } from 'swr';
 import { PatientCreate } from "@/routes/patient/PatientCreate.tsx";
 import { UserContextProvider } from "@/lib/hooks/use-user.tsx";
+import { WoundUpdateProvider } from "@/routes/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx";
 
 const router = createBrowserRouter([
     {
@@ -79,21 +80,27 @@ const router = createBrowserRouter([
                 path: '/wound/add-update',
                 element:
                     <AppLayout>
-                        <WoundAddUpdate/>
+                        <WoundUpdateProvider>
+                            <WoundAddUpdate/>
+                        </WoundUpdateProvider>
                     </AppLayout>
             },
             {
                 path: '/wound/add-update/image',
                 element:
                     <AppLayout>
-                        <WoundAddUpdateImage/>
+                        <WoundUpdateProvider>
+                            <WoundAddUpdateImage/>
+                        </WoundUpdateProvider>
                     </AppLayout>
             },
             {
                 path: '/wound/add-update/conduct',
                 element:
                     <AppLayout>
-                        <WoundAddUpdateConduct/>
+                        <WoundUpdateProvider>
+                            <WoundAddUpdateConduct/>
+                        </WoundUpdateProvider>
                     </AppLayout>
             }
         ]

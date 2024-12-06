@@ -1,18 +1,17 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ImagePlus } from 'lucide-react'
 import { Button } from '@/components/ui/button.tsx'
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useSWRMutation from "swr/mutation";
-import { getBaseURL, patchRequest, postRequest } from "@/data/common/HttpExtensions.ts";
+import { getBaseURL, postRequest } from "@/data/common/HttpExtensions.ts";
+import { useWoundUpdate } from "@/routes/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx";
 
 export default function WoundAddUpdateImage() {
     const navigate = useNavigate();
-    const location = useLocation();
-    const woundId = location.state?.wound_id as number;
-    const woundUpdateId = location.state?.wound_update_id as number;
+    const {woundUpdate, setWoundUpdate} = useWoundUpdate();
 
-    const { trigger: postTrigger } = useSWRMutation(getBaseURL("/images/"), postRequest);
-    const { trigger: patchTrigger } = useSWRMutation(getBaseURL(`/tracking-records/${woundUpdateId}`), patchRequest);
+    const {trigger: imagePostTrigger} = useSWRMutation(getBaseURL("/images/"), postRequest);
+
     const [photoFile, setPhotoFile] = useState<File | null>(null);
     const [photoUrl, setPhotoUrl] = useState<string | null>(null);
 
@@ -28,16 +27,6 @@ export default function WoundAddUpdateImage() {
     const handleRetake = () => {
         setPhotoFile(null);
         setPhotoUrl(null);
-    };
-
-    const updateWoundUpdateWithImageId = async (imageId: number) => {
-        console.log("imageId", imageId)
-        const payload = {
-            image_id: imageId,
-            created_at: "2024-12-04"
-        };
-
-        console.log(await patchTrigger(payload))
     };
 
     const uploadImageToUrl = async (url: string): Promise<boolean> => {
@@ -73,15 +62,18 @@ export default function WoundAddUpdateImage() {
         if (!photoFile) return;
 
         try {
-            const payload = {
+            const imagePayload = {
                 extension: "jpg",
             };
-            const result = await postTrigger(payload);
+            const imageResult = await imagePostTrigger(imagePayload);
 
-            const uploadSuccess = await uploadImageToUrl(result.upload_url);
+            const uploadSuccess = await uploadImageToUrl(imageResult.upload_url);
             if (uploadSuccess) {
-                await updateWoundUpdateWithImageId(result.image_id);
-                navigate('/wound/add-update/conduct', { state: { wound_id: woundId } });
+                setWoundUpdate((prev) => ({
+                    ...prev,
+                    image_id: imageResult.image_id
+                }));
+                navigate('/wound/add-update/conduct');
             }
         } catch (error) {
             console.error("Error submitting form:", error);
@@ -141,7 +133,7 @@ export default function WoundAddUpdateImage() {
                     </div>
 
                     <Button type="button" onClick={() => {
-                        navigate('/wound/add-update/conduct', {state: {wound_id: woundId, wound_update_id: woundUpdateId}});
+                        navigate('/wound/add-update/conduct');
                     }}>
                         Pular
                     </Button>
