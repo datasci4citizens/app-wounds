@@ -5,6 +5,13 @@ import { getBaseURL, getRequest } from "@/data/common/HttpExtensions.ts";
 import type { WoundRecord } from "@/data/common/Mapper.ts";
 import { useLocation, useNavigate } from "react-router-dom";
 import { format, parseISO } from "date-fns";
+import {
+    getExudateAmount,
+    getExudateType,
+    getSkinAround,
+    getTissueType,
+    getWoundEdges
+} from "@/data/common/LocalDataMapper.tsx";
 
 
 export default function WoundRecordDetail() {
@@ -80,17 +87,17 @@ export default function WoundRecordDetail() {
 
                         <div>
                             <p className="font-semibold">Quantidade de exsudato</p>
-                            <p>{woundRecord.exudate_amount}</p>
+                            <p>{getExudateAmount(woundRecord.exudate_amount)}</p>
                         </div>
 
                         <div>
                             <p className="font-semibold">Tipo de exsudato</p>
-                            <p>{woundRecord.exudate_type}</p>
+                            <p>{getExudateType(woundRecord.exudate_type)}</p>
                         </div>
 
                         <div>
                             <p className="font-semibold">Tipo de tecido</p>
-                            <p>{woundRecord.tissue_type}</p>
+                            <p>{getTissueType(woundRecord.tissue_type)}</p>
                         </div>
 
                         <h1 className="text-xl font-semibold">Informações complementares</h1>
@@ -109,12 +116,12 @@ export default function WoundRecordDetail() {
 
                         <div>
                             <p className="font-semibold">Pele ao redor da ferida</p>
-                            <p>{woundRecord.skin_around_the_wound}</p>
+                            <p>{getSkinAround(woundRecord.skin_around_the_wound)}</p>
                         </div>
 
                         <div>
                             <p className="font-semibold">Bordas da ferida</p>
-                            <p>{woundRecord.wound_edges}</p>
+                            <p>{getWoundEdges(woundRecord.wound_edges)}</p>
                         </div>
 
                         <h1 className="text-xl font-semibold">Anotações extras</h1>
