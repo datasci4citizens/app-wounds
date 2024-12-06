@@ -61,7 +61,8 @@ export interface Wound {
 }
 
 export interface WoundRecord {
-    wound_size: string;
+    wound_width: string;
+    wound_length: string;
     exudate_amount: string;
     exudate_type: string;
     tissue_type: string;

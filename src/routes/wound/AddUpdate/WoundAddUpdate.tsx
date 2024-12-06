@@ -21,7 +21,7 @@ import { useWoundUpdate } from "@/routes/wound/AddUpdate/context-provider/WoundU
 
 const FormSchema = z.object({
     woundWidth: z.string().min(1, "Campo obrigatório"),
-    woundHeight: z.string().min(1, "Campo obrigatório"),
+    woundLength: z.string().min(1, "Campo obrigatório"),
     date: z.date().nullable().refine(date => date !== null, {message: "Data de começo é obrigatória"}),
     painLevel: z.number().min(0).max(10),
     exudateAmount: z.string().optional(),
@@ -71,7 +71,7 @@ export default function WoundAddUpdate() {
             await setWoundUpdate((prev) => ({
                 ...prev,
                 wound_width: parseInt(data.woundWidth),
-                wound_length: parseInt(data.woundHeight),
+                wound_length: parseInt(data.woundLength),
                 exudate_amount: data.exudateAmount ?? "",
                 exudate_type: data.exudateType ?? "",
                 tissue_type: data.tissueType ?? "",
@@ -168,7 +168,7 @@ function WoundsRequiredFields({form}: { form: UseFormReturn<z.infer<typeof FormS
 
                 <FormField
                     control={form.control}
-                    name="woundHeight"
+                    name="woundLength"
                     render={({field}) => (
                         <FormItem>
                             <FormLabel>Altura*</FormLabel>
