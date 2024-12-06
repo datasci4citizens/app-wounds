@@ -3,14 +3,12 @@ import { ArrowLeft, ChevronsDownUp, ChevronsUpDown, Plus } from "lucide-react"
 import { useEffect, useState } from "react";
 import useSWRMutation from "swr/mutation";
 import { getBaseURL, getRequest } from "@/data/common/HttpExtensions.ts";
-import type { Wound, WoundRecord, WoundRegion } from "@/data/common/Mapper.ts";
+import type { Wound, WoundRecord } from "@/data/common/Mapper.ts";
 import { formatDate } from "@/data/common/Mapper.ts";
 import { useLocation, useNavigate } from "react-router-dom";
 import { format, parseISO } from "date-fns";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible.tsx";
-
-import woundRegion from '@/localdata/wound-location.json'
-import woundTypes from "@/localdata/wound-type.json";
+import { getExudateType, getRegionDescription, getTissueType, getWoundType } from "@/data/common/LocalDataMapper.tsx";
 
 const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundRecord, woundId: number }) => {
     const navigate = useNavigate();
@@ -53,11 +51,11 @@ const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundReco
                             </p>
                             <p>
                                 <span
-                                    className="font-semibold text-base">Tipo de tecido: </span> {woundRecord.tissue_type}
+                                    className="font-semibold text-base">Tipo de tecido: </span> {getTissueType(woundRecord.tissue_type)}
                             </p>
                             <p>
                                 <span
-                                    className="font-semibold text-base">Exsudato: </span> {woundRecord.exudate_type}
+                                    className="font-semibold text-base">Exsudato: </span> {getExudateType(woundRecord.exudate_type)}
                             </p>
                             <Button type="button" className="bg-sky-900 !mt-6" onClick={handleSeeMoreButtonClick}>
                                 Ver mais
@@ -84,9 +82,6 @@ export default function WoundDetail() {
         trigger();
     }, [trigger]);
 
-    const woundTypeList: Record<string, string> = woundTypes
-    const woundRegionList: Record<string, WoundRegion> = woundRegion
-
     return (
         <div className="h-full overflow-hidden">
             {isMutating ? (
@@ -109,10 +104,10 @@ export default function WoundDetail() {
                         <div className="flex flex-col text-sm leading-relaxed space-y-2 self-start mt-6">
                             <p>
                                 <span
-                                    className="font-bold text-base">Local: </span> {woundRegionList[wound.wound_region]?.description || ""}
+                                    className="font-bold text-base">Local: </span> {getRegionDescription(wound.wound_region)}
                             </p>
                             <p>
-                                <span className="font-bold text-base">Tipo: </span> {woundTypeList[wound.wound_type]}
+                                <span className="font-bold text-base">Tipo: </span> {getWoundType(wound.wound_type)}
                             </p>
                             <p>
                                 <span className="font-bold text-base">Data inicio: </span>
