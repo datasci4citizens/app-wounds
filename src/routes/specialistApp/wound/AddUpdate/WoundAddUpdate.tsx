@@ -16,7 +16,7 @@ import tissueTypes from '@/localdata/tissue-type.json'
 import { useState } from "react";
 import { Switch } from "@/components/ui/switch.tsx";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useWoundUpdate } from "@/routes/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx";
+import { useWoundUpdate } from "@/routes/specialistApp/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx";
 
 
 const FormSchema = z.object({

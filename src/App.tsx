@@ -1,20 +1,20 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { AuthGuard } from './guards/auth';
-import LoginPage from './routes/login/Login.tsx';
-import WoundCreate from './routes/wound/WoundCreate.tsx';
-import WoundAddUpdate from './routes/wound/AddUpdate/WoundAddUpdate.tsx';
+import LoginPage from './routes//login/Login.tsx';
+import WoundCreate from './routes/specialistApp/wound/WoundCreate.tsx';
+import WoundAddUpdate from './routes/specialistApp/wound/AddUpdate/WoundAddUpdate.tsx';
 import './globals.css';
 import AppLayout from "@/components/common/AppLayout.tsx";
-import PatientsPage from "@/routes/patient/PatientList.tsx";
-import PatientsWounds from "@/routes/patient/PatientWounds.tsx";
-import WoundDetail from "@/routes/wound/WoundDetail.tsx";
-import WoundRecordDetail from "@/routes/wound/WoundRecordDetail.tsx";
-import WoundAddUpdateImage from "@/routes/wound/AddUpdate/WoundAddUpdateImage.tsx";
-import WoundAddUpdateConduct from "@/routes/wound/AddUpdate/WoundAddUpdateConduct.tsx";
+import PatientsPage from "@/routes/specialistApp/patient/PatientList.tsx";
+import PatientsWounds from "@/routes/specialistApp/patient/PatientWounds.tsx";
+import WoundDetail from "@/routes/specialistApp/wound/WoundDetail.tsx";
+import WoundRecordDetail from "@/routes/specialistApp/wound/WoundRecordDetail.tsx";
+import WoundAddUpdateImage from "@/routes/specialistApp/wound/AddUpdate/WoundAddUpdateImage.tsx";
+import WoundAddUpdateConduct from "@/routes/specialistApp/wound/AddUpdate/WoundAddUpdateConduct.tsx";
 import { SWRConfig } from 'swr';
-import { PatientCreate } from "@/routes/patient/PatientCreate.tsx";
+import { PatientCreate } from "@/routes/specialistApp/patient/PatientCreate.tsx";
 import { UserContextProvider } from "@/lib/hooks/use-user.tsx";
-import { WoundUpdateProvider } from "@/routes/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx";
+import { WoundUpdateProvider } from "@/routes/specialistApp/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx";
 
 const router = createBrowserRouter([
     {
