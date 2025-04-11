@@ -5,12 +5,14 @@ import WoundCreate from './routes/specialistApp/wound/WoundCreate.tsx';
 import WoundAddUpdate from './routes/specialistApp/wound/AddUpdate/WoundAddUpdate.tsx';
 import './globals.css';
 import AppLayout from "@/components/common/AppLayout.tsx";
+//SPECIALIST ROUTES IMPORT
 import PatientsPage from "@/routes/specialistApp/patient/PatientList.tsx";
 import PatientsWounds from "@/routes/specialistApp/patient/PatientWounds.tsx";
 import WoundDetail from "@/routes/specialistApp/wound/WoundDetail.tsx";
 import WoundRecordDetail from "@/routes/specialistApp/wound/WoundRecordDetail.tsx";
 import WoundAddUpdateImage from "@/routes/specialistApp/wound/AddUpdate/WoundAddUpdateImage.tsx";
 import WoundAddUpdateConduct from "@/routes/specialistApp/wound/AddUpdate/WoundAddUpdateConduct.tsx";
+//PATIENT ROUTES IMPORT
 import { SWRConfig } from 'swr';
 import { PatientCreate } from "@/routes/specialistApp/patient/PatientCreate.tsx";
 import { UserContextProvider } from "@/lib/hooks/use-user.tsx";
@@ -30,7 +32,7 @@ const router = createBrowserRouter([
         ),
         children: [
             {
-                path: '/patient/create',
+                path: '/specialistApp/patient/create',
                 element: (
                     <AppLayout>
                         <PatientCreate/>
@@ -38,7 +40,7 @@ const router = createBrowserRouter([
                 ),
             },
             {
-                path: '/patient/list',
+                path: '/specialistApp/patient/list',
                 element: (
                     <AppLayout>
                         <PatientsPage/>
@@ -46,7 +48,7 @@ const router = createBrowserRouter([
                 ),
             },
             {
-                path: '/patient/wounds',
+                path: '/specialistApp/patient/wounds',
                 element: (
                     <AppLayout>
                         <PatientsWounds/>
@@ -54,7 +56,7 @@ const router = createBrowserRouter([
                 ),
             },
             {
-                path: '/wound/create',
+                path: '/specialistApp/wound/create',
                 element: (
                     <AppLayout>
                         <WoundCreate/>
@@ -62,7 +64,7 @@ const router = createBrowserRouter([
                 ),
             },
             {
-                path: '/wound/detail',
+                path: '/specialistApp/wound/detail',
                 element: (
                     <AppLayout>
                         <WoundDetail/>
@@ -70,14 +72,14 @@ const router = createBrowserRouter([
                 ),
             },
             {
-                path: '/wound/record-detail',
+                path: '/specialistApp/wound/record-detail',
                 element:
                     <AppLayout>
                         <WoundRecordDetail/>
                     </AppLayout>
             },
             {
-                path: '/wound/add-update',
+                path: '/specialistApp/wound/add-update',
                 element:
                     <AppLayout>
                         <WoundUpdateProvider>
@@ -86,7 +88,7 @@ const router = createBrowserRouter([
                     </AppLayout>
             },
             {
-                path: '/wound/add-update/image',
+                path: '/specialistApp/wound/add-update/image',
                 element:
                     <AppLayout>
                         <WoundUpdateProvider>
@@ -95,7 +97,7 @@ const router = createBrowserRouter([
                     </AppLayout>
             },
             {
-                path: '/wound/add-update/conduct',
+                path: '/specialistApp/wound/add-update/conduct',
                 element:
                     <AppLayout>
                         <WoundUpdateProvider>

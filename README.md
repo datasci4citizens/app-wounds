@@ -55,13 +55,138 @@ Then, use Android Studio or Xcode to run the app on an emulator or physical devi
 
 ---
 
-## Technologies Used
+# Routing Guide – Wounds App
 
-- **React 18**
-- **Vite** – fast development and build tool
-- **Tailwind CSS** – utility-first CSS framework with animation support
-- **Radix UI** – accessible UI primitives
-- **React Hook Form** + **Zod** – for form handling and schema validation
-- **Capacitor** – for native mobile support (Android & iOS)
-- **Google OAuth** – for authentication
-- **SWR** – for data fetching and caching
+This guide explains how the routing system works in the **Wounds App**, how routes are structured, and how you can create and register new pages in the application.
+
+---
+
+## Folder Structure
+
+The application uses **React Router v6** with `createBrowserRouter`. All routes are defined in `src/App.tsx`.
+
+The project is split into **two main domains** based on the user type:
+
+```
+src/routes/
+├── login/
+│   └── Login.tsx
+├── patientApp/
+│   ├── patient/
+│   ├── wound/
+│   └── Menu.tsx
+└── specialistApp/
+    ├── patient/
+    ├── wound/
+    └── Menu.tsx
+```
+
+Both `patientApp/` and `specialistApp/` contain similar route modules like `patient/` and `wound/`, but are tailored to each role's experience.
+
+---
+
+## How Routing is Defined
+
+All routing is configured in `src/App.tsx` using `createBrowserRouter`.
+
+Example route structure:
+
+```tsx
+const router = createBrowserRouter([
+  {
+    path: "/login",
+    element: <LoginPage />,
+  },
+  {
+    path: "/",
+    element: (
+      <UserContextProvider>
+        <AuthGuard />
+      </UserContextProvider>
+    ),
+    children: [
+      // Patient App
+      {
+        path: "/patient/dashboard",
+        element: (
+          <AppLayout>
+            <PatientDashboard />
+          </AppLayout>
+        ),
+      },
+      {
+        path: "/patient/wound/create",
+        element: (
+          <AppLayout>
+            <PatientWoundCreate />
+          </AppLayout>
+        ),
+      },
+
+      // Specialist App
+      {
+        path: "/specialist/patients",
+        element: (
+          <AppLayout>
+            <SpecialistPatientList />
+          </AppLayout>
+        ),
+      },
+      {
+        path: "/specialist/wound/create",
+        element: (
+          <AppLayout>
+            <SpecialistWoundCreate />
+          </AppLayout>
+        ),
+      },
+    ],
+  },
+]);
+```
+
+---
+
+## How to Create a New Page
+
+### Step 1: Create the Component
+
+Example for a new patient route:
+
+```tsx
+// src/routes/patientApp/example/PatientExample.tsx
+export default function PatientExample() {
+  return <div>Patient Example</div>;
+}
+```
+
+### Step 2: Register the Route
+
+```tsx
+import WoundHistory from "@/routes/patientApp/example/PatientExample";
+
+{
+  path: "/patient/example",
+  element: (
+    <AppLayout>
+      <PatientExample />
+    </AppLayout>
+  ),
+}
+```
+
+### Step 3: Use it in Navigation
+
+```tsx
+<Link to="/patient/example">View Example</Link>
+```
+
+---
+
+## Auth Guard
+
+All routes (except `/login`) are nested inside the `AuthGuard`, which protects access and redirects unauthenticated users.
+
+For development, this guard is disabled in `DEV` mode to allow free navigation.
+
+---
