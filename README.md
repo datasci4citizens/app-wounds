@@ -1,4 +1,4 @@
-# Wounds App
+# 🩹 Wounds App
 
 **Wounds** is an application built for **nurses and patients** to collaboratively monitor the healing progress of wounds. It helps maintain consistent follow-up, improves documentation, and enhances communication between healthcare professionals and patients.
 
@@ -12,6 +12,7 @@ Create a `.env` file in the root directory and add the following:
 
 ```bash
 VITE_SERVER_URL=<YOUR_BACKEND_URL> # http://localhost:3000 -> local
+VITE_GOOGLE_CLIENT_ID=<GOOGLE_KEY>
 ```
 
 ---
@@ -63,86 +64,41 @@ This guide explains how the routing system works in the **Wounds App**, how rout
 
 ## Folder Structure
 
-The application uses **React Router v6** with `createBrowserRouter`. All routes are defined in `src/App.tsx`.
-
-The project is split into **two main domains** based on the user type:
+The application uses **React Router v6** with `createBrowserRouter`. The app is divided into three contexts:
 
 ```
-src/routes/
-├── login/
-│   └── Login.tsx
-├── patientApp/
-│   ├── patient/
-│   ├── wound/
-│   └── Menu.tsx
-└── specialistApp/
-    ├── patient/
-    ├── wound/
-    └── Menu.tsx
+src/
+├── apps/
+│   ├── DefaultApp.tsx       # Login/SignUp -> Role selection
+│   ├── PatientApp.tsx       # Patient-only routes
+│   └── SpecialistApp.tsx    # Specialist-only routes
+├── routes/
+│   ├── login/
+│   ├── patientApp/
+│   ├── specialistApp/
+│   └── RoleSelection.tsx
 ```
 
-Both `patientApp/` and `specialistApp/` contain similar route modules like `patient/` and `wound/`, but are tailored to each role's experience.
+Each app has its own router definition, layout and structure.
 
 ---
 
 ## How Routing is Defined
 
-All routing is configured in `src/App.tsx` using `createBrowserRouter`.
+Each app file defines its own router:
 
-Example route structure:
+- `DefaultApp.tsx`: entry after login, with route to `/role-selection`
+- `PatientApp.tsx`: routes for patients only
+- `SpecialistApp.tsx`: routes for specialists only
+
+Your main `App.tsx` dynamically chooses which app to load:
 
 ```tsx
-const router = createBrowserRouter([
-  {
-    path: "/login",
-    element: <LoginPage />,
-  },
-  {
-    path: "/",
-    element: (
-      <UserContextProvider>
-        <AuthGuard />
-      </UserContextProvider>
-    ),
-    children: [
-      // Patient App
-      {
-        path: "/patient/dashboard",
-        element: (
-          <AppLayout>
-            <PatientDashboard />
-          </AppLayout>
-        ),
-      },
-      {
-        path: "/patient/wound/create",
-        element: (
-          <AppLayout>
-            <PatientWoundCreate />
-          </AppLayout>
-        ),
-      },
+const role = useUserRole();
 
-      // Specialist App
-      {
-        path: "/specialist/patients",
-        element: (
-          <AppLayout>
-            <SpecialistPatientList />
-          </AppLayout>
-        ),
-      },
-      {
-        path: "/specialist/wound/create",
-        element: (
-          <AppLayout>
-            <SpecialistWoundCreate />
-          </AppLayout>
-        ),
-      },
-    ],
-  },
-]);
+if (role === "patient") return <PatientApp />;
+if (role === "specialist") return <SpecialistApp />;
+return <DefaultApp />;
 ```
 
 ---
@@ -151,7 +107,7 @@ const router = createBrowserRouter([
 
 ### Step 1: Create the Component
 
-Example for a new patient route:
+Example:
 
 ```tsx
 // src/routes/patientApp/example/PatientExample.tsx
@@ -162,11 +118,13 @@ export default function PatientExample() {
 
 ### Step 2: Register the Route
 
+Go to `PatientApp.tsx` or `SpecialistApp.tsx` depending on the context.
+
 ```tsx
-import WoundHistory from "@/routes/patientApp/example/PatientExample";
+import PatientExample from "@/routes/patientApp/example/PatientExample";
 
 {
-  path: "/patient/example",
+  path: "/patientApp/example",
   element: (
     <AppLayout>
       <PatientExample />
@@ -175,18 +133,33 @@ import WoundHistory from "@/routes/patientApp/example/PatientExample";
 }
 ```
 
-### Step 3: Use it in Navigation
+### Step 3: Use the Route
 
 ```tsx
-<Link to="/patient/example">View Example</Link>
+<Link to="/patientApp/example">View Example</Link>
 ```
+
+---
+
+## Role Selection Page
+
+
+The page `/role-selection` is the first step after login, where the user selects whether they are a **patient** or **specialist**. This sets the role in localStorage.
+
+> ⚠️ Temporary mechanism: This manual role selection is only a placeholder. In the final version, the role will be provided directly by the backend after login, and this page will be removed from the flow.
+
+```tsx
+localStorage.setItem("user_role", "patient" or "specialist");
+```
+
+Your `App.tsx` uses this value to load the correct app.
 
 ---
 
 ## Auth Guard
 
-All routes (except `/login`) are nested inside the `AuthGuard`, which protects access and redirects unauthenticated users.
+All pages (except `/login`) are protected using the `AuthGuard`, which checks authentication state.
 
-For development, this guard is disabled in `DEV` mode to allow free navigation.
+For development, the guard skips validation when `import.meta.env.DEV === true`.
 
 ---
