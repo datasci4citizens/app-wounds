@@ -72,7 +72,7 @@ interface Comorbidities {
 
 type PatientFormValues = z.infer<typeof PatientFormSchema>;
 
-export function PatientCreate() {
+export default function PatientCreate() {
     const navigate = useNavigate();
     const {trigger: postTrigger} = useSWRMutation(getBaseURL("/patients/"), postRequest);
     const {
@@ -131,7 +131,7 @@ export function PatientCreate() {
 
             console.log('Sending payload:', payload);
             await postTrigger(payload);
-            return navigate("/patient/list")
+            return navigate("/specialistApp/patient/list")
         } catch (error) {
             console.error('Error submitting form:', error);
             throw error;

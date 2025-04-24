@@ -77,7 +77,7 @@ export default function WoundCreate() {
 
             console.log('Sending payload:', payload);
             await postTrigger(payload);
-            return navigate('/patient/wounds', {state: {patient_id}});
+            return navigate('/specialistApp/patient/wounds', {state: {patient_id}});
         } catch (error) {
             console.error('Error submitting form:', error);
             throw error;

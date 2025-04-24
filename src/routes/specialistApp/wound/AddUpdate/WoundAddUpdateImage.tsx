@@ -73,7 +73,7 @@ export default function WoundAddUpdateImage() {
                     ...prev,
                     image_id: imageResult.image_id
                 }));
-                navigate('/wound/add-update/conduct');
+                navigate('/specialistApp/wound/add-update/conduct');
             }
         } catch (error) {
             console.error("Error submitting form:", error);
@@ -133,7 +133,7 @@ export default function WoundAddUpdateImage() {
                     </div>
 
                     <Button type="button" onClick={() => {
-                        navigate('/wound/add-update/conduct');
+                        navigate('/specialistApp/wound/add-update/conduct');
                     }}>
                         Pular
                     </Button>

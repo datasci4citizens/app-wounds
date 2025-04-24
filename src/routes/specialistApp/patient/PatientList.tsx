@@ -14,7 +14,7 @@ const PatientCard = ({patient}: { patient: Patient }) => {
 
     const id = patient.patient_id
     const handleCardClick = () => {
-        navigate('/patient/wounds', {state: {patient_id: id}}); // Pass the patient data through state
+        navigate('/specialistApp/patient/wounds', {state: {patient_id: id}}); // Pass the patient data through state
     };
 
     return (
@@ -75,7 +75,7 @@ export default function PatientsPage() {
             </div>
 
             <Button type="button" className="w-full bg-sky-900 mt-6 mb-6" onClick={() => {
-                navigate("/patient/create")
+                navigate("/specialistApp/patient/create")
             }}>
                 <Plus className="mr-2 h-5 w-5"/>
                 Adicionar Paciente

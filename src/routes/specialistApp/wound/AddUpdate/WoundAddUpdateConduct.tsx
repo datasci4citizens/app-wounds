@@ -40,7 +40,7 @@ export default function WoundAddUpdateConduct() {
         setWoundUpdate(updatedWoundUpdate);
         await postTrigger(updatedWoundUpdate);
 
-        navigate('/wound/detail', {state: {wound_id: updatedWoundUpdate.wound_id}})
+        navigate('/specialistApp/wound/detail', {state: {wound_id: updatedWoundUpdate.wound_id}})
     }
 
     return (

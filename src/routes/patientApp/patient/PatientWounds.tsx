@@ -13,7 +13,7 @@ const WoundCard = ({wound, index}: { wound: Wound, index: number }) => {
     const navigate = useNavigate();
 
     const handleCardClick = () => {
-        navigate('/wound/detail', {state: {wound_id: wound.wound_id}});
+        navigate('/patientApp/wound/detail', {state: {wound_id: wound.wound_id}});
     };
 
     return (
@@ -106,7 +106,7 @@ export default function PatientsWounds() {
                         </div>
 
                         <Button type="button" className="bg-sky-900 mt-6" onClick={() => {
-                            navigate('/wound/create', {state: {patient_id: patient_id}});
+                            navigate('/patientApp/wound/create', {state: {patient_id: patient_id}});
                         }}>
                             <Plus className="mr-2 h-5 w-5"/>
                             Adicionar Ferida
