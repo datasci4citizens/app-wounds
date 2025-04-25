@@ -43,7 +43,7 @@ export default function WoundRecordDetail() {
                                 <div
                                     className="border border-gray-300 rounded flex items-center justify-center cursor-pointer"
                                     onClick={() => {
-                                        navigate('/patientApp/wound/detail', {state: {wound_id: woundId}});
+                                        navigate('/wound/detail', {state: {wound_id: woundId}});
                                     }}
                                 >
                                     <ArrowLeft className="text-black p-2" size={32}/>

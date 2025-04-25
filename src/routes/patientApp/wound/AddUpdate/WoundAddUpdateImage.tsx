@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button.tsx'
 import { useNavigate } from "react-router-dom";
 import useSWRMutation from "swr/mutation";
 import { getBaseURL, postRequest } from "@/data/common/HttpExtensions.ts";
-import { useWoundUpdate } from "@/routes/specialistApp/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx";
+import { useWoundUpdate } from "@/routes/patientApp/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx";
 
 export default function WoundAddUpdateImage() {
     const navigate = useNavigate();
@@ -73,7 +73,7 @@ export default function WoundAddUpdateImage() {
                     ...prev,
                     image_id: imageResult.image_id
                 }));
-                navigate('/patientApp/wound/add-update/conduct');
+                navigate('/wound/add-update/conduct');
             }
         } catch (error) {
             console.error("Error submitting form:", error);
@@ -133,7 +133,7 @@ export default function WoundAddUpdateImage() {
                     </div>
 
                     <Button type="button" onClick={() => {
-                        navigate('/patientApp/wound/add-update/conduct');
+                        navigate('/wound/add-update/conduct');
                     }}>
                         Pular
                     </Button>

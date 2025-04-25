@@ -1,18 +1,19 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { AuthGuard } from '../guards/auth';
-import LoginPage from '../routes//login/Login.tsx';
+import LoginPage from '../routes/defaultApp/Login.tsx';
 import '../globals.css';
 import AppLayout from "@/components/common/AppLayout.tsx";
 import { SWRConfig } from 'swr';
 import { UserContextProvider } from "@/lib/hooks/use-user.tsx";
-import PatientWoundCreate from '@/routes/patientApp/wound/WoundCreate.tsx';
-import PatientWoundAddUpdate from '@/routes/patientApp/wound/AddUpdate/WoundAddUpdate.tsx';
-import PatientPatientsWounds from "@/routes/patientApp/patient/PatientWounds.tsx";
-import PatientWoundDetail from "@/routes/patientApp/wound/WoundDetail.tsx";
-import PatientWoundRecordDetail from "@/routes/patientApp/wound/WoundRecordDetail.tsx";
-import PatientWoundAddUpdateImage from "@/routes/patientApp/wound/AddUpdate/WoundAddUpdateImage.tsx";
-import PatientWoundAddUpdateConduct from "@/routes/patientApp/wound/AddUpdate/WoundAddUpdateConduct.tsx";
+import WoundCreate from '@/routes/patientApp/wound/WoundCreate.tsx';
+import WoundAddUpdate from '@/routes/patientApp/wound/AddUpdate/WoundAddUpdate.tsx';
+import PatientsWounds from "@/routes/patientApp/patient/PatientWounds.tsx";
+import WoundDetail from "@/routes/patientApp/wound/WoundDetail.tsx";
+import WoundRecordDetail from "@/routes/patientApp/wound/WoundRecordDetail.tsx";
+import WoundAddUpdateImage from "@/routes/patientApp/wound/AddUpdate/WoundAddUpdateImage.tsx";
+import WoundAddUpdateConduct from "@/routes/patientApp/wound/AddUpdate/WoundAddUpdateConduct.tsx";
 import {WoundUpdateProvider}  from "@/routes/patientApp/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx";
+import Menu from '@/routes/patientApp/Menu.tsx';
 
 const router = createBrowserRouter([
     {
@@ -28,60 +29,68 @@ const router = createBrowserRouter([
         ),
         children: [
             {
-                path: '/patientApp/patient/wounds',
+                path: '/menu',
                 element: (
                     <AppLayout>
-                        <PatientPatientsWounds/>
+                        <Menu/>
                     </AppLayout>
                 ),
             },
             {
-                path: '/patientApp/wound/create',
+                path: '/patient/wounds',
                 element: (
                     <AppLayout>
-                        <PatientWoundCreate/>
+                        <PatientsWounds/>
                     </AppLayout>
                 ),
             },
             {
-                path: '/patientApp/wound/detail',
+                path: '/wound/create',
                 element: (
                     <AppLayout>
-                        <PatientWoundDetail/>
+                        <WoundCreate/>
                     </AppLayout>
                 ),
             },
             {
-                path: '/patientApp/wound/record-detail',
+                path: '/wound/detail',
+                element: (
+                    <AppLayout>
+                        <WoundDetail/>
+                    </AppLayout>
+                ),
+            },
+            {
+                path: '/wound/record-detail',
                 element:
                     <AppLayout>
-                        <PatientWoundRecordDetail/>
+                        <WoundRecordDetail/>
                     </AppLayout>
             },
             {
-                path: '/patientApp/wound/add-update',
+                path: '/wound/add-update',
                 element:
                     <AppLayout>
                         <WoundUpdateProvider>
-                            <PatientWoundAddUpdate/>
+                            <WoundAddUpdate/>
                         </WoundUpdateProvider>
                     </AppLayout>
             },
             {
-                path: '/patientApp/wound/add-update/image',
+                path: '/wound/add-update/image',
                 element:
                     <AppLayout>
                         <WoundUpdateProvider>
-                            <PatientWoundAddUpdateImage/>
+                            <WoundAddUpdateImage/>
                         </WoundUpdateProvider>
                     </AppLayout>
             },
             {
-                path: '/patientApp/wound/add-update/conduct',
+                path: '/wound/add-update/conduct',
                 element:
                     <AppLayout>
                         <WoundUpdateProvider>
-                            <PatientWoundAddUpdateConduct/>
+                            <WoundAddUpdateConduct/>
                         </WoundUpdateProvider>
                     </AppLayout>
             }

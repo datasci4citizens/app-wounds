@@ -13,7 +13,7 @@ import { getExudateType, getRegionDescription, getTissueType, getWoundType } fro
 const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundRecord, woundId: number }) => {
     const navigate = useNavigate();
     const handleSeeMoreButtonClick = () => {
-        navigate('/patientApp/wound/record-detail', {
+        navigate('/wound/record-detail', {
             state: {
                 wound_id: woundId,
                 tracking_record_id: woundRecord.tracking_record_id

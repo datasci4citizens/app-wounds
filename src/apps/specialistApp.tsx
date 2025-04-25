@@ -1,20 +1,21 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { AuthGuard } from '../guards/auth.tsx';
-import LoginPage from '../routes/login/Login.tsx';
+import LoginPage from '../routes/defaultApp/Login.tsx';
 import '../globals.css';
 import AppLayout from "@/components/common/AppLayout.tsx";
 import { SWRConfig } from 'swr';
 import { UserContextProvider } from "@/lib/hooks/use-user.tsx";
-import SpecialistWoundCreate from '@/routes/specialistApp/wound/WoundCreate.tsx';
-import SpecialistWoundAddUpdate from '@/routes/specialistApp/wound/AddUpdate/WoundAddUpdate.tsx';
-import SpecialistPatientsPage from "@/routes/specialistApp/patient/PatientList.tsx";
-import SpecialistPatientsWounds from "@/routes/specialistApp/patient/PatientWounds.tsx";
-import SpecialistWoundDetail from "@/routes/specialistApp/wound/WoundDetail.tsx";
-import SpecialistWoundRecordDetail from "@/routes/specialistApp/wound/WoundRecordDetail.tsx";
-import SpecialistWoundAddUpdateImage from "@/routes/specialistApp/wound/AddUpdate/WoundAddUpdateImage.tsx";
-import SpecialistWoundAddUpdateConduct from "@/routes/specialistApp/wound/AddUpdate/WoundAddUpdateConduct.tsx";
-import SpecialistPatientCreate  from "@/routes/specialistApp/patient/PatientCreate.tsx";
+import WoundCreate from '@/routes/specialistApp/wound/WoundCreate.tsx';
+import WoundAddUpdate from '@/routes/specialistApp/wound/AddUpdate/WoundAddUpdate.tsx';
+import PatientsPage from "@/routes/specialistApp/patient/PatientList.tsx";
+import PatientsWounds from "@/routes/specialistApp/patient/PatientWounds.tsx";
+import WoundDetail from "@/routes/specialistApp/wound/WoundDetail.tsx";
+import WoundRecordDetail from "@/routes/specialistApp/wound/WoundRecordDetail.tsx";
+import WoundAddUpdateImage from "@/routes/specialistApp/wound/AddUpdate/WoundAddUpdateImage.tsx";
+import WoundAddUpdateConduct from "@/routes/specialistApp/wound/AddUpdate/WoundAddUpdateConduct.tsx";
+import PatientCreate  from "@/routes/specialistApp/patient/PatientCreate.tsx";
 import {WoundUpdateProvider}  from "@/routes/specialistApp/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx";
+import Menu from "@/routes/specialistApp/Menu.tsx"
 
 const router = createBrowserRouter([
     {
@@ -30,76 +31,84 @@ const router = createBrowserRouter([
         ),
         children: [
             {
-                path: '/specialistApp/patient/create',
+                path: '/menu',
                 element: (
                     <AppLayout>
-                        <SpecialistPatientCreate/>
+                        <Menu/>
                     </AppLayout>
                 ),
             },
             {
-                path: '/specialistApp/patient/list',
+                path: '/patient/create',
                 element: (
                     <AppLayout>
-                        <SpecialistPatientsPage/>
+                        <PatientCreate/>
                     </AppLayout>
                 ),
             },
             {
-                path: '/specialistApp/patient/wounds',
+                path: '/patient/list',
                 element: (
                     <AppLayout>
-                        <SpecialistPatientsWounds/>
+                        <PatientsPage/>
                     </AppLayout>
                 ),
             },
             {
-                path: '/specialistApp/wound/create',
+                path: '/patient/wounds',
                 element: (
                     <AppLayout>
-                        <SpecialistWoundCreate/>
+                        <PatientsWounds/>
                     </AppLayout>
                 ),
             },
             {
-                path: '/specialistApp/wound/detail',
+                path: '/wound/create',
                 element: (
                     <AppLayout>
-                        <SpecialistWoundDetail/>
+                        <WoundCreate/>
                     </AppLayout>
                 ),
             },
             {
-                path: '/specialistApp/wound/record-detail',
+                path: '/wound/detail',
+                element: (
+                    <AppLayout>
+                        <WoundDetail/>
+                    </AppLayout>
+                ),
+            },
+            {
+                path: '/wound/record-detail',
                 element:
                     <AppLayout>
-                        <SpecialistWoundRecordDetail/>
+                        <WoundRecordDetail/>
                     </AppLayout>
             },
             {
-                path: '/specialistApp/wound/add-update',
+                path: '/wound/add-update',
                 element:
                     <AppLayout>
                         <WoundUpdateProvider>
-                            <SpecialistWoundAddUpdate/>
+                            <WoundAddUpdate/>
                         </WoundUpdateProvider>
                     </AppLayout>
             },
             {
-                path: '/specialistApp/wound/add-update/image',
+                path: '/wound/add-update/image',
                 element:
                     <AppLayout>
                         <WoundUpdateProvider>
-                            <SpecialistWoundAddUpdateImage/>
+                            <WoundAddUpdateImage/>
                         </WoundUpdateProvider>
                     </AppLayout>
             },
             {
-                path: '/specialistApp/wound/add-update/conduct',
+                path: '/wound/add-update/conduct',
                 element:
                     <AppLayout>
                         <WoundUpdateProvider>
-                            <SpecialistWoundAddUpdateConduct/>
+                            <WoundAddUpdateConduct/>
                         </WoundUpdateProvider>
                     </AppLayout>
             }

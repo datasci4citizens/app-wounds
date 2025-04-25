@@ -72,7 +72,7 @@
 //
 //             console.log('Sending payload:', payload);
 //             await postTrigger(payload);
-//             return navigate("/specialistApp/patient/list")
+//             return navigate("/patient/list")
 //         } catch (error) {
 //             console.error('Error submitting form:', error);
 //             throw error;

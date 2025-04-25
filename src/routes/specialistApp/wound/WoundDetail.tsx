@@ -13,7 +13,7 @@ import { getExudateType, getRegionDescription, getTissueType, getWoundType } fro
 const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundRecord, woundId: number }) => {
     const navigate = useNavigate();
     const handleSeeMoreButtonClick = () => {
-        navigate('/specialistApp/wound/record-detail', {
+        navigate('/wound/record-detail', {
             state: {
                 wound_id: woundId,
                 tracking_record_id: woundRecord.tracking_record_id
@@ -93,7 +93,7 @@ export default function WoundDetail() {
                             <div
                                 className="border border-gray-300 rounded flex items-center justify-center cursor-pointer"
                                 onClick={() => {
-                                    navigate('/specialistApp/patient/wounds', {state: {patient_id: wound.patient_id}});
+                                    navigate('/patient/wounds', {state: {patient_id: wound.patient_id}});
                                 }}
                             >
                                 <ArrowLeft className="text-black p-2" size={32}/>
@@ -129,7 +129,7 @@ export default function WoundDetail() {
                         </div>
 
                         <Button type="button" className="bg-sky-900 mt-6 mb-6" onClick={() => {
-                            navigate('/specialistApp/wound/add-update', {state: {wound_id: woundId}});
+                            navigate('/wound/add-update', {state: {wound_id: woundId}});
                         }}>
                             <Plus className="mr-2 h-5 w-5"/>
                             Adicionar atualização

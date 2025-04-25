@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "@/components/ui/textarea.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { useWoundUpdate } from "@/routes/specialistApp/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx";
+import { useWoundUpdate } from "@/routes/patientApp/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx";
 import useSWRMutation from "swr/mutation";
 import { getBaseURL, postRequest } from "@/data/common/HttpExtensions.ts";
 
@@ -40,7 +40,7 @@ export default function WoundAddUpdateConduct() {
         setWoundUpdate(updatedWoundUpdate);
         await postTrigger(updatedWoundUpdate);
 
-        navigate('/patientApp/wound/detail', {state: {wound_id: updatedWoundUpdate.wound_id}})
+        navigate('/wound/detail', {state: {wound_id: updatedWoundUpdate.wound_id}})
     }
 
     return (

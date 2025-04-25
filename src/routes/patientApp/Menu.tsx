@@ -1,13 +1,13 @@
 import { useNavigate } from 'react-router-dom'
 
-import { Search, UserPlus, Users } from 'lucide-react'
+import { UserPlus } from 'lucide-react'
 
-import { Button } from '../components/ui/button.tsx'
+import { Button } from '../../components/ui/button.tsx'
 import { Card,
          CardHeader,
          CardTitle,
          CardContent,
-         CardDescription } from '../components/ui/card.tsx'
+         CardDescription } from '../../components/ui/card.tsx'
 
 export default function Menu() { // TODO: Remove
   const navigate = useNavigate()
@@ -24,27 +24,7 @@ export default function Menu() { // TODO: Remove
           <CardDescription className="text-center">Choose an option to manage users</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col space-y-4">
-          <Button 
-            onClick={() => handleNavigate('/user/list')}
-            className='flex w-full items-center justify-center space-x-2'
-          >
-            <Users className="mr-2 h-5 w-5" />
-            <span>List Users</span>
-          </Button>
-          <Button 
-            onClick={() => handleNavigate('/user/create')}
-            className='flex w-full items-center justify-center space-x-2'
-          >
-            <UserPlus className="mr-2 h-5 w-5" />
-            <span>Add User</span>
-          </Button>
-          <Button 
-            onClick={() => handleNavigate('/patient/create')}
-            className='flex w-full items-center justify-center space-x-2'
-          >
-            <UserPlus className="mr-2 h-5 w-5" />
-            <span>Add Patient</span>
-          </Button>
+  
           <Button 
             onClick={() => handleNavigate('/wound/create')}
             className='flex w-full items-center justify-center space-x-2'
@@ -58,13 +38,6 @@ export default function Menu() { // TODO: Remove
           >
             <UserPlus className="mr-2 h-5 w-5" />
             <span>Update Wound</span>
-          </Button>
-          <Button
-              onClick={() => handleNavigate('/patient/list')}
-              className='flex w-full items-center justify-center space-x-2'
-          >
-            <Search className="mr-2 h-5 w-5" />
-            <span>List patients</span>
           </Button>
         </CardContent>
       </Card>

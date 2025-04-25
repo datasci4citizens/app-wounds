@@ -1,11 +1,11 @@
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
-import LoginPage from '../routes//login/Login.tsx';
+import LoginPage from '../routes/defaultApp/Login.tsx';
 import '../globals.css';
 import { SWRConfig } from 'swr';
 import { UserContextProvider } from '@/lib/hooks/use-user.tsx';
 import { AuthGuard } from '@/guards/auth.tsx';
 import AppLayout from '@/components/common/AppLayout.tsx';
-import RoleSelection from '@/routes/RoleSelection.tsx';
+import RoleSelection from '@/routes/defaultApp/RoleSelection.tsx';
 
 const router = createBrowserRouter([
     {
@@ -14,7 +14,7 @@ const router = createBrowserRouter([
     },
     {
         index: true,
-        element: <Navigate to="/" />,
+        element: <Navigate to="/menu" />,
       },
     {
         path: '/',

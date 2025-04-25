@@ -13,7 +13,7 @@ const WoundCard = ({wound, index}: { wound: Wound, index: number }) => {
     const navigate = useNavigate();
 
     const handleCardClick = () => {
-        navigate('/specialistApp/wound/detail', {state: {wound_id: wound.wound_id}});
+        navigate('/wound/detail', {state: {wound_id: wound.wound_id}});
     };
 
     return (
@@ -60,7 +60,7 @@ export default function PatientsWounds() {
                                 <div
                                     className={`border border-gray-300 rounded flex items-center justify-center cursor-pointer`}
                                     onClick={() => {
-                                        navigate("/specialistApp/patient/list")
+                                        navigate("/patient/list")
                                     }}>
                                     <ArrowLeft className="text-black p-2" size={32}/>
                                 </div>
@@ -106,7 +106,7 @@ export default function PatientsWounds() {
                         </div>
 
                         <Button type="button" className="bg-sky-900 mt-6" onClick={() => {
-                            navigate('/specialistApp/wound/create', {state: {patient_id: patient_id}});
+                            navigate('/wound/create', {state: {patient_id: patient_id}});
                         }}>
                             <Plus className="mr-2 h-5 w-5"/>
                             Adicionar Ferida

@@ -16,7 +16,7 @@ import tissueTypes from '@/localdata/tissue-type.json'
 import { useState } from "react";
 import { Switch } from "@/components/ui/switch.tsx";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useWoundUpdate } from "@/routes/specialistApp/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx";
+import { useWoundUpdate } from "@/routes/patientApp/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx";
 
 
 const FormSchema = z.object({
@@ -86,7 +86,7 @@ export default function WoundAddUpdate() {
                 wound_id: woundId,
             }));
 
-            return navigate('/patientApp/wound/add-update/image');
+            return navigate('/wound/add-update/image');
         } catch (error) {
             console.error('Error submitting form:', error);
             throw error;
