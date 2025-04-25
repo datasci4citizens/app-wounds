@@ -31,7 +31,7 @@ const router = createBrowserRouter([
         ),
         children: [
             {
-                path: '/menu',
+                path: '/specialist-menu',
                 element: (
                     <AppLayout>
                         <Menu/>

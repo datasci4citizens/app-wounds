@@ -20,8 +20,7 @@ export default function Menu() { // TODO: Remove
     <div className='container mx-auto flex min-h-screen items-center justify-center p-4'>
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className='text-center font-bold text-2xl'>User Management</CardTitle>
-          <CardDescription className="text-center">Choose an option to manage users</CardDescription>
+          <CardTitle className='text-center font-bold text-2xl'>Menu do Especialista</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col space-y-4">
           <Button 

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 
 export default function RoleSelection() {
@@ -11,32 +11,32 @@ export default function RoleSelection() {
   };
 
   return (
-    <div className="flex flex-col h-full w-full items-center px-8">
-        <div className="flex flex-col items-center w-full">
-            <h1 className="text-2xl font-bold mb-4">Com quem estamos falando?</h1>
-            <div className="relative w-full mt-12">
-                 
+    <div className='container mx-auto flex min-h-screen items-center justify-center p-4'>    
       <Card className="w-full max-w-md shadow-sm border border-gray-200">
+          <CardHeader>
+            <CardTitle className='text-center font-bold text-2xl'>Com quem estamos falando ?</CardTitle>
+          </CardHeader>
           <CardContent className="p-8 flex flex-col gap-6 items-center">
             <Button
               className="w-full bg-sky-900 mt-6 mb-6"
-              onClick={() => selectRole("patient")}
+              onClick={() => {
+                localStorage.setItem("user_role", "patient");
+                navigate("/patient-signup");
+              }}
             >
               Sou um paciente
             </Button>
 
             <Button
               className="w-full bg-sky-900 mt-6 mb-6"
-              onClick={() => selectRole("specialist")}
+              onClick={() => {
+                localStorage.setItem("user_role", "specialist");
+              }}
             >
               Sou um profissional
             </Button>
           </CardContent>
         </Card>
-      </div>
-    </div>
-    </div>
-
-    
+      </div>   
   );
 }

@@ -29,7 +29,7 @@ const router = createBrowserRouter([
         ),
         children: [
             {
-                path: '/menu',
+                path: '/patient-menu',
                 element: (
                     <AppLayout>
                         <Menu/>
