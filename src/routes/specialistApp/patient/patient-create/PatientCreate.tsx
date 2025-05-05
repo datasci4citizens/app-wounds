@@ -130,8 +130,8 @@ export default function PatientCreate() {
             };
 
             console.log('Sending payload:', payload);
-            await postTrigger(payload);
-            return navigate("/patient/list")
+            //await postTrigger(payload);
+            return navigate("/patient/create/qrcode", { state: "1234" });
         } catch (error) {
             console.error('Error submitting form:', error);
             throw error;

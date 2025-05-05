@@ -13,9 +13,10 @@ import WoundDetail from "@/routes/specialistApp/wound/WoundDetail.tsx";
 import WoundRecordDetail from "@/routes/specialistApp/wound/WoundRecordDetail.tsx";
 import WoundAddUpdateImage from "@/routes/specialistApp/wound/AddUpdate/WoundAddUpdateImage.tsx";
 import WoundAddUpdateConduct from "@/routes/specialistApp/wound/AddUpdate/WoundAddUpdateConduct.tsx";
-import PatientCreate  from "@/routes/specialistApp/patient/PatientCreate.tsx";
+import PatientCreate  from "@/routes/specialistApp/patient/patient-create/PatientCreate.tsx";
 import {WoundUpdateProvider}  from "@/routes/specialistApp/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx";
 import Menu from "@/routes/specialistApp/Menu.tsx"
+import PatientCreateQrCode from '@/routes/specialistApp/patient/patient-create/PatientCreateQrCode.tsx';
 
 const router = createBrowserRouter([
     {
@@ -43,6 +44,14 @@ const router = createBrowserRouter([
                 element: (
                     <AppLayout>
                         <PatientCreate/>
+                    </AppLayout>
+                ),
+            },
+            {
+                path: '/patient/create/qrcode',
+                element: (
+                    <AppLayout>
+                        <PatientCreateQrCode/>
                     </AppLayout>
                 ),
             },
