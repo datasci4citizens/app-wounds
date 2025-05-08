@@ -22,10 +22,10 @@ export const BandageIcon: React.FC<BandageIconProps> = ({
 }) => {
   const themes = {
     default: {
-      backgroundColor: "#0033A0",
-      bandageColor: "#FFD6CC",
-      crossBackgroundColor: "#0033A0",
-      crossColor: "#FFD6CC",
+      backgroundColor: "#0120AC",
+      bandageColor: "#fad5d2",
+      crossBackgroundColor: "#0120AC",
+      crossColor: "#fad5d2",
     },
     purple: {
       backgroundColor: "#E0E7FF",
