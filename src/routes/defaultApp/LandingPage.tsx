@@ -1,31 +1,35 @@
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/new/Button";
+import { BandageIcon } from "@/components/ui/new/BandageIcon";
 
 const LandingPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-primary">
-      <img
+    <div className="flex flex-col items-center justify-center min-h-screen bg-white">
+      {/* Use the BandageIcon component */}
+      <BandageIcon />
+      
+      {/* <img
         src="/wounds.svg"
         alt="Logo Cicatrizando"
         className="w-64 h-64 object-contain"
-      />
+      /> */}
 
-      <div className="mt-32 flex flex-col gap-4 w-full px-10 max-w-sm">
+      <div className="mt-32 flex flex-col gap-4 items-center">
         <Button
-          className="w-full bg-sky-900 text-white text-lg py-6"
+          className="text-white text-sm w-[216px]"
           onClick={() => navigate("/login")}
         >
-          Entrar
+          Cadastre-se
         </Button>
 
         <Button
           variant="outline"
-          className="w-full text-lg py-6 border-gray-300 bg-white text-sky-900"
+          className="text-sm w-[216px]"
           onClick={() => navigate("/role-selection")}
         >
-          Cadastrar
+          Entrar
         </Button>
       </div>
     </div>
