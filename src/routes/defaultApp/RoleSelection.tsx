@@ -1,42 +1,59 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BandageIcon } from "@/components/ui/new/bandage-logo/BandageIcon";
+import { PatientIcon } from "@/components/ui/new/PatientIcon";
+import { ProfessionalIcon } from "@/components/ui/new/ProfessionalIcon";
 import { useNavigate } from "react-router-dom";
 
 export default function RoleSelection() {
   const navigate = useNavigate();
 
-  const selectRole = (role: "patient" | "specialist") => {
-    localStorage.setItem("user_role", role);
-    navigate("/"); 
-  };
-
   return (
-    <div className='container mx-auto flex min-h-screen items-center justify-center p-4'>    
-      <Card className="w-full max-w-md shadow-sm border border-gray-200">
-          <CardHeader>
-            <CardTitle className='text-center font-bold text-2xl'>Com quem estamos falando ?</CardTitle>
-          </CardHeader>
-          <CardContent className="p-8 flex flex-col gap-6 items-center">
-            <Button
-              className="w-full bg-sky-900 mt-6 mb-6"
-              onClick={() => {
-                localStorage.setItem("user_role", "patient");
-                navigate("/patient-signup");
-              }}
-            >
-              Sou um paciente
-            </Button>
+    <div className="flex flex-col items-center min-h-screen bg-white p-4">    
+      <div className="mt-[68px] mb-16">
+        <BandageIcon theme="purple" size={0.5} />
+      </div>
 
-            <Button
-              className="w-full bg-sky-900 mt-6 mb-6"
-              onClick={() => {
-                localStorage.setItem("user_role", "specialist");
-              }}
-            >
-              Sou um profissional
-            </Button>
-          </CardContent>
-        </Card>
-      </div>   
+      <h1 className="text-[#0120AC] text-xl mb-12">
+        Com quem estamos falando?
+      </h1>
+
+      <div className="w-full max-w-md flex flex-col gap-6 items-center">
+        {/* Patient section */}
+        <div className="flex flex-col items-center gap-4">
+          <div className="rounded-xl flex items-center justify-center" style={{ backgroundColor: "#E6EAFF" }}>
+            <PatientIcon size={1} />
+          </div>
+          <button
+            className="px-6 py-3 rounded-full bg-[#0120AC] text-white text-sm"
+            onClick={() => {
+              localStorage.setItem("user_role", "patient");
+              navigate("/patient-signup");
+            }}
+          >
+            Sou um paciente
+          </button>
+        </div>
+
+        {/* Separator */}
+        <div className="my-2 text-[#0120AC] font-medium">
+          ou
+        </div>
+
+        {/* Professional section */}
+        <div className="flex flex-col items-center gap-4">
+          <div className="rounded-xl flex items-center justify-center" style={{ backgroundColor: "#E6EAFF" }}>
+            <ProfessionalIcon size={1} />
+          </div>
+          <button
+            className="px-5 py-3 rounded-full bg-[#0120AC] text-white text-sm font-medium"
+            onClick={() => {
+              localStorage.setItem("user_role", "specialist");
+              navigate("/specialist-signup");
+            }}
+          >
+            Sou um profissional
+          </button>
+        </div>
+      </div>
+    </div>   
   );
 }
