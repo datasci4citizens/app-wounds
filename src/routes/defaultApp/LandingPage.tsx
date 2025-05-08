@@ -17,7 +17,7 @@ const LandingPage = () => {
       <div className="mt-32 flex flex-col gap-4 items-center">
         <Button
           className="text-white text-sm w-[216px]"
-          onClick={() => navigate("/login")}
+          onClick={() => navigate("/role-selection")}
         >
           Cadastre-se
         </Button>
@@ -27,7 +27,7 @@ const LandingPage = () => {
         <Button
           variant="outline"
           className="text-sm w-[216px]"
-          onClick={() => navigate("/role-selection")}
+          onClick={() => navigate("/login")}
         >
           Entrar
         </Button>

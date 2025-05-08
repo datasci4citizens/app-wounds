@@ -1,19 +1,15 @@
-import { BandageIcon } from "@/components/ui/new/bandage-logo/BandageIcon";
 import { QrCodeIcon } from "@/components/ui/new/QrCodeIcon";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/new/Button";
+import AppHeader from "@/components/ui/common/AppHeader";
 
 export default function PatientSignUp() {
   const navigate = useNavigate();
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-white p-4">
-      <div className="mt-[68px] mb-16">
-        <BandageIcon theme="purple" size={0.5} />
+      <div className="mb-[16px] mt-[68px]">
+        <AppHeader title="QR Code" />
       </div>
-
-      <div className="flex flex-col items-center gap-6">
-        <h1 className="text-[#0120AC] text-xl mb-12">QR code</h1>
         
         <p className="text-center text-sm text-gray-600 max-w-md p-4">
           Para prosseguir com o cadastro, fotografe o código fornecido pelo
@@ -32,7 +28,6 @@ export default function PatientSignUp() {
             Prosseguir
           </button>
         </div>
-      </div>
     </div>
   );
 }

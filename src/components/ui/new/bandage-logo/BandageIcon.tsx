@@ -1,7 +1,7 @@
 import "./bandage.css";
 
 // Define theme types
-export type BandageTheme = "default" | "purple" | "custom";
+export type BandageTheme = "default" | "faded_blue" | "custom";
 
 export interface BandageIconProps {
   theme?: BandageTheme;
@@ -27,7 +27,7 @@ export const BandageIcon: React.FC<BandageIconProps> = ({
       crossBackgroundColor: "#0120AC",
       crossColor: "#fad5d2",
     },
-    purple: {
+    faded_blue: {
       backgroundColor: "#E0E7FF",
       bandageColor: "#A5B4FC",
       crossBackgroundColor: "#E0E7FF",
@@ -43,7 +43,7 @@ export const BandageIcon: React.FC<BandageIconProps> = ({
         crossBackgroundColor: crossBackgroundColor || "#0033A0",
         crossColor: crossColor || "#FFD6CC",
       }
-    : themes[theme as "default" | "purple"];
+    : themes[theme as "default" | "faded_blue"];
 
   // Base dimensions that will be multiplied by the size factor
   const BASE_BACKGROUND_SIZE = 80;

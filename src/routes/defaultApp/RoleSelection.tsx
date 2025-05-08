@@ -1,4 +1,4 @@
-import { BandageIcon } from "@/components/ui/new/bandage-logo/BandageIcon";
+import AppHeader from "@/components/ui/common/AppHeader";
 import { PatientIcon } from "@/components/ui/new/PatientIcon";
 import { ProfessionalIcon } from "@/components/ui/new/ProfessionalIcon";
 import { useNavigate } from "react-router-dom";
@@ -8,13 +8,10 @@ export default function RoleSelection() {
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-white p-4">    
-      <div className="mt-[68px] mb-16">
-        <BandageIcon theme="purple" size={0.5} />
+      
+      <div className="mb-[48px] mt-[68px]">
+      <AppHeader title="Com quem estamos falando?" />
       </div>
-
-      <h1 className="text-[#0120AC] text-xl mb-12">
-        Com quem estamos falando?
-      </h1>
 
       <div className="w-full max-w-md flex flex-col gap-6 items-center">
         {/* Patient section */}
