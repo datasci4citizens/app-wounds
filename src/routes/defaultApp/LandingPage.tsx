@@ -7,15 +7,10 @@ const LandingPage = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white">
-      {/* Use the BandageIcon component */}
-      <BandageIcon />
+      <div className="w-24 h-24 mb-8">
+        <BandageIcon theme="default" />
+      </div>
       
-      {/* <img
-        src="/wounds.svg"
-        alt="Logo Cicatrizando"
-        className="w-64 h-64 object-contain"
-      /> */}
-
       <div className="mt-32 flex flex-col gap-4 items-center">
         <Button
           className="text-white text-sm w-[216px]"
