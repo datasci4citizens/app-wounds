@@ -1,7 +1,7 @@
 import { Html5QrcodeScanner } from "html5-qrcode";
 import { useNavigate } from 'react-router-dom'
 import { useEffect, useState } from "react";
-import { Camera, Keyboard } from 'lucide-react'
+import { Keyboard } from 'lucide-react'
 import { Button } from '../../../components/ui/button.tsx'
 import { Card,
     CardHeader,

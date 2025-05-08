@@ -1,6 +1,5 @@
-import { Html5QrcodeScanner } from "html5-qrcode";
-import { useEffect, useState } from "react";
-import { Search, Keyboard } from 'lucide-react'
+import {  useState } from "react";
+import { Search } from 'lucide-react'
 import { Button } from '../../../components/ui/button.tsx'
 import { Card,
          CardHeader,

@@ -46,10 +46,14 @@ The app will be available at: [http://localhost:5173](http://localhost:5173)
   ```
 - Android Studio (for Android) or Xcode (for iOS)
 
+- [Android Studio Dowload](https://developer.android.com/studio?hl=pt-br)
+
+
 ### Steps
 ```bash
-npx cap sync
-npx cap open android   # or: npx cap open ios
+npm run build        # compila a versão web
+npx cap sync         # sincroniza com Capacitor
+npx cap open android # ou ios
 ```
 
 Then, use Android Studio or Xcode to run the app on an emulator or physical device.

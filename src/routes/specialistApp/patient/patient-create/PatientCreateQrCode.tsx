@@ -1,12 +1,7 @@
-import { QRCode } from 'react-qr-code'
+import QRCode from 'react-qr-code'
 import { useLocation } from 'react-router-dom'
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle
-} from '../../../../components/ui/card.tsx'
+import {CardContent} from '../../../../components/ui/card.tsx'
 
 export default function PatientCreateQrCode() {
   const location = useLocation()
