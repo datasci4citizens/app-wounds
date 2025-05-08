@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import GoogleButton from 'react-google-button';
+import AppHeader from '@/components/ui/common/AppHeader';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -29,14 +30,24 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-primary">
-      <img
-        src="/wounds.svg"
-        alt="Logo Cicatrizando"
-        className="w-64 h-64 object-contain"
-      />
+    <div className="flex flex-col items-center justify-center min-h-screen bg-white">
+      <AppHeader title="Login" />
+
       <div className="mt-40">
-        <GoogleButton label="Entrar com o Google" onClick={login} />
+        <GoogleButton
+          label=""
+          onClick={login}
+          style={{
+            width: "100px",
+            height: "52px",
+            backgroundColor: "transparent",
+            border: "1px solid #00000033",
+            borderRadius: "20px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        />
       </div>
     </div>
   );
