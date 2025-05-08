@@ -1,14 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/new/Button";
-import { BandageIcon } from "@/components/ui/new/BandageIcon";
+import { BandageIcon } from "@/components/ui/new/bandage-logo/BandageIcon";
 
 const LandingPage = () => {
   const navigate = useNavigate();
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white">
-      <div className="w-24 h-24 mb-8">
-        <BandageIcon theme="default" />
+      <div className="mb-8">
+        <BandageIcon theme="default" size={1.7} />
       </div>
       
       <div className="mt-32 flex flex-col gap-4 items-center">
