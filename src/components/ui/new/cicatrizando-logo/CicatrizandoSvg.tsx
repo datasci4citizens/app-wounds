@@ -1,12 +1,12 @@
 import React from 'react';
 
-interface LogoSvgProps {
+interface CicatrizandoSvgProps {
   width?: number;
   height?: number;
   className?: string;
 }
 
-export const LogoSvg: React.FC<LogoSvgProps> = ({
+export const CicatrizandoSvg: React.FC<CicatrizandoSvgProps> = ({
   width = 300,
   height = 50,
   className
