@@ -6,6 +6,11 @@ import { useNavigate } from "react-router-dom";
 export default function RoleSelection() {
   const navigate = useNavigate();
 
+  (role: "patient" | "specialist") => {
+    localStorage.setItem("user_role", role);
+    navigate("/"); 
+  };
+
   return (
     <div className="flex flex-col items-center min-h-screen bg-white p-4">    
       

@@ -7,6 +7,8 @@ import RoleSelection from '@/routes/defaultApp/RoleSelection.tsx';
 import LandingPage from '@/routes/defaultApp/LandingPage.tsx';
 import PatientSignUp from '@/routes/defaultApp/patient/PatientSignUp.tsx';
 import PatientRegistered from '@/routes/defaultApp/patient/PatientRegistered.tsx';
+import PatientSignUpQrCode from '@/routes/defaultApp/patient/PatientSignUpQRCode.tsx';
+import PatientSignUpToken from '@/routes/defaultApp/patient/PatientSignupToken.tsx';
 
 const router = createBrowserRouter([
     {
@@ -33,6 +35,23 @@ const router = createBrowserRouter([
         </AppLayout>
       ),
     },
+    {
+      path: '/patient-signup-qrcode',
+      element: (
+        <AppLayout>
+          <PatientSignUpQrCode />
+        </AppLayout>
+      ),
+    },
+    {
+      path: '/patient-signup-token',
+      element: (
+        <AppLayout>
+          <PatientSignUpToken />
+        </AppLayout>
+      ),
+    },
+    
     {
       path: '/patient-registered',
       element: (

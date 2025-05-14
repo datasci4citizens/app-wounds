@@ -6,8 +6,7 @@ import { Button } from '../../components/ui/button.tsx'
 import { Card,
          CardHeader,
          CardTitle,
-         CardContent,
-         CardDescription } from '../../components/ui/card.tsx'
+         CardContent} from '../../components/ui/card.tsx'
 
 export default function Menu() { // TODO: Remove
   const navigate = useNavigate()
