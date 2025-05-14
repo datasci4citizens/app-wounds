@@ -1,71 +1,60 @@
 import { useNavigate } from 'react-router-dom'
-
-import { Search, UserPlus, Users } from 'lucide-react'
-
-import { Button } from '../../components/ui/button.tsx'
-import { Card,
-         CardHeader,
-         CardTitle,
-         CardContent} from '../../components/ui/card.tsx'
+import { useState } from 'react'
+import { SearchBar } from '../../components/shared/SearchBar.tsx'
+import { ProfessionalIcon } from '@/components/ui/new/ProfessionalIcon.tsx'
+import { WaveBackgroundLayout } from '@/components/ui/new/wave/WaveBackground.tsx'
+import CategoryCard from '@/components/ui/new/card/CategoryCard.tsx';
 
 export default function Menu() { // TODO: Remove
   const navigate = useNavigate()
+  const [searchQuery, setSearchQuery] = useState('')
 
   const handleNavigate = (path: string) => {
     navigate(path)
   }
 
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+  }
+
   return (
-    <div className='container mx-auto flex min-h-screen items-center justify-center p-4'>
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className='text-center font-bold text-2xl'>Menu do Especialista</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col space-y-4">
-          <Button 
-            onClick={() => handleNavigate('/user/list')}
-            className='flex w-full items-center justify-center space-x-2'
-          >
-            <Users className="mr-2 h-5 w-5" />
-            <span>List Users</span>
-          </Button>
-          <Button 
-            onClick={() => handleNavigate('/user/create')}
-            className='flex w-full items-center justify-center space-x-2'
-          >
-            <UserPlus className="mr-2 h-5 w-5" />
-            <span>Add User</span>
-          </Button>
-          <Button 
-            onClick={() => handleNavigate('/patient/create')}
-            className='flex w-full items-center justify-center space-x-2'
-          >
-            <UserPlus className="mr-2 h-5 w-5" />
-            <span>Add Patient</span>
-          </Button>
-          <Button 
-            onClick={() => handleNavigate('/wound/create')}
-            className='flex w-full items-center justify-center space-x-2'
-          >
-            <UserPlus className="mr-2 h-5 w-5" />
-            <span>Add Wound</span>
-          </Button>
-          <Button 
-            onClick={() => handleNavigate('/wound/add-update')}
-            className='flex w-full items-center justify-center space-x-2'
-          >
-            <UserPlus className="mr-2 h-5 w-5" />
-            <span>Update Wound</span>
-          </Button>
-          <Button
-              onClick={() => handleNavigate('/patient/list')}
-              className='flex w-full items-center justify-center space-x-2'
-          >
-            <Search className="mr-2 h-5 w-5" />
-            <span>List patients</span>
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
+    <WaveBackgroundLayout className="bg-[#F9FAFB]">
+      <div className="flex justify-center items-center mt-6 mb-6">
+        <ProfessionalIcon size={0.6} borderRadius="50%" />
+      </div>
+      <div className="text-center">
+        <h1 className="text-[#0120AC] text-xl font-bold">Olá, especialista</h1>
+      </div>
+      
+      <div className="mb-6 w-full mt-8 px-4 md:px-6 lg:px-8">
+        <SearchBar 
+          placeholder="" 
+          value={searchQuery} 
+          onChange={handleSearch} 
+          onAddClick={() => handleNavigate('/create')}
+          height="64px"
+        />
+      </div>
+      
+      <div className="px-4 md:px-6 lg:px-8 mb-12 mt-16">
+        <h2 className="text-[#0120AC] text-md font-semibold text-left">Categorias</h2>
+      </div>
+
+      <div className="px-4 md:px-6 lg:px-8 space-y-4">
+        <CategoryCard 
+          title="Casos para avaliação"
+          description="Pendentes"
+          onClick={() => handleNavigate('/patient/list')}
+        />
+        
+        <CategoryCard 
+          title="Histórico de avaliações"
+          description="Casos já analisados"
+          onClick={() => handleNavigate('/appointments')}
+          theme="light_blue"
+        />
+      </div>
+
+    </WaveBackgroundLayout>
   )
 }
