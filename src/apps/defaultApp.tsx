@@ -9,6 +9,7 @@ import PatientSignUp from '@/routes/defaultApp/patient/PatientSignUp.tsx';
 import PatientRegistered from '@/routes/defaultApp/patient/PatientRegistered.tsx';
 import PatientSignUpQrCode from '@/routes/defaultApp/patient/PatientSignUpQRCode.tsx';
 import PatientSignUpToken from '@/routes/defaultApp/patient/PatientSignupToken.tsx';
+import SpecialistSignUp from '@/routes/defaultApp/specialist/SpecialistSignUp.tsx';
 
 const router = createBrowserRouter([
     {
@@ -51,12 +52,19 @@ const router = createBrowserRouter([
         </AppLayout>
       ),
     },
-    
     {
       path: '/patient-registered',
       element: (
         <AppLayout>
           <PatientRegistered />
+        </AppLayout>
+      ),
+    },
+    {
+      path: '/specialist-signup',
+      element: (
+        <AppLayout>
+          <SpecialistSignUp />
         </AppLayout>
       ),
     },
