@@ -7,7 +7,7 @@ const LandingPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-white">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
       <div className="mb-8">
         <BandageIcon theme="default" size={1.5} />
       </div>

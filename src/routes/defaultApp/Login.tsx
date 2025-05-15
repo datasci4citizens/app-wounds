@@ -1,19 +1,20 @@
 import { useGoogleLogin } from '@react-oauth/google';
 import { useNavigate } from 'react-router-dom';
 import GoogleButton from 'react-google-button';
-import AppHeader from '@/components/ui/common/AppHeader';
 import axios from 'axios';
+import { BandageIcon } from '@/components/ui/new/bandage-logo/BandageIcon';
 
 const LoginPage = () => {
   const navigate = useNavigate();
 
   const login = useGoogleLogin({
+    redirect_uri: 'postmessage',
     onSuccess: async ({ code }) => {
       try {
         // Envia o código para o backend
         const tokenRes = await axios.post(`${import.meta.env.VITE_SERVER_URL}/auth/login/google/`, {
           code,
-        }, { withCredentials: true });
+        });
 
         const access = tokenRes.data.access;
 
@@ -40,8 +41,11 @@ const LoginPage = () => {
   });
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-white">
-      <AppHeader title="Login" />
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+      <div className="mb-8">
+        <BandageIcon theme="default" size={1.5} />
+      </div>
+      <h1 className="text-[#0120AC] text-xl">Login</h1>
 
       <div className="mt-40">
         <GoogleButton
