@@ -12,9 +12,9 @@ export const CicatrizandoSvg: React.FC<CicatrizandoSvgProps> = ({
   className
 }) => {
   // Calculate the scale factor to maintain aspect ratio
-  const originalWidth = 204;
-  const originalHeight = 17;
-  const scale = Math.min(width / originalWidth, height / originalHeight);
+  // const originalWidth = 204;
+  // const originalHeight = 17;
+  //const scale = Math.min(width / originalWidth, height / originalHeight);
   
   return (
     <svg 
