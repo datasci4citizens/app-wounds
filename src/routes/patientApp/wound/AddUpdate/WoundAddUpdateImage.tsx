@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button.tsx'
 import { useNavigate } from "react-router-dom";
 import useSWRMutation from "swr/mutation";
 import { getBaseURL, postRequest } from "@/data/common/HttpExtensions.ts";
-import { useWoundUpdate } from "@/routes/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx";
+import { useWoundUpdate } from "@/routes/patientApp/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx";
 
 export default function WoundAddUpdateImage() {
     const navigate = useNavigate();

@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils.ts";
 import { Check, ChevronDown, Plus, X } from "lucide-react";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, } from "@/components/ui/command"
 import useSWRMutation from "swr/mutation";
-import { getBaseURL, getRequest, postRequest } from "@/data/common/HttpExtensions.ts";
+import { getBaseURL, getRequest} from "@/data/common/HttpExtensions.ts";
 import { useNavigate } from "react-router-dom";
 
 import smokeFrequency from '@/localdata/smoke-frequency.json';
@@ -72,9 +72,8 @@ interface Comorbidities {
 
 type PatientFormValues = z.infer<typeof PatientFormSchema>;
 
-export function PatientCreate() {
+export default function PatientCreate() {
     const navigate = useNavigate();
-    const {trigger: postTrigger} = useSWRMutation(getBaseURL("/patients/"), postRequest);
     const {
         data: comorbiditiesData, trigger: getComorbiditiesTrigger,
     } = useSWRMutation<Comorbidities[]>(getBaseURL("/comorbidities/"), getRequest);
@@ -130,8 +129,8 @@ export function PatientCreate() {
             };
 
             console.log('Sending payload:', payload);
-            await postTrigger(payload);
-            return navigate("/patient/list")
+            //await postTrigger(payload);
+            return navigate("/patient/create/qrcode", { state: "1234" });
         } catch (error) {
             console.error('Error submitting form:', error);
             throw error;
