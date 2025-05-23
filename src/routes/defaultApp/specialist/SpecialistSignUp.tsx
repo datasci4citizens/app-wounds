@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/new/Button";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { InputField } from "@/components/ui/new/general/InputField";
+import { TermsWithPopup } from "@/components/ui/new/general/TermsWithPopup";
 
 // Define interface for user data
 interface UserData {
@@ -24,6 +26,7 @@ export default function SpecialistSignUp() {
     city: "",
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   useEffect(() => {
     // Fetch user data when component mounts
@@ -77,6 +80,11 @@ export default function SpecialistSignUp() {
   };
 
   const handleSubmit = async () => {
+    if (!acceptedTerms) {
+      alert("Você precisa aceitar os termos para continuar.");
+      return;
+    }
+
     try {
       // Here you would send the form data to your backend
       // For example:
@@ -112,69 +120,46 @@ export default function SpecialistSignUp() {
 
       {/* Form fields */}
       <div className="w-full max-w-md px-10 space-y-3 mt-6">
-        <div className="space-y-0.5">
-          <label className="block text-gray-800 text-xs font-bold">Nome completo</label>
-          <input
-            type="text"
-            name="fullName"
-            value={formData.fullName}
-            onChange={handleInputChange}
-            className="w-full py-1.5 px-2.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-            placeholder="Nome"
-            style={{ fontSize: '0.75rem' }}
-          />
-        </div>
+        <InputField
+          label="Nome completo"
+          name="fullName"
+          value={formData.fullName}
+          onChange={handleInputChange}
+          placeholder="Nome"
+        />
+        <InputField
+          label="Data de nascimento"
+          name="dateOfBirth"
+          value={formData.dateOfBirth}
+          onChange={handleInputChange}
+          placeholder="Data de nascimento"
+        />
+        <InputField
+          label="Email"
+          name="email"
+          value={formData.email}
+          readOnly
+          placeholder="Email"
+          type="email"
+        />
+        <InputField
+          label="Estado"
+          name="state"
+          value={formData.state}
+          onChange={handleInputChange}
+          placeholder="Estado"
+        />
+        <InputField
+          label="Cidade"
+          name="city"
+          value={formData.city}
+          onChange={handleInputChange}
+          placeholder="Cidade"
+        />
 
-        <div className="space-y-0.5">
-          <label className="block text-gray-800 text-xs font-bold">Data de nascimento</label>
-          <input
-            type="text"
-            name="dateOfBirth"
-            value={formData.dateOfBirth}
-            onChange={handleInputChange}
-            className="w-full py-1.5 px-2.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-            placeholder="Data de nascimento"
-            style={{ fontSize: '0.75rem' }}
-          />
-        </div>
-
-        <div className="space-y-0.5">
-          <label className="block text-gray-800 text-xs font-bold">Email</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            readOnly
-            className="w-full py-1.5 px-2.5 text-sm border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
-            placeholder="Email"
-            style={{ fontSize: '0.75rem' }}
-          />
-        </div>
-
-        <div className="space-y-0.5">
-          <label className="block text-gray-800 text-xs font-bold">Estado</label>
-          <input
-            type="text"
-            name="state"
-            value={formData.state}
-            onChange={handleInputChange}
-            className="w-full py-1.5 px-2.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-            placeholder="Estado"
-            style={{ fontSize: '0.75rem' }}
-          />
-        </div>
-
-        <div className="space-y-0.5">
-          <label className="block text-gray-800 text-xs font-bold">Cidade</label>
-          <input
-            type="text"
-            name="city"
-            value={formData.city}
-            onChange={handleInputChange}
-            className="w-full py-1.5 px-2.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-            placeholder="Cidade"
-            style={{ fontSize: '0.75rem' }}
-          />
+         {/* Termos e Condições */}
+        <div className="mt-4">
+          <TermsWithPopup onChange={setAcceptedTerms} />
         </div>
 
         {/* Next button */}
@@ -182,6 +167,7 @@ export default function SpecialistSignUp() {
           <Button
             className="text-white text-sm w-[216px]"
             onClick={handleSubmit}
+            disabled={!acceptedTerms}
           >
             Próximo
           </Button>

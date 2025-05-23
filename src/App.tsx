@@ -6,7 +6,6 @@ import AppLayout from "@/components/common/AppLayout.tsx";
 import './globals.css';
 
 // Default app routes
-import LoginPage from './routes/defaultApp/Login.tsx';
 import LandingPage from './routes/defaultApp/LandingPage.tsx';
 import RoleSelection from './routes/defaultApp/RoleSelection.tsx';
 
@@ -44,11 +43,7 @@ const router = createBrowserRouter([
   // Public routes (no authentication required)
   {
     path: '/',
-    element: <LandingPage />
-  },
-  {
-    path: '/login',
-    element: <LoginPage />,
+    element: <LandingPage/>
   },
   {
     path: '/role-selection',

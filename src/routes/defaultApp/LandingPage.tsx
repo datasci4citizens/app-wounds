@@ -3,7 +3,7 @@ import { BandageIcon } from "@/components/ui/new/bandage-logo/BandageIcon";
 import { CicatrizandoSvg } from "@/components/ui/new/cicatrizando-logo/CicatrizandoSvg";
 import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
-import GoogleButton from "react-google-button";
+import { GoogleAuthButton } from "@/components/ui/new/general/GoogleAuthButton";
 
 // Define interfaces for API responses
 interface ProviderData {
@@ -88,42 +88,9 @@ const LandingPage = () => {
       <div className="mb-8">
         <BandageIcon theme="default" size={1.5} />
       </div>
-
       <CicatrizandoSvg className="mb-8" width={216} height={20} />
-      
-      <div className="mt-32 flex flex-col gap-4 items-center">
-        <div className="">
-        <GoogleButton
-          label=""
-          onClick={login}
-          style={{
-            width: "100px",
-            height: "52px",
-            backgroundColor: "transparent",
-            border: "1px solid #00000033",
-            borderRadius: "20px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        />
-      </div>
-        {/* <Button
-          className="text-white text-sm w-[216px]"
-          onClick={() => navigate("/role-selection")}
-        >
-          Cadastre-se
-        </Button>
-
-        <span className="text-[#0120AC] text-sm font-medium">ou</span>
-
-        <Button
-          variant="outline"
-          className="text-sm w-[216px]"
-          onClick={() => navigate("/login")}
-        >
-          Entrar
-        </Button> */}
+      <div className="mt-32">
+        <GoogleAuthButton onClick={login} />
       </div>
     </div>
   );
