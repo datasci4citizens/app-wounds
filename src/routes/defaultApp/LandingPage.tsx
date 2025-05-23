@@ -73,6 +73,7 @@ const LandingPage = () => {
             console.log("User is a patient, no specific action taken");
             break;
           default:
+            navigate("/role-selection")
             console.error("Unknown role:", role);
         }
         

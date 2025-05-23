@@ -4,7 +4,8 @@ export async function getRequest(url: string) {
         credentials: 'include',
         headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            "authorization" : "Bearer " + localStorage.getItem("access_token") 
         },
         mode: 'cors'
     }).then(res => {
@@ -21,7 +22,9 @@ export async function postRequest<T>(url: string, { arg }: { arg: T }) {  // Cha
             credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json'
+                'Accept': 'application/json',
+                "authorization" : "Bearer " + localStorage.getItem("access_token") 
+
             },
             body: JSON.stringify(arg)  // Use arg directly, as SWR wraps the data
         });
@@ -47,7 +50,8 @@ export async function patchRequest(url: string, { arg }: { arg: any }) {
             credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json'
+                'Accept': 'application/json',
+                "authorization" : "Bearer " + localStorage.getItem("access_token") 
             },
             body: JSON.stringify(arg)
         });
