@@ -48,7 +48,7 @@ export default function Menu() {
   }, []);
 
   const handleNavigate = (path: string) => {
-    navigate(path)
+    navigate("/specialist" + path)
   }
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {

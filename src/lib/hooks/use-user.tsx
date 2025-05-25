@@ -20,7 +20,7 @@ interface UserContext {
 const UserContext = createContext<UserContext | null>(null);
 
 export const UserContextProvider = ({ children }: { children: ReactNode }) => {
-    const { data, error, isLoading } = useSWR<UserContext>('/specialists/me');
+    const { data, error, isLoading } = useSWR<UserContext>('/auth/me');
 
     const value: UserContext = {
         ...data, // Spread the fetched user data

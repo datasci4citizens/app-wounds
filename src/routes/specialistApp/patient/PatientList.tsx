@@ -14,7 +14,7 @@ const PatientCard = ({patient}: { patient: Patient }) => {
 
     const id = patient.patient_id
     const handleCardClick = () => {
-        navigate('/patient/wounds', {state: {patient_id: id}}); // Pass the patient data through state
+        navigate('/specialist/patient/wounds', {state: {patient_id: id}}); // Pass the patient data through state
     };
 
     return (
@@ -38,7 +38,7 @@ export default function PatientsPage() {
 
     const {
         data, trigger,
-    } = useSWRMutation<Specialist>(getBaseURL("specialists//patients/"), getRequest);
+    } = useSWRMutation<Patient[]>(getBaseURL("patients/"), getRequest);
     console.log(data)
 
     useEffect(() => {
@@ -46,7 +46,7 @@ export default function PatientsPage() {
     }, [trigger]);
 
     const [searchTerm, setSearchTerm] = useState('');
-    const patients: Patient[] = formatPatientBirthday(data?.patients || []);
+    const patients: Patient[] = formatPatientBirthday(data || []);
 
     const filteredPatients = patients.filter(patient =>
         patient.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -75,7 +75,7 @@ export default function PatientsPage() {
             </div>
 
             <Button type="button" className="w-full bg-sky-900 mt-6 mb-6" onClick={() => {
-                navigate("/patient/create")
+                navigate("/specialist/patient/create")
             }}>
                 <Plus className="mr-2 h-5 w-5"/>
                 Adicionar Paciente

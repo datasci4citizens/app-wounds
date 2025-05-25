@@ -4,16 +4,17 @@ import { ArrowLeft, Edit, FileText, Plus } from "lucide-react"
 import { useEffect } from "react";
 import useSWRMutation from "swr/mutation";
 import { getBaseURL, getRequest } from "@/data/common/HttpExtensions.ts";
-import type { Wound, WoundPatient } from "@/data/common/Mapper.ts";
+import type { Patient, Wound } from "@/data/common/Mapper.ts";
 import { calculateAge } from "@/data/common/Mapper.ts";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getRegionDescription, getSubregionDescription, getWoundType } from "@/data/common/LocalDataMapper.tsx";
+import useSWR from "swr";
 
 const WoundCard = ({wound, index}: { wound: Wound, index: number }) => {
     const navigate = useNavigate();
 
     const handleCardClick = () => {
-        navigate('/wound/detail', {state: {wound_id: wound.wound_id}});
+        navigate('/specialist/wound/detail', {state: {wound_id: wound.wound_id}});
     };
 
     return (
@@ -36,24 +37,22 @@ export default function PatientsWounds() {
     const navigate = useNavigate();
     const location = useLocation();
     const patient_id = location.state?.patient_id as number;
-
     const {
-        data: woundPatient, trigger, isMutating
-    } = useSWRMutation<WoundPatient>(getBaseURL(`/patients/${patient_id}/wounds`), getRequest);
+        data: _wounds, isLoading
+    } = useSWR<Wound[]>(getBaseURL(`/wounds?patient_id=${patient_id}`), getRequest);
+    const {
+        data: patient, isLoading: isLoading2
+    } = useSWR<Patient>(getBaseURL(`/patients/${patient_id}`), getRequest);
 
-    useEffect(() => {
-        trigger();
-    }, [trigger]);
-
-    const wounds = woundPatient?.wounds || []
-    console.log(wounds)
+ 
+    const wounds = _wounds || []
 
     return (
         <div className="h-full overflow-hidden">
-            {isMutating ? (
+            {isLoading && isLoading2? (
                 <p>Carregando dados de paciente...</p>
             ) : (
-                woundPatient && (
+                patient && (
                     <div className="flex flex-col h-full w-full items-center px-8">
                         <div className="flex flex-col items-center w-full">
                             <div className="flex w-full justify-between">
@@ -71,24 +70,24 @@ export default function PatientsWounds() {
                                     <Edit className="text-black p-2" size={32}/>
                                 </div>
                             </div>
-                            <h1 className="text-2xl font-bold mb-4 mt-4">{woundPatient.name}</h1>
+                            <h1 className="text-2xl font-bold mb-4 mt-4">{patient.name}</h1>
                         </div>
 
                         <div className="flex flex-col text-sm leading-relaxed space-y-2 self-start">
                             <p>
                                 <span
-                                    className="font-bold text-base">Idade: </span> {calculateAge(new Date(woundPatient.birthday))} anos
+                                    className="font-bold text-base">Idade: </span> {calculateAge(new Date(patient.birthday))} anos
                             </p>
                             <p>
                                 <span className="font-bold text-base">Comorbidades: </span>
-                                {woundPatient.comorbidities.length > 0 ? (
-                                    woundPatient.comorbidities.map((item) => item.name).join(", ")
+                                {patient.comorbidities.length > 0 ? (
+                                    patient.comorbidities.map((item) => item.name).join(", ")
                                 ) : (
                                     'Nenhuma comorbidade registrada.'
                                 )}
                             </p>
                             <p>
-                                <span className="font-bold text-base">Hábitos: </span> {woundPatient.drink_frequency}
+                                <span className="font-bold text-base">Hábitos: </span> {patient.drink_frequency}
                             </p>
                             <h1 className="text-2xl font-semibold mb-4 !mt-6">Feridas:</h1>
                         </div>

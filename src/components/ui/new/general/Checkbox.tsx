@@ -4,18 +4,21 @@ import { Check } from 'lucide-react';
 export function Checkbox({ className, ...props }: React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>) {
   return (
     <CheckboxPrimitive.Root
-      className={` 
-        w-5                
-        bg-[#6D8AFF]           
-        rounded-sm           
+      className={`
+        w-6
+        h-6
+        rounded-sm
         flex items-center justify-center
-        focus:outline-none focus:ring-2 focus:ring-blue-500
+        transition-colors
+        bg-white
+        data-[state=checked]:bg-[#6D8AFF]
+        data-[state=checked]:outline-none
         ${className ?? ''}
       `}
       {...props}
     >
       <CheckboxPrimitive.Indicator>
-        <Check className="w-5 text-white" /> 
+        <Check className="w-4 h-4 text-white" />
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>
   );

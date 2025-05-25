@@ -3,6 +3,7 @@ import { Checkbox } from "@/components/ui/new/general/Checkbox";
 
 interface TermsWithPopupProps {
   onChange?: (checked: boolean) => void;
+  onNext?: () => void;
 }
 
 export function TermsWithPopup({ onChange }: TermsWithPopupProps) {
@@ -51,34 +52,35 @@ export function TermsWithPopup({ onChange }: TermsWithPopupProps) {
   }
 
   return (
-    <>
-      <label
-        className="flex items-center gap-2 max-w-md cursor-pointer select-none"
-        style={{
-          fontFamily: "Roboto, sans-serif",
-          fontWeight: 400,
-          fontSize: 14,
-          lineHeight: "24px",
-          color: "#1F2937",
-        }}
-      >
-        <Checkbox
-          checked={checked}
-          onCheckedChange={handleCheckedChange}
-          className="w-6 h-6"
-        />
-        <span>
-          Li e estou de acordo com os{" "}
-          <button
-            type="button"
-            className="underline"
-            style={{ color: "#3357E6" }}
-            onClick={() => setOpen(true)}
-          >
-            Termos de Uso e Política de Privacidade
-          </button>
-        </span>
-      </label>
+    <div className="flex flex-col items-center">
+      <div className="flex items-center gap-2 max-w-md w-full">
+        <div className="flex-shrink-0" style={{ width: 18, height: 18 }}>
+          <Checkbox
+            checked={checked}
+            onCheckedChange={handleCheckedChange}
+            className="w-[18px] h-[18px] min-w-[18px] min-h-[18px] border border-[#E7E5E4]"
+          />
+        </div>
+        <label
+          className="cursor-pointer select-none flex-grow"
+          style={{
+            fontFamily: "Roboto, sans-serif",
+            fontWeight: 400,
+            fontSize: 14,
+          }}
+        >
+          <span className="text-black">
+            Li e estou de acordo com os{" "}
+            <button
+              type="button"
+              className="text-[#6D8AFF]"
+              onClick={() => setOpen(true)}
+            >
+              Termos de Uso e Política de Privacidade
+            </button>
+          </span>
+        </label>
+      </div>
 
       {open && (
         <div
@@ -87,7 +89,7 @@ export function TermsWithPopup({ onChange }: TermsWithPopupProps) {
         >
           <div
             ref={popupRef}
-            className="bg-white rounded-xl p-6 overflow-auto shadow-[0_10px_20px_rgba(0,0,0,0.25)] flex flex-col items-center"
+            className="bg-white rounded-2xl p-6 overflow-auto shadow-[0_10px_30px_rgba(0,0,0,0.35)] flex flex-col items-center"
             style={{
               width: 400,
               height: 500,
@@ -130,6 +132,6 @@ export function TermsWithPopup({ onChange }: TermsWithPopupProps) {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

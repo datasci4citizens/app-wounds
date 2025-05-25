@@ -195,7 +195,21 @@ export function App() {
   return (
     <main className="bg-primary h-screen flex flex-col justify-end overflow-hidden">
       <SWRConfig value={{
-        fetcher: (url, args) => fetch(`${import.meta.env.VITE_SERVER_URL}${url}`, {credentials: 'include', ...args}).then(res => res.json())
+        fetcher: async (url, args) => {
+          console.log(url, args);
+          let Auth = {};
+          let token = localStorage.getItem("access_token")
+          if (!!token) {
+            Auth = {
+              "headers": {
+                "authorization" : "Bearer " + token 
+              }
+            }
+          }
+          return await fetch(`${import.meta.env.VITE_SERVER_URL}${url}`, { credentials: 'include', ...Auth, ...args }).then(res => res.json())
+          
+          
+        }
       }}>
         <RouterProvider router={router} />
       </SWRConfig>
