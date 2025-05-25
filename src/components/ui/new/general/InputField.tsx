@@ -13,7 +13,7 @@ interface InputFieldProps {
 export function InputField({ label, name, value, onChange, placeholder, readOnly, type = "text" }: InputFieldProps) {
   return (
     <div className="space-y-0.5">
-      <label className="block text-gray-800 text-xs font-bold">{label}</label>
+      <label style={{ fontFamily: "Roboto, sans-serif"}} className="block text-gray-800 text-xs font-bold">{label}</label>
       <input
         type={type}
         name={name}
@@ -25,7 +25,7 @@ export function InputField({ label, name, value, onChange, placeholder, readOnly
           "w-full py-1.5 px-2.5 text-sm border rounded-md focus:outline-none focus:ring-1",
           readOnly ? "bg-gray-100 cursor-not-allowed " : "focus:ring-blue-500"
         )}
-        style={{ fontSize: '0.75rem' }}
+        style={{ fontFamily: "Roboto, sans-serif", fontSize: '0.75rem' }}
       />
     </div>
   );
