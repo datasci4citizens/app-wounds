@@ -5,7 +5,7 @@ import { Plus, Search } from "lucide-react"
 import { useEffect, useState } from "react";
 import useSWRMutation from "swr/mutation";
 import { getBaseURL, getRequest } from "@/data/common/HttpExtensions.ts";
-import type { Patient, Specialist } from "@/data/common/Mapper.ts";
+import type { Patient } from "@/data/common/Mapper.ts";
 import { formatPatientBirthday } from "@/data/common/Mapper.ts";
 import { useNavigate } from "react-router-dom";
 

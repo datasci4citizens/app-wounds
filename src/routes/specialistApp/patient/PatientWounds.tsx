@@ -1,8 +1,6 @@
 import { Button } from "@/components/ui/button.tsx"
 import { Card, CardContent } from "@/components/ui/card.tsx"
 import { ArrowLeft, Edit, FileText, Plus } from "lucide-react"
-import { useEffect } from "react";
-import useSWRMutation from "swr/mutation";
 import { getBaseURL, getRequest } from "@/data/common/HttpExtensions.ts";
 import type { Patient, Wound } from "@/data/common/Mapper.ts";
 import { calculateAge } from "@/data/common/Mapper.ts";
