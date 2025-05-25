@@ -81,7 +81,7 @@ export default function PatientCreate() {
 
     const {
         trigger: postTrigger,
-    } = useSWRMutation<Comorbidities[]>(getBaseURL("/patients/"), postRequest);
+    } = useSWRMutation(getBaseURL("/patients/"), postRequest);
 
     useEffect(() => {
         getComorbiditiesTrigger();
