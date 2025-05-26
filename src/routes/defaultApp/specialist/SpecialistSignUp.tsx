@@ -11,6 +11,7 @@ import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import DatePicker from "@/components/common/DatePicker"; // Assuming path from WoundCreate
+import { cn } from "@/lib/utils"; // Standard utility for shadcn/ui projects
 import { isAfter } from "date-fns";
 
 // Define interface for user data
@@ -136,23 +137,27 @@ export default function SpecialistSignUp() {
   return (
     <div className="fixed inset-0 flex flex-col">
       <WaveBackgroundLayout className="flex-1 bg-[#F9FAFB] overflow-y-auto">
-        <div className="flex flex-col min-h-full">
+        <div className="flex flex-col min-h-full bg-[#F9FAFB]">
           {/* Regular Header - will scroll with content */}
-          <div className="z-10 bg-transparent pb-6 px-6 pt-4">
+          <div className="z-10 bg-[#F9FAFB] pb-6 px-6 pt-4">
             <AppHeader title="Informações pessoais" />
           </div>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 px-6 pb-6">
-              <div className="w-full max-w-md mx-auto space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 px-6 pb-6 bg-[#F9FAFB]">
+              <div className="w-full max-w-md mx-auto space-y-4" style={{fontFamily: "Roboto, sans-serif"}}>
                 <FormField
                   control={form.control}
                   name="fullName"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Nome completo</FormLabel>
                       <FormControl>
-                        <Input placeholder="Nome completo" {...field} />
+                        <Input
+                          placeholder="Nome completo"
+                          {...field}
+                          className={cn(fieldState.error && "border-destructive focus-visible:ring-destructive")}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -168,8 +173,6 @@ export default function SpecialistSignUp() {
                         <DatePicker
                           field={field}
                           disabled={(date) => isAfter(date, new Date())} // Prevent selecting future dates
-                          // The DatePicker component should handle not allowing direct keyboard input
-                          // e.g., by using a Button as a trigger or a readOnly input.
                         />
                       </FormControl>
                       <FormMessage />
@@ -179,11 +182,17 @@ export default function SpecialistSignUp() {
                 <FormField
                   control={form.control}
                   name="email"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="Email" type="email" {...field} readOnly />
+                        <Input
+                          placeholder="Email"
+                          type="email"
+                          {...field}
+                          readOnly
+                          className={cn(fieldState.error && "border-destructive focus-visible:ring-destructive")}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -192,11 +201,15 @@ export default function SpecialistSignUp() {
                 <FormField
                   control={form.control}
                   name="state"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Estado</FormLabel>
                       <FormControl>
-                        <Input placeholder="Estado" {...field} />
+                        <Input
+                          placeholder="Estado"
+                          {...field}
+                          className={cn(fieldState.error && "border-destructive focus-visible:ring-destructive")}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -205,11 +218,15 @@ export default function SpecialistSignUp() {
                 <FormField
                   control={form.control}
                   name="city"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Cidade</FormLabel>
                       <FormControl>
-                        <Input placeholder="Cidade" {...field} />
+                        <Input
+                          placeholder="Cidade"
+                          {...field}
+                          className={cn(fieldState.error && "border-destructive focus-visible:ring-destructive")}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -218,11 +235,15 @@ export default function SpecialistSignUp() {
                 <FormField
                   control={form.control}
                   name="specialistCode"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Código do profissional</FormLabel>
                       <FormControl>
-                        <Input placeholder="Código do profissional" {...field} />
+                        <Input
+                          placeholder="Código do profissional"
+                          {...field}
+                          className={cn(fieldState.error && "border-destructive focus-visible:ring-destructive")}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

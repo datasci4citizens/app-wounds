@@ -17,7 +17,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
       <div className="flex justify-center mb-8">
         <BandageIcon theme={iconTheme} size={iconSize} />
       </div>
-      <h1 className="text-[#0120AC] text-xl">{title}</h1>
+      <h1 className="text-[#0120AC] text-xl" style={{fontFamily: "Roboto, sans-serif"}}>{title}</h1>
     </div>
   );
 };
