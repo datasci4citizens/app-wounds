@@ -3,9 +3,15 @@ import { Button } from "@/components/ui/new/Button";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { InputField } from "@/components/ui/new/general/InputField";
 import { TermsWithPopup } from "@/components/ui/new/general/TermsWithPopup";
 import { WaveBackgroundLayout } from "@/components/ui/new/wave/WaveBackground";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import DatePicker from "@/components/common/DatePicker"; // Assuming path from WoundCreate
+import { isAfter } from "date-fns";
 
 // Define interface for user data
 interface UserData {
@@ -17,20 +23,36 @@ interface UserData {
   authenticated: boolean;
 }
 
+// Define Zod schema for form validation
+const specialistSignUpSchema = z.object({
+  fullName: z.string().min(1, "Nome completo é obrigatório"),
+  dateOfBirth: z.date({ required_error: "Data de nascimento é obrigatória" }),
+  email: z.string().email("Email inválido").min(1, "Email é obrigatório"),
+  state: z.string().min(1, "Estado é obrigatório"),
+  city: z.string().min(1, "Cidade é obrigatória"),
+  specialistCode: z.string().min(1, "Código do profissional é obrigatório"),
+});
+
+type SpecialistSignUpFormValues = z.infer<typeof specialistSignUpSchema>;
+
 export default function SpecialistSignUp() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    fullName: "",
-    dateOfBirth: "",
-    email: "",
-    state: "",
-    city: "",
-  });
   const [isLoading, setIsLoading] = useState(true);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
+  const form = useForm<SpecialistSignUpFormValues>({
+    resolver: zodResolver(specialistSignUpSchema),
+    defaultValues: {
+      fullName: "",
+      dateOfBirth: undefined,
+      email: "",
+      state: "",
+      city: "",
+      specialistCode: "",
+    },
+  });
+
   useEffect(() => {
-    // Fetch user data when component mounts
     const fetchUserData = async () => {
       try {
         const token = localStorage.getItem("access_token");
@@ -55,13 +77,14 @@ export default function SpecialistSignUp() {
         // Construct full name from first_name and last_name
         const fullName = `${userData.first_name || ''} ${userData.last_name || ''}`.trim();
         
-        // Update form with fetched data
-        setFormData(prevData => ({
-          ...prevData,
-          fullName: fullName || prevData.fullName,
-          email: userData.email || prevData.email
-        }));
-        
+        // Update form with fetched data using react-hook-form's reset
+        form.reset({
+          ...form.getValues(), // Keep existing values if any (though defaultValues are likely fine)
+          fullName: fullName || "",
+          email: userData.email || "",
+          // dateOfBirth remains undefined unless fetched, which is fine
+        });
+
         setIsLoading(false);
       } catch (error) {
         console.error("Failed to fetch user data:", error);
@@ -70,17 +93,9 @@ export default function SpecialistSignUp() {
     };
     
     fetchUserData();
-  }, []);
+  }, [form]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-
-  const handleSubmit = async () => {
+  const onSubmit = async (data: SpecialistSignUpFormValues) => {
     if (!acceptedTerms) {
       alert("Você precisa aceitar os termos para continuar.");
       return;
@@ -95,7 +110,13 @@ export default function SpecialistSignUp() {
       // });
       
       // For now, just store in localStorage
-      localStorage.setItem("specialist_info", JSON.stringify(formData));
+      // If dateOfBirth is a Date object, JSON.stringify will convert it to ISO string.
+      // If a specific format like YYYY-MM-DD is needed for an API, format it here:
+      // const payload = {
+      //   ...data,
+      //   dateOfBirth: data.dateOfBirth ? data.dateOfBirth.toISOString().split('T')[0] : undefined,
+      // };
+      localStorage.setItem("specialist_info", JSON.stringify(data)); 
       
       // Navigate to specialist menu after successful submission
       navigate("/specialist/menu");
@@ -121,70 +142,111 @@ export default function SpecialistSignUp() {
             <AppHeader title="Informações pessoais" />
           </div>
 
-          {/* Scrollable Content */}
-          <div className="flex-1 px-6 pb-6">
-            <div className="w-full max-w-md mx-auto space-y-4">
-              <InputField
-                label="Nome completo"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleInputChange}
-                placeholder="Nome"
-              />
-              <InputField
-                label="Data de nascimento"
-                name="dateOfBirth"
-                value={formData.dateOfBirth}
-                onChange={handleInputChange}
-                placeholder="Data de nascimento"
-              />
-              <InputField
-                label="Email"
-                name="email"
-                value={formData.email}
-                readOnly
-                placeholder="Email"
-                type="email"
-              />
-              <InputField
-                label="Estado"
-                name="state"
-                value={formData.state}
-                onChange={handleInputChange}
-                placeholder="Estado"
-              />
-              <InputField
-                label="Cidade"
-                name="city"
-                value={formData.city}
-                onChange={handleInputChange}
-                placeholder="Cidade"
-              />
-              <InputField
-                label="Código do profissional"
-                name="specialistCode"
-                value={formData.city}
-                onChange={handleInputChange}
-                placeholder="Código do profissional"
-              />
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 px-6 pb-6">
+              <div className="w-full max-w-md mx-auto space-y-4">
+                <FormField
+                  control={form.control}
+                  name="fullName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nome completo</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Nome completo" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="dateOfBirth"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Data de nascimento</FormLabel>
+                      <FormControl>
+                        <DatePicker
+                          field={field}
+                          disabled={(date) => isAfter(date, new Date())} // Prevent selecting future dates
+                          // The DatePicker component should handle not allowing direct keyboard input
+                          // e.g., by using a Button as a trigger or a readOnly input.
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Email" type="email" {...field} readOnly />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="state"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Estado</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Estado" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Cidade</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Cidade" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="specialistCode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Código do profissional</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Código do profissional" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              {/* Termos e Condições */}
-              <div className="mt-8">
-                <TermsWithPopup onChange={setAcceptedTerms} />
-              </div>
+                {/* Termos e Condições */}
+                <div className="mt-8">
+                  <TermsWithPopup onChange={setAcceptedTerms} />
+                </div>
 
-              {/* Next button */}
-              <div className="mt-10 flex justify-center mb-10">
-                <Button
-                  className="text-white text-sm w-[216px]"
-                  onClick={handleSubmit}
-                  disabled={!acceptedTerms}
-                >
-                  Próximo
-                </Button>
+                {/* Next button */}
+                <div className="mt-10 flex justify-center mb-10">
+                  <Button
+                    type="submit"
+                    className="text-white text-sm w-[216px]"
+                    disabled={!acceptedTerms || form.formState.isSubmitting}
+                  >
+                    {form.formState.isSubmitting ? "Enviando..." : "Próximo"}
+                  </Button>
+                </div>
               </div>
-            </div>
-          </div>
+            </form>
+          </Form>
         </div>
       </WaveBackgroundLayout>
     </div>
