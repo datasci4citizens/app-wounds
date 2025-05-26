@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import DatePicker from "@/components/common/DatePicker"; // Assuming path from WoundCreate
 import { cn } from "@/lib/utils"; // Standard utility for shadcn/ui projects
@@ -35,6 +36,29 @@ const specialistSignUpSchema = z.object({
 });
 
 type SpecialistSignUpFormValues = z.infer<typeof specialistSignUpSchema>;
+
+const brazilianStates = [
+  { value: "AC", label: "AC" }, { value: "AL", label: "AL" }, { value: "AP", label: "AP" },
+  { value: "AM", label: "AM" }, { value: "BA", label: "BA" }, { value: "CE", label: "CE" },
+  { value: "DF", label: "DF" }, { value: "ES", label: "ES" }, { value: "GO", label: "GO" },
+  { value: "MA", label: "MA" }, { value: "MT", label: "MT" }, { value: "MS", label: "MS" },
+  { value: "MG", label: "MG" }, { value: "PA", label: "PA" }, { value: "PB", label: "PB" },
+  { value: "PR", label: "PR" }, { value: "PE", label: "PE" }, { value: "PI", label: "PI" },
+  { value: "RJ", label: "RJ" }, { value: "RN", label: "RN" }, { value: "RS", label: "RS" },
+  { value: "RO", label: "RO" }, { value: "RR", label: "RR" }, { value: "SC", label: "SC" },
+  { value: "SP", label: "SP" }, { value: "SE", label: "SE" }, { value: "TO", label: "TO" }
+];
+
+// To make the select placeholder look like the input placeholder
+const selectTriggerStyle = "placeholder:text-[#edebeb] placeholder:text-xs";
+
+// Custom placeholder component for Select
+const SelectPlaceholder = ({ text, className }: { text: string, className?: string }) => (
+  <span className={cn("text-xs text-[#edebeb]", className)}>
+    {text}
+  </span>
+);
+
 
 export default function SpecialistSignUp() {
   const navigate = useNavigate();
@@ -205,11 +229,26 @@ export default function SpecialistSignUp() {
                     <FormItem>
                       <FormLabel>Estado</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="Estado"
-                          {...field}
-                          className={cn(fieldState.error && "border-destructive focus-visible:ring-destructive")}
-                        />
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          value={field.value} // Ensure value is controlled
+                        >
+                          <SelectTrigger
+                            className={cn(
+                              selectTriggerStyle, // Apply placeholder-like styles
+                              fieldState.error && "border-destructive focus-visible:ring-destructive",
+                              !field.value && "text-xs text-[#edebeb]" // Apply placeholder color if no value
+                            )}
+                          >
+                            {field.value ? <SelectValue placeholder="Estado" /> : <SelectPlaceholder text="Estado" />}
+                          </SelectTrigger>
+                          <SelectContent>
+                            {brazilianStates.map(state => (
+                              <SelectItem key={state.value} value={state.value}>{state.label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
