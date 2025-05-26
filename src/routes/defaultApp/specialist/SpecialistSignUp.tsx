@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { InputField } from "@/components/ui/new/general/InputField";
 import { TermsWithPopup } from "@/components/ui/new/general/TermsWithPopup";
+import { WaveBackgroundLayout } from "@/components/ui/new/wave/WaveBackground";
 
 // Define interface for user data
 interface UserData {
@@ -112,67 +113,80 @@ export default function SpecialistSignUp() {
   }
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-gray-50">
-      {/* App logo */}
-      <div className="mt-6 mb-4">
-        <AppHeader title="Informações pessoais" />
-      </div>
+    <div className="fixed inset-0 flex flex-col">
+      <WaveBackgroundLayout className="flex-1 bg-[#F9FAFB] overflow-y-auto">
+        <div className="flex flex-col min-h-full">
+          {/* Regular Header - will scroll with content */}
+          <div className="z-10 bg-transparent pb-6 px-6 pt-4">
+            <AppHeader title="Informações pessoais" />
+          </div>
 
-      {/* Form fields */}
-      <div className="w-full max-w-md px-10 space-y-3 mt-6">
-        <InputField
-          label="Nome completo"
-          name="fullName"
-          value={formData.fullName}
-          onChange={handleInputChange}
-          placeholder="Nome"
-        />
-        <InputField
-          label="Data de nascimento"
-          name="dateOfBirth"
-          value={formData.dateOfBirth}
-          onChange={handleInputChange}
-          placeholder="Data de nascimento"
-        />
-        <InputField
-          label="Email"
-          name="email"
-          value={formData.email}
-          readOnly
-          placeholder="Email"
-          type="email"
-        />
-        <InputField
-          label="Estado"
-          name="state"
-          value={formData.state}
-          onChange={handleInputChange}
-          placeholder="Estado"
-        />
-        <InputField
-          label="Cidade"
-          name="city"
-          value={formData.city}
-          onChange={handleInputChange}
-          placeholder="Cidade"
-        />
+          {/* Scrollable Content */}
+          <div className="flex-1 px-6 pb-6">
+            <div className="w-full max-w-md mx-auto space-y-4">
+              <InputField
+                label="Nome completo"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleInputChange}
+                placeholder="Nome"
+              />
+              <InputField
+                label="Data de nascimento"
+                name="dateOfBirth"
+                value={formData.dateOfBirth}
+                onChange={handleInputChange}
+                placeholder="Data de nascimento"
+              />
+              <InputField
+                label="Email"
+                name="email"
+                value={formData.email}
+                readOnly
+                placeholder="Email"
+                type="email"
+              />
+              <InputField
+                label="Estado"
+                name="state"
+                value={formData.state}
+                onChange={handleInputChange}
+                placeholder="Estado"
+              />
+              <InputField
+                label="Cidade"
+                name="city"
+                value={formData.city}
+                onChange={handleInputChange}
+                placeholder="Cidade"
+              />
+              <InputField
+                label="Código do profissional"
+                name="specialistCode"
+                value={formData.city}
+                onChange={handleInputChange}
+                placeholder="Código do profissional"
+              />
 
-         {/* Termos e Condições */}
-        <div className="mt-4">
-          <TermsWithPopup onChange={setAcceptedTerms} />
+              {/* Termos e Condições */}
+              <div className="mt-8">
+                <TermsWithPopup onChange={setAcceptedTerms} />
+              </div>
+
+              {/* Next button */}
+              <div className="mt-10 flex justify-center mb-10">
+                <Button
+                  className="text-white text-sm w-[216px]"
+                  onClick={handleSubmit}
+                  disabled={!acceptedTerms}
+                >
+                  Próximo
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
-
-        {/* Next button */}
-        <div style={{ marginTop: '2.5rem' }} className="flex justify-center">
-          <Button
-            className="text-white text-sm w-[216px]"
-            onClick={handleSubmit}
-            disabled={!acceptedTerms}
-          >
-            Próximo
-          </Button>
-        </div>
-      </div>
+      </WaveBackgroundLayout>
     </div>
   );
 }
