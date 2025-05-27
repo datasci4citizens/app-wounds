@@ -11,6 +11,8 @@ import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils"; // Standard utility for shadcn/ui projects
+import { Info } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 
 // Define Zod schema for form validation
@@ -65,7 +67,29 @@ export default function SpecialistSignUpDetails() {
                   name="specialty"
                   render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel>Especialidade</FormLabel>
+                      <div className="flex items-center gap-2">
+                        <FormLabel>Especialidade</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <button 
+                              type="button"
+                              className="rounded-full bg-muted p-1 hover:bg-muted/80 transition-colors"
+                              aria-label="Informações sobre especialidade"
+                            >
+                              <Info size={14} className="text-muted-foreground" />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent 
+                            className="bg-[#0120AC] text-white rounded-xl p-4 text-center w-80 text-sm shadow-md border-none opacity-90"
+                            side="bottom"
+                            align="start" 
+                            alignOffset={80} 
+                            sideOffset={5}
+                          >
+                            <p>Informe sua especialidade médica ou profissional da saúde.</p>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
                       <FormControl>
                         <Input
                           placeholder="Especialidade"
@@ -82,7 +106,29 @@ export default function SpecialistSignUpDetails() {
                   name="specialistCode"
                   render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel>Código do profissional</FormLabel>
+                      <div className="flex items-center gap-2">
+                        <FormLabel>Código do profissional</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <button 
+                              type="button"
+                              className="rounded-full bg-muted p-1 hover:bg-muted/80 transition-colors"
+                              aria-label="Informações sobre código do profissional"
+                            >
+                              <Info size={14} className="text-muted-foreground" />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent 
+                            className="bg-[#0120AC] text-white rounded-xl p-4 text-center w-80 text-sm shadow-md border-none opacity-90"
+                            side="bottom"
+                            align="start" 
+                            alignOffset={80} 
+                            sideOffset={5}
+                          >
+                            <p>Código de uso único para o profissional.</p>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
                       <FormControl>
                         <Input
                           placeholder="Código do profissional"
