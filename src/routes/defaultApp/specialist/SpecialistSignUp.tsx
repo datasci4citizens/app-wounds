@@ -156,23 +156,25 @@ export default function SpecialistSignUp() {
           onChange={handleInputChange}
           placeholder="Cidade"
         />
-
-         {/* Termos e Condições */}
-        <div className="mt-4">
-          <TermsWithPopup onChange={setAcceptedTerms} />
         </div>
 
-        {/* Next button */}
-        <div style={{ marginTop: '2.5rem' }} className="flex justify-center">
-          <Button
-            className="text-white text-sm w-[216px]"
-            onClick={handleSubmit}
-            disabled={!acceptedTerms}
-          >
-            Próximo
-          </Button>
+        <div className="w-full max-w-md px-10 space-y-3 mt-6">
+            {/* Termos e Condições */}
+            <div className="mt-2">
+              <TermsWithPopup onChange={setAcceptedTerms} />
+            </div>
+
+            {/* Next button */}
+            <div style={{ marginTop: '2.5rem' }} className="flex justify-center">
+              <Button
+                className="text-white text-sm w-[216px]"
+                onClick={handleSubmit}
+                disabled={!acceptedTerms}
+              >
+                Próximo
+              </Button>
+            </div>
         </div>
-      </div>
     </div>
   );
 }
