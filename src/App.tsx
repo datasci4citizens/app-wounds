@@ -38,6 +38,7 @@ import PatientWoundAddUpdate from './routes/patientApp/wound/AddUpdate/WoundAddU
 import PatientWoundAddUpdateImage from './routes/patientApp/wound/AddUpdate/WoundAddUpdateImage.tsx';
 import PatientWoundAddUpdateConduct from './routes/patientApp/wound/AddUpdate/WoundAddUpdateConduct.tsx';
 import { WoundUpdateProvider as PatientWoundUpdateProvider } from './routes/patientApp/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx';
+import SpecialistSignUpDetails from './routes/defaultApp/specialist/SpecialistSignUpDetails.tsx';
 
 const router = createBrowserRouter([
   // Public routes (no authentication required)
@@ -72,6 +73,10 @@ const router = createBrowserRouter([
   {
     path: '/specialist-signup',
     element: <AppLayout><SpecialistSignUp /></AppLayout>,
+  },
+  {
+    path: '/specialist-signup-details',
+    element: <AppLayout><SpecialistSignUpDetails /></AppLayout>,
   },
   
   // Protected specialist routes
