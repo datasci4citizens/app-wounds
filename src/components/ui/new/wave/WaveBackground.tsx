@@ -39,7 +39,7 @@ export const WaveBackgroundLayout: React.FC<WaveBackgroundProps> = ({
   color = "#D0DCFF"
 }) => {
   return (
-    <div className={`min-h-screen bg-background ${className}`}>
+    <div className={`min-h-screen bg-[#F9FAFB] ${className}`}>
       <svg 
         width="100%" 
         height="29" 
@@ -54,7 +54,7 @@ export const WaveBackgroundLayout: React.FC<WaveBackgroundProps> = ({
           fill={color} 
         />
       </svg>
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto p-4 bg-[#F9FAFB]">
         {children}
       </div>
     </div>
