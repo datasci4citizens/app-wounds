@@ -83,7 +83,7 @@ const FormItem = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
 
 		return (
 			<FormItemContext.Provider value={{ id }}>
-				<div ref={ref} className={cn('space-y-2', className)} {...props} />
+				<div ref={ref} className={cn('space-y-1', className)} {...props} />
 			</FormItemContext.Provider>
 		);
 	},
@@ -94,12 +94,12 @@ const FormLabel = forwardRef<
 	ElementRef<typeof LabelPrimitive.Root>,
 	ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
 >(({ className, ...props }, ref) => {
-	const { error, formItemId } = useFormField();
+	const { formItemId } = useFormField(); // Removed 'error' from destructuring as it's no longer used here for styling
 
 	return (
 		<Label
 			ref={ref}
-			className={cn(error && 'text-destructive', className)}
+			className={cn(className)} // Removed: error && 'text-destructive'
 			htmlFor={formItemId}
 			{...props}
 		/>
@@ -160,7 +160,7 @@ const FormMessage = forwardRef<
 		<p
 			ref={ref}
 			id={formMessageId}
-			className={cn('font-medium text-destructive text-sm', className)}
+			className={cn('font-medium text-destructive text-xs', className)}
 			{...props}
 		>
 			{body}

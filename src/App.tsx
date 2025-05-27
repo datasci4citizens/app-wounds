@@ -38,6 +38,7 @@ import PatientWoundAddUpdate from './routes/patientApp/wound/AddUpdate/WoundAddU
 import PatientWoundAddUpdateImage from './routes/patientApp/wound/AddUpdate/WoundAddUpdateImage.tsx';
 import PatientWoundAddUpdateConduct from './routes/patientApp/wound/AddUpdate/WoundAddUpdateConduct.tsx';
 import { WoundUpdateProvider as PatientWoundUpdateProvider } from './routes/patientApp/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx';
+import SpecialistSignUpDetails from './routes/defaultApp/specialist/SpecialistSignUpDetails.tsx';
 
 const router = createBrowserRouter([
   // Public routes (no authentication required)
@@ -72,6 +73,10 @@ const router = createBrowserRouter([
   {
     path: '/specialist-signup',
     element: <AppLayout><SpecialistSignUp /></AppLayout>,
+  },
+  {
+    path: '/specialist-signup-details',
+    element: <AppLayout><SpecialistSignUpDetails /></AppLayout>,
   },
   
   // Protected specialist routes
@@ -193,7 +198,7 @@ const router = createBrowserRouter([
 
 export function App() {
   return (
-    <main className="bg-primary h-screen flex flex-col justify-end overflow-hidden">
+    <main className="bg-primary">
       <SWRConfig value={{
         fetcher: async (url, args) => {
           console.log(url, args);
@@ -207,8 +212,6 @@ export function App() {
             }
           }
           return await fetch(`${import.meta.env.VITE_SERVER_URL}${url}`, { credentials: 'include', ...Auth, ...args }).then(res => res.json())
-          
-          
         }
       }}>
         <RouterProvider router={router} />
