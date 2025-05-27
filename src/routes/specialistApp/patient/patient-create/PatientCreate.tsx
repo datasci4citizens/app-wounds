@@ -1,570 +1,505 @@
-import { useEffect, useState } from 'react';
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/new/general/Checkbox"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form.tsx";
-import type { UseFormReturn } from "react-hook-form";
 import { useForm } from "react-hook-form";
-import DatePicker from "@/components/common/DatePicker.tsx";
-import { isAfter, isBefore, startOfDay } from "date-fns";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
-import { cn } from "@/lib/utils.ts";
-import { Check, ChevronDown, Plus, X } from "lucide-react";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, } from "@/components/ui/command"
-import useSWRMutation from "swr/mutation";
-import { getBaseURL, getRequest, postRequest} from "@/data/common/HttpExtensions.ts";
+import { z } from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import DatePicker from "@/components/common/DatePicker";
 import { useNavigate } from "react-router-dom";
+import { isBefore, isAfter, startOfDay } from "date-fns";
+import { useState, useEffect } from "react";
+import { WaveBackgroundLayout } from "@/components/ui/new/wave/WaveBackground";
+import { ProfessionalIcon } from "@/components/ui/new/ProfessionalIcon";
+import { Button } from "@/components/ui/button";
+import useSWRMutation from "swr/mutation";
+import { getBaseURL, getRequest, postRequest } from "@/data/common/HttpExtensions";
+import { Checkbox } from "@/components/ui/new/general/Checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
+import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
+import { cn } from "@/lib/utils";
+import { Check, Plus, X } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-import smokeFrequency from '@/localdata/smoke-frequency.json';
-import drinkFrequency from '@/localdata/drink-frequency.json';
+import smokeFrequency from "@/localdata/smoke-frequency.json";
+import drinkFrequency from "@/localdata/drink-frequency.json";
 
-export interface PatientPayload {
-    name: string;
-    gender?: string;
-    birthday?: string;
-    email: string;
-    hospital_registration?: string;
-    phone_number?: string;
-    height?: number;
-    weight?: number;
-    smoke_frequency?: string;
-    drink_frequency?: string;
-    accept_tcl?: boolean;
-    comorbidities?: number[];
-    comorbidities_to_add?: string[];
-    specialist_id: number;
-}
+const patientSchema = z.object({
+  name: z.string().min(1, "Campo obrigatório"),
+  phone_number: z.string().optional(),
+  sex: z.string().min(1, "Campo obrigatório"),
+  email: z.string().min(1, "Campo obrigatório").email("Email inválido"),
+  birthday: z.date({ required_error: "Campo obrigatório" }),
+  acceptTerms: z.boolean().refine(val => val === true, {
+    message: "Você precisa aceitar os termos.",
+  }),
+});
 
-const PatientFormSchema = z.object({
-    name: z.string().min(1, "Campo obrigatório"),
-    phone_number: z.string().optional(),
-    sex: z.string().min(1, "Campo obrigatório"),
-    email: z.string().min(1, "Campo obrigatório").email("Endereço de e-mail inválido"),
-    birthday: z.date().nullable().refine(date => date !== null, {message: "Campo obrigatório"}),
-    hospital_id: z.string().optional(),
-    height: z.number().optional(),
-    weight: z.number().optional(),
-    comorbidities:
-        z.array(z.number()).optional(), // Ensure this matches your data type
-    other_comorbidities:
-        z.array(z.string()).optional(), // Ensure this matches your data type
-    smoke_frequency:
-        z.string().optional(),
-    drink_frequency:
-        z.string().optional()
-})
+type PatientFormData = z.infer<typeof patientSchema>;
 
 const otherComorbiditiesInitialValue = [
-    {id: "asthma", label: "Asma"},
-    {id: "chronic_kidney_disease", label: "Doença renal crônica"},
-    {id: "copd", label: "DPOC (Doença Pulmonar Obstrutiva Crônica)"},
-    {id: "heart_failure", label: "Insuficiência cardíaca"},
-    {id: "arthritis", label: "Artrite"},
+  { id: "asthma", label: "Asma" },
+  { id: "chronic_kidney_disease", label: "Doença renal crônica" },
+  { id: "copd", label: "DPOC (Doença Pulmonar Obstrutiva Crônica)" },
+  { id: "heart_failure", label: "Insuficiência cardíaca" },
+  { id: "arthritis", label: "Artrite" },
 ];
 
-interface Comorbidities {
-    cid11_code: string,
-    name: string,
-    comorbidity_id: number
+interface Comorbidity {
+  cid11_code: string;
+  name: string;
+  comorbidity_id: number;
 }
 
-type PatientFormValues = z.infer<typeof PatientFormSchema>;
+export default function PatientCreateRedesign() {
+  const navigate = useNavigate();
+  const form = useForm<PatientFormData>({
+    resolver: zodResolver(patientSchema),
+    defaultValues: {
+      name: "",
+      phone_number: "",
+      sex: "",
+      email: "",
+      birthday: undefined,
+      acceptTerms: false,
+    },
+  });
 
-export default function PatientCreate() {
-    const navigate = useNavigate();
-    const {
-        data: comorbiditiesData, trigger: getComorbiditiesTrigger,
-    } = useSWRMutation<Comorbidities[]>(getBaseURL("/comorbidities/"), getRequest);
+  const [loading, setLoading] = useState(false);
+  const [showOptional, setShowOptional] = useState(false);
+  const [selectedComorbidity, setSelectedComorbidity] = useState<string[]>([]);
+  const [otherComorbidities, setOtherComorbidities] = useState(otherComorbiditiesInitialValue);
+  const [comorbiditiesInput, setComorbiditiesInput] = useState("");
+  const [popoverOpen, setPopoverOpen] = useState(false);
 
-    const {
-        trigger: postTrigger,
-    } = useSWRMutation(getBaseURL("/patients/"), postRequest);
+  // SWR to fetch comorbidities list
+  const { data: comorbiditiesData, trigger: fetchComorbidities } = useSWRMutation<Comorbidity[]>(
+    getBaseURL("/comorbidities/"),
+    getRequest
+  );
 
-    useEffect(() => {
-        getComorbiditiesTrigger();
-    }, [getComorbiditiesTrigger]);
+  useEffect(() => {
+    fetchComorbidities();
+  }, []);
 
-    const [showOptional, setShowOptional] = useState(false);
+  const allFieldsValid = form.watch("name") &&
+    form.watch("sex") &&
+    form.watch("email") &&
+    form.watch("birthday") &&
+    form.watch("acceptTerms");
 
-    const form = useForm<PatientFormValues>({
-        resolver: zodResolver(PatientFormSchema),
-        defaultValues: {
-            name: "",
-            phone_number: "",
-            sex: "",
-            email: "",
-            birthday: undefined,
-            hospital_id: "",
-            height: 0,
-            weight: 0,
-            comorbidities: [],
-            other_comorbidities: [],
-            smoke_frequency: "",
-            drink_frequency: "",
-        },
-    })
+  const handleNext = async () => {
+    const isValid = await form.trigger();
+    if (isValid) {
+      const data = form.getValues();
+      localStorage.setItem("patient_info", JSON.stringify(data));
+      navigate("/specialist/patient/create-details");
+    }
+  };
 
-    const onToggleShowOptional = async () => {
-        const isValid = await form.trigger();
+  const toggleOptional = async () => {
+    setShowOptional(!showOptional);
+  };
 
-        if (isValid) {
-            setShowOptional(!showOptional);
-        }
+  const handleAddComorbidity = () => {
+    if (!comorbiditiesInput.trim()) return;
+    const newItem = {
+      id: comorbiditiesInput.toLowerCase().replace(/\s+/g, "_"),
+      label: comorbiditiesInput.trim(),
     };
+    setOtherComorbidities((prev) => [...prev, newItem]);
+    setSelectedComorbidity((prev) => [...prev, newItem.id]);
+    setComorbiditiesInput("");
+    // Also update form field for other_comorbidities
+    const current = form.getValues("other_comorbidities") || [];
+    form.setValue("other_comorbidities", [...current, newItem.id]);
+  };
 
-    const onSubmit = async (data: PatientFormValues) => {
-        try {
-            const payload: PatientPayload = {
-                name: data.name,
-                gender: data.sex,
-                birthday: data.birthday ? data.birthday.toISOString().split('T')[0] : "",
-                email: data.email,
-                hospital_registration: data.hospital_id,
-                phone_number: data.phone_number,
-                height: data.height,
-                weight: data.weight,
-                smoke_frequency: data.smoke_frequency,
-                drink_frequency: data.drink_frequency,
-                accept_tcl: true,
-                comorbidities: data.comorbidities,
-                comorbidities_to_add: data.other_comorbidities,
-                specialist_id : 1 //TODO substituir isso futuramente 
-            };
+  return (
+    <div className="fixed inset-0 flex flex-col">
+      <WaveBackgroundLayout className="flex-1 bg-[#F9FAFB] overflow-y-auto pb-10">
+        <div className="w-full max-w-[430px] mx-auto px-6">
+          <div className="flex justify-center mb-4">
+            <ProfessionalIcon size={0.6} borderRadius="50%" />
+          </div>
+          <h1 className="text-center text-[#0120AC] text-xl font-semibold mb-6">
+            Cadastro de paciente
+          </h1>
 
-            console.log('Sending payload:', payload);
-            await postTrigger(payload);
-            return navigate("/specialist/patient/create/qrcode", { state: "1234" });
-        } catch (error) {
-            console.error('Error submitting form:', error);
-            throw error;
-        }
-    };
-
-    return (
-        <div className="flex flex-col w-full h-full items-center">
-            <div className="text-black text-2xl font-semibold leading-loose">Cadastro de paciente</div>
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)}
-                      className="flex-1 max-h-screen w-full mx-auto p-8 space-y-6 overflow-y-auto">
-
-                    {!showOptional ? (
-                        <PatientInfoFields form={form}/>
-                    ) : (
-                        <OptionalInfoFields form={form} comorbiditiesData={comorbiditiesData || []}/>
-                    )}
-
-                    <Button type="button" className="w-full bg-sky-900" onClick={onToggleShowOptional}>
-                        {showOptional ? 'Ocultar opcionais' : 'Adicionar opcionais'}
-                    </Button>
-
-                    <Button type="submit" className="w-full bg-sky-900">
-                        Cadastrar
-                    </Button>
-                </form>
-            </Form>
-        </div>
-    );
-};
-
-function PatientInfoFields({form}: { form: UseFormReturn<PatientFormValues> }) {
-    return (
-        <div className="space-y-6">
-            <FormField
+          <Form {...form}>
+            <form className="space-y-6">
+              {/* === PARTE 1 (SEU FORMULARIO ATUAL) === */}
+              <FormField
                 control={form.control}
                 name="name"
-                render={({field}) => (
-                    <FormItem>
-                        <FormLabel>Nome*</FormLabel>
-                        <FormControl>
-                            <Input {...field} placeholder="Nome"/>
-                        </FormControl>
-                        <FormMessage/>
-                    </FormItem>
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[#0120AC]">Nome completo</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Nome completo"
+                        className="placeholder:text-[#A6BBFF] bg-white text-[#0120AC] border-none focus:ring-0 focus:outline-none"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-            />
+              />
 
-            <FormField
+              <FormField
                 control={form.control}
                 name="phone_number"
-                render={({field}) => (
-                    <FormItem>
-                        <FormLabel>Telefone</FormLabel>
-                        <FormControl>
-                            <Input {...field} placeholder="(00) 00000-0000"/>
-                        </FormControl>
-                        <FormMessage/>
-                    </FormItem>
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[#0120AC]">Telefone</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="(00) 00000-0000"
+                        className="placeholder:text-[#A6BBFF] bg-white text-[#0120AC] border-none focus:ring-0 focus:outline-none"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-            />
+              />
 
-            <FormField
+              <FormField
                 control={form.control}
                 name="sex"
-                render={({field}) => (
-                    <FormItem>
-                        <div className="mb-4">
-                            <FormLabel>Sexo*</FormLabel>
-                        </div>
-                        <div className="grid grid-cols-2">
-                            <div className="flex items-center space-x-2">
-                                <FormControl>
-                                    <Checkbox
-                                        checked={field.value === "female"}
-                                        onCheckedChange={(checked) =>
-                                            field.onChange(checked ? "female" : null)
-                                        }
-                                    />
-                                </FormControl>
-                                <FormLabel className="font-normal">Feminino</FormLabel>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <FormControl>
-                                    <Checkbox
-                                        checked={field.value === "male"}
-                                        onCheckedChange={(checked) =>
-                                            field.onChange(checked ? "male" : null)
-                                        }
-                                    />
-                                </FormControl>
-                                <FormLabel className="font-normal">Masculino</FormLabel>
-                            </div>
-                        </div>
-                    </FormItem>
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[#0120AC]">Sexo</FormLabel>
+                    <div className="flex gap-6 mt-2">
+                      <label className="flex items-center gap-2 text-sm text-[#0120AC]">
+                        <input
+                          type="radio"
+                          value="female"
+                          checked={field.value === "female"}
+                          onChange={() => field.onChange("female")}
+                          className="accent-[#0120AC] w-4 h-4"
+                        />
+                        Feminino
+                      </label>
+                      <label className="flex items-center gap-2 text-sm text-[#0120AC]">
+                        <input
+                          type="radio"
+                          value="male"
+                          checked={field.value === "male"}
+                          onChange={() => field.onChange("male")}
+                          className="accent-[#0120AC] w-4 h-4"
+                        />
+                        Masculino
+                      </label>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
                 )}
-            />
+              />
 
-            <FormField
+              <FormField
                 control={form.control}
                 name="email"
-                render={({field}) => (
-                    <FormItem>
-                        <FormLabel>Email*</FormLabel>
-                        <FormControl>
-                            <Input {...field} type="email" placeholder="Email"/>
-                        </FormControl>
-                        <FormMessage/>
-                    </FormItem>
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[#0120AC]">Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Email"
+                        type="email"
+                        className="placeholder:text-[#A6BBFF] bg-white text-[#0120AC] border-none focus:ring-0 focus:outline-none"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-            />
+              />
 
-            <FormField
+              <FormField
                 control={form.control}
                 name="birthday"
-                render={({field}) => (
-                    <FormItem>
-                        <FormLabel>Data de nascimento*</FormLabel>
-                        <DatePicker
-                            field={field}
-                            disabled={(date) => {
-                                const today = startOfDay(new Date());
-                                return (isBefore(date, new Date("1900-01-01")) || isAfter(date, today));
-                                // isAfter(date, subYears(today, 18))
-                            }}
-                        />
-                        <FormMessage/>
-                    </FormItem>
-                )}
-            />
-
-            <FormField
-                control={form.control}
-                name="hospital_id"
-                render={({field}) => (
-                    <FormItem>
-                        <FormLabel>Cadastro do hospital</FormLabel>
-                        <FormControl>
-                            <Input {...field} placeholder="Número do cadastro"/>
-                        </FormControl>
-                        <FormMessage/>
-                    </FormItem>
-                )}
-            />
-        </div>
-    )
-}
-
-function OptionalInfoFields({form, comorbiditiesData = []}: {
-    form: UseFormReturn<PatientFormValues>,
-    comorbiditiesData: Comorbidities[]
-}) {
-    const [otherComorbidities, setOtherComorbidities] = useState(otherComorbiditiesInitialValue);
-    const [selectedComorbidity, setSelectedComorbidity] = useState<string[]>([]);
-    const [otherComorbiditiesInputValue, setOtherComorbiditiesInputValue] = useState("");
-    const [otherComorbiditiesOpen, setOtherComorbiditiesOpen] = useState(false); // Local state for popover open/close
-    const handleSelect = (comorbidity: string) => {
-        if (!selectedComorbidity.includes(comorbidity)) {
-            setSelectedComorbidity([...selectedComorbidity, comorbidity]);
-        }
-    };
-
-    const handleRemove = (comorbidityToRemove: string) => {
-        setSelectedComorbidity((prevSelected) =>
-            prevSelected.filter((comorbidity) => comorbidity !== comorbidityToRemove)
-        );
-    };
-
-    const handleAddComorbidity = (otherComorbiditiesInputValue: string) => {
-        const newComorbidity = {
-            id: otherComorbiditiesInputValue.toLowerCase().replace(/\s+/g, "_"),
-            label: otherComorbiditiesInputValue,
-        };
-
-        setOtherComorbidities([...otherComorbidities, newComorbidity]);
-        handleSelect(otherComorbiditiesInputValue);
-        setOtherComorbiditiesInputValue(""); // Clear the input value after adding
-    };
-
-    return (
-        <div className="space-y-6">
-            <div className="flex space-x-4">
-                <div className="flex-1">
-                    <FormField
-                        control={form.control}
-                        name={"height"}
-                        render={({field}) => (
-                            <FormItem>
-                                <FormLabel>Altura</FormLabel>
-                                <div className="flex items-center space-x-2">
-                                    <FormControl>
-                                        <Input
-                                            type="number"
-                                            step="0.01"
-                                            placeholder="1.70"
-                                            {...field}
-                                            value={field.value}
-                                            onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                                        />
-                                    </FormControl>
-                                    <span className="text-black text-base font-medium">m</span>
-                                </div>
-                                <FormMessage/>
-                            </FormItem>
-                        )}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[#0120AC]">Data de nascimento</FormLabel>
+                    <DatePicker
+                      field={field}
+                      disabled={(date) =>
+                        isBefore(date, new Date("1900-01-01")) ||
+                        isAfter(date, startOfDay(new Date()))
+                      }
                     />
-                </div>
-                <div className="flex-1">
-                    <FormField
-                        control={form.control}
-                        name={"weight"}
-                        render={({field}) => (
-                            <FormItem>
-                                <FormLabel>Peso</FormLabel>
-                                <div className="flex items-center space-x-2">
-                                    <FormControl>
-                                        <Input
-                                            type="number"
-                                            step="0.01"
-                                            placeholder="70"
-                                            {...field}
-                                            value={field.value}
-                                            onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                                        />
-                                    </FormControl>
-                                    <span className="text-black text-base font-medium">Kg</span>
-                                </div>
-                                <FormMessage/>
-                            </FormItem>
-                        )}
-                    />
-                </div>
-            </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
+              <FormField
                 control={form.control}
-                name="comorbidities"
-                render={() => (
-                    <FormItem>
-                        <div className="mb-4">
-                            <FormLabel>Comorbidades</FormLabel>
-                        </div>
+                name="acceptTerms"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        checked={field.value === true}
+                        onChange={() => field.onChange(!field.value)}
+                        className="accent-[#0120AC] w-4 h-4"
+                      />
+                      <FormLabel className="text-sm font-normal text-[#0120AC]">
+                        Concordo em participar da pesquisa
+                      </FormLabel>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* === PARTE 2: FORMULÁRIO OPCIONAL APARECENDO AO CLICAR NO BOTAO === */}
+              {showOptional && (
+                <>
+                  {/* Altura / Peso */}
+                  <div className="flex gap-4">
+                    <FormField
+                      control={form.control}
+                      name="height"
+                      render={({ field }) => (
+                        <FormItem className="flex-1">
+                          <FormLabel>Altura</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              placeholder="1.70"
+                              {...field}
+                              onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="weight"
+                      render={({ field }) => (
+                        <FormItem className="flex-1">
+                          <FormLabel>Peso</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              placeholder="70"
+                              {...field}
+                              onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* Comorbidades */}
+                  <FormField
+                    control={form.control}
+                    name="comorbidities"
+                    render={() => (
+                      <FormItem>
+                        <FormLabel>Comorbidades</FormLabel>
                         <div className="grid grid-cols-2 gap-2">
-                            {comorbiditiesData.map((comorbidity) => (
-                                <FormField
-                                    key={comorbidity.comorbidity_id}
-                                    control={form.control}
-                                    name="comorbidities"
-                                    render={({field}) => {
-                                        return (
-                                            <FormItem
-                                                className="flex flex-row items-start space-x-3 space-y-0"
-                                            >
-                                                <FormControl>
-                                                    <Checkbox
-                                                        checked={field.value?.includes(comorbidity.comorbidity_id)}
-                                                        onCheckedChange={(checked) => {
-                                                            console.log("como", field)
-                                                            return checked
-                                                                ? field.onChange([...(field.value ?? []), comorbidity.comorbidity_id])
-                                                                : field.onChange(
-                                                                    field.value?.filter(
-                                                                        (value) => value !== comorbidity.comorbidity_id
-                                                                    )
-                                                                )
-                                                        }}
-                                                    />
-                                                </FormControl>
-                                                <FormLabel className="font-normal">
-                                                    {comorbidity.name}
-                                                </FormLabel>
-                                            </FormItem>
-                                        )
-                                    }}
-                                />
-                            ))}
+                          {comorbiditiesData?.map((item) => (
+                            <FormField
+                              key={item.comorbidity_id}
+                              control={form.control}
+                              name="comorbidities"
+                              render={({ field }) => (
+                                <FormItem className="flex items-center gap-2">
+                                  <Checkbox
+                                    checked={field.value?.includes(item.comorbidity_id)}
+                                    onCheckedChange={(checked) =>
+                                      checked
+                                        ? field.onChange([...(field.value ?? []), item.comorbidity_id])
+                                        : field.onChange(
+                                            field.value?.filter((id) => id !== item.comorbidity_id)
+                                          )
+                                    }
+                                  />
+                                  <FormLabel className="font-normal">{item.name}</FormLabel>
+                                </FormItem>
+                              )}
+                            />
+                          ))}
                         </div>
-                        <FormMessage/>
-                    </FormItem>
-                )}
-            />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-            <FormField
-                control={form.control}
-                name="other_comorbidities"
-                render={({field}) => (
-                    <FormItem className="flex flex-col">
-                        <FormLabel>Outras Comorbidades</FormLabel>
-                        <Popover open={otherComorbiditiesOpen}
-                                 onOpenChange={setOtherComorbiditiesOpen}>
-                            <PopoverTrigger asChild>
-                                <FormControl>
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        role="combobox"
-                                        className={cn(
-                                            "justify-between",
-                                            !field.value && "text-muted-foreground"
-                                        )}
-                                    >
-                                        Selecione uma comorbidade
-                                        <ChevronDown
-                                            className="ml-2 h-4 w-4 shrink-0 opacity-50"/>
-                                    </Button>
-                                </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-screen px-6 z-30" align="start">
-                                <Command>
-                                    <CommandInput
-                                        placeholder="Procure comorbidades"
-                                        value={otherComorbiditiesInputValue}
-                                        onValueChange={setOtherComorbiditiesInputValue}
-                                    />
-                                    <CommandList>
-                                        <CommandEmpty>
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                size="icon"
-                                                onClick={() => {
-                                                    handleAddComorbidity(otherComorbiditiesInputValue)
-                                                }}
-                                                className="flex w-full items"
-                                            >
-                                                <Plus className="h-4 w-4"/>
-                                                <span
-                                                    className="ms-2">Adicionar {otherComorbiditiesInputValue}</span>
-                                            </Button>
-                                        </CommandEmpty>
-                                        <CommandGroup>
-                                            {otherComorbidities.map((comorbidity) => (
-                                                <CommandItem
-                                                    value={comorbidity.label}
-                                                    key={comorbidity.id}
-                                                    onSelect={() => {
-                                                        const currentValues = form.getValues("other_comorbidities") || [];
-                                                        const newValue = currentValues.includes(comorbidity.id)
-                                                            ? currentValues.filter((id) => id !== comorbidity.id)
-                                                            : [...currentValues, comorbidity.id];
-
-                                                        form.setValue("other_comorbidities", newValue);
-                                                        handleSelect(comorbidity.id);
-                                                        // setOpen(false)
-                                                    }}
-                                                >
-                                                    <Check
-                                                        className={cn(
-                                                            "mr-2 h-4 w-4",
-                                                            selectedComorbidity.includes(comorbidity.label)
-                                                                ? "opacity-100"
-                                                                : "opacity-0"
-                                                        )}
-                                                    />
-                                                    {comorbidity.label}
-                                                </CommandItem>
-                                            ))}
-                                        </CommandGroup>
-                                    </CommandList>
-                                </Command>
-                            </PopoverContent>
-                        </Popover>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                            {selectedComorbidity.map((comorbidity) => (
-                                <Button
-                                    key={comorbidity}
+                  {/* Outras comorbidades */}
+                  <FormField
+                    control={form.control}
+                    name="other_comorbidities"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Outras comorbidades</FormLabel>
+                        <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+                          <PopoverTrigger asChild>
+                            <Button type="button" variant="outline">
+                              Adicionar outra
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[300px]">
+                            <Command>
+                              <CommandInput
+                                placeholder="Pesquisar"
+                                value={comorbiditiesInput}
+                                onValueChange={setComorbiditiesInput}
+                              />
+                              <CommandList>
+                                <CommandEmpty>
+                                  <Button
                                     type="button"
-                                    onClick={() => {
-                                        handleRemove(comorbidity)
-                                    }}
-                                    className="text-white h-6 rounded-full px-3 py-2 flex items-center space-x-2"
-                                >
-                                    <span className="text-xs font-normal">{comorbidity}</span>
-                                    <X className="h-4 w-4"/>
-                                </Button>
-                            ))}
-                        </div>
-                        <FormMessage/>
-                    </FormItem>
-                )}
-            />
+                                    onClick={handleAddComorbidity}
+                                    className="w-full flex items-center justify-center gap-2"
+                                  >
+                                    <Plus className="h-4 w-4" />
+                                    Adicionar {comorbiditiesInput}
+                                  </Button>
+                                </CommandEmpty>
+                                <CommandGroup>
+                                  {otherComorbidities.map((item) => (
+                                    <CommandItem
+                                      key={item.id}
+                                      onSelect={() => {
+                                        const current = form.getValues("other_comorbidities") || [];
+                                        const updated = current.includes(item.id)
+                                          ? current.filter((v) => v !== item.id)
+                                          : [...current, item.id];
+                                        form.setValue("other_comorbidities", updated);
+                                        setSelectedComorbidity(updated);
+                                      }}
+                                    >
+                                      <Check
+                                        className={cn(
+                                          "mr-2 h-4 w-4",
+                                          selectedComorbidity.includes(item.id)
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        )}
+                                      />
+                                      {item.label}
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
 
-            <FormField
-                control={form.control}
-                name="smoke_frequency"
-                render={({field}) => (
-                    <FormItem>
+                        {/* Tags */}
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {selectedComorbidity.map((item) => (
+                            <Button
+                              key={item}
+                              type="button"
+                              onClick={() => {
+                                const newSelected = selectedComorbidity.filter((v) => v !== item);
+                                setSelectedComorbidity(newSelected);
+                                form.setValue("other_comorbidities", newSelected);
+                              }}
+                              className="rounded-full h-6 px-3 text-xs flex items-center space-x-2"
+                            >
+                              <span>{item}</span>
+                              <X className="h-4 w-4" />
+                            </Button>
+                          ))}
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Fumo */}
+                  <FormField
+                    control={form.control}
+                    name="smoke_frequency"
+                    render={({ field }) => (
+                      <FormItem>
                         <FormLabel>Fumante</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Selecione a frequência de fumo"/>
-                                </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                                {Object.entries(smokeFrequency).map(([key, value]) => (
-                                    <SelectItem key={key} value={key}>{value}</SelectItem>
-                                ))}
-                            </SelectContent>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecione a frequência de fumo" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {Object.entries(smokeFrequency).map(([key, val]) => (
+                              <SelectItem key={key} value={key}>
+                                {val}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
                         </Select>
-                        <FormMessage/>
-                    </FormItem>
-                )}
-            />
+                      </FormItem>
+                    )}
+                  />
 
-            <FormField
-                control={form.control}
-                name="drink_frequency"
-                render={({field}) => (
-                    <FormItem>
+                  {/* Bebida */}
+                  <FormField
+                    control={form.control}
+                    name="drink_frequency"
+                    render={({ field }) => (
+                      <FormItem>
                         <FormLabel>Bebida alcoólica</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Selecione a frequência"/>
-                                </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                                {Object.entries(drinkFrequency).map(([key, value]) => (
-                                    <SelectItem key={key} value={key}>{value}</SelectItem>
-                                ))}
-                            </SelectContent>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecione a frequência" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {Object.entries(drinkFrequency).map(([key, val]) => (
+                              <SelectItem key={key} value={key}>
+                                {val}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
                         </Select>
-                        <FormMessage/>
-                    </FormItem>
-                )}
-            />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
+
+              {/* Botoes */}
+              <div className="flex flex-col items-center space-y-4 mt-6">
+                <Button
+                  type="button"
+                  className="w-[220px] border border-[#0120AC] text-[#0120AC] bg-white rounded-[20px]"
+                  onClick={toggleOptional}
+                >
+                  {showOptional ? "Ocultar opcionais" : "Adicionar opcionais"}
+                </Button>
+
+                <Button
+                  type="button"
+                  className="w-[160px] bg-[#0120AC] text-white rounded-[20px]"
+                  disabled={loading || !allFieldsValid}
+                  onClick={handleNext}
+                >
+                  Próximo
+                </Button>
+              </div>
+            </form>
+          </Form>
         </div>
-    )
+      </WaveBackgroundLayout>
+    </div>
+  );
 }
