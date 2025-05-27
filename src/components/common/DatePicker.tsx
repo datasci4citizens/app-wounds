@@ -45,7 +45,7 @@ export default function DatePicker({field, onSelect, disabled}: DatePickerPopove
                         className="w-full text-left font-normal"
                     >
                         {field.value ? format(field.value, 'dd/MM/yyyy') :
-                            <span className="truncate">Escolha uma data</span>}
+                            <span className="truncate text-xs text-[#edebeb]">Escolha uma data</span>}
                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50"/>
                     </Button>
                 </FormControl>
@@ -106,4 +106,3 @@ export default function DatePicker({field, onSelect, disabled}: DatePickerPopove
         </Popover>
     );
 }
-

@@ -1,16 +1,54 @@
 import { useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { SearchBar } from '../../components/shared/SearchBar.tsx'
 import { ProfessionalIcon } from '@/components/ui/new/ProfessionalIcon.tsx'
 import { WaveBackgroundLayout } from '@/components/ui/new/wave/WaveBackground.tsx'
 import CategoryCard from '@/components/ui/new/card/CategoryCard.tsx';
+import axios from 'axios';
 
-export default function Menu() { // TODO: Remove
+export default function Menu() {
   const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState('')
+  const [specialistName, setSpecialistName] = useState('')
+
+  useEffect(() => {
+    // Try to get name from localStorage first (faster)
+    const storedName = localStorage.getItem("provider_name");
+    
+    if (storedName) {
+      setSpecialistName(storedName);
+    } else {
+      // Fetch user data from API if not available in localStorage
+      const fetchUserData = async () => {
+        try {
+          const token = localStorage.getItem("access_token");
+          
+          if (!token) {
+            console.error("No access token found");
+            return;
+          }
+          
+          const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/auth/me/`, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          
+          if (response.data.first_name) {
+            setSpecialistName(response.data.first_name);
+            localStorage.setItem("provider_name", response.data.first_name);
+          }
+        } catch (error) {
+          console.error("Failed to fetch user data:", error);
+        }
+      };
+      
+      fetchUserData();
+    }
+  }, []);
 
   const handleNavigate = (path: string) => {
-    navigate(path)
+    navigate("/specialist" + path)
   }
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -23,7 +61,9 @@ export default function Menu() { // TODO: Remove
         <ProfessionalIcon size={0.6} borderRadius="50%" />
       </div>
       <div className="text-center">
-        <h1 className="text-[#0120AC] text-xl font-bold">Olá, especialista</h1>
+        <h1 className="text-[#0120AC] text-xl font-bold">
+          Olá, {specialistName || 'especialista'}
+        </h1>
       </div>
       
       <div className="mb-6 w-full mt-8 px-4 md:px-6 lg:px-8">
@@ -54,7 +94,6 @@ export default function Menu() { // TODO: Remove
           theme="light_blue"
         />
       </div>
-
     </WaveBackgroundLayout>
   )
 }

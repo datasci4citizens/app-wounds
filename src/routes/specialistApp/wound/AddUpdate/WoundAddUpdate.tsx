@@ -86,7 +86,7 @@ export default function WoundAddUpdate() {
                 wound_id: woundId,
             }));
 
-            return navigate('/wound/add-update/image');
+            return navigate('/specialist/wound/add-update/image');
         } catch (error) {
             console.error('Error submitting form:', error);
             throw error;
