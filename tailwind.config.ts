@@ -60,7 +60,7 @@ export default {
 				},
 				primary: {
 					// biome-ignore lint/style/useNamingConvention: external naming
-					DEFAULT: sky[900],
+					DEFAULT: '#0F4B8F',
 					foreground: sky[50],
 				},
 				secondary: {
