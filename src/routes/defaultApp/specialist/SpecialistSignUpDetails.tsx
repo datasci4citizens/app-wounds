@@ -205,8 +205,8 @@ export default function SpecialistSignUpDetails() {
                                 const combinedData = { ...payload, ...response.data };
                                 localStorage.setItem("specialist_info", JSON.stringify(combinedData));
                                 
-                                // Navigate to menu after successful API call
-                                navigate("/specialist/menu");
+                                // Navigate to login after successful API call
+                                navigate("/");
                               } catch (apiError) {
                                 console.error("API request failed:", apiError);
                                 alert("Erro ao enviar dados para o servidor. Por favor tente novamente.");
