@@ -71,8 +71,10 @@ export async function patchRequest(url: string, { arg }: { arg: any }) {
 }
 
 export function getBaseURL(path: string, queryParams?: Record<string, string>): string {
-    const baseURL = import.meta.env.VITE_SERVER_URL;
-    const url = new URL(path, baseURL);
+    // Use proxy path instead of direct server URL to avoid CORS issues
+    const baseURL = '/api/';
+    // Create a URL that combines the base path with the specific API path
+    const url = new URL(path, window.location.origin + baseURL);
 
     if (queryParams) {
         Object.entries(queryParams).forEach(([key, value]) => {

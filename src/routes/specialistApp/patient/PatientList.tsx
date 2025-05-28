@@ -37,9 +37,9 @@ export default function PatientsPage() {
     const navigate = useNavigate();
 
     const {
-        data, trigger,
+        data, trigger, error
     } = useSWRMutation<Patient[]>(getBaseURL("patients/"), getRequest);
-    console.log(data)
+    console.log(data, error)
 
     useEffect(() => {
         trigger();

@@ -6,6 +6,12 @@ import { WaveBackgroundLayout } from '@/components/ui/new/wave/WaveBackground.ts
 import CategoryCard from '@/components/ui/new/card/CategoryCard.tsx';
 import axios from 'axios';
 
+interface AuthMeResponse {
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
 export default function Menu() {
   const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState('')
@@ -28,11 +34,10 @@ export default function Menu() {
             return;
           }
           
-          const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/auth/me/`, {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          });
+          const response = await axios.get<AuthMeResponse>(
+            `${import.meta.env.VITE_SERVER_URL}/auth/me/`,
+              { headers: { Authorization: `Bearer ${token}` } }
+          );
           
           if (response.data.first_name) {
             setSpecialistName(response.data.first_name);
