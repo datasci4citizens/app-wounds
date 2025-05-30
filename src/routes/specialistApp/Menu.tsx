@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react'
 import { SearchBar } from '../../components/shared/SearchBar.tsx'
 import { ProfessionalIcon } from '@/components/ui/new/ProfessionalIcon.tsx'
 import { WaveBackgroundLayout } from '@/components/ui/new/wave/WaveBackground.tsx'
-import CategoryCard from '@/components/ui/new/card/CategoryCard.tsx';
+import CategoryCard from '@/components/ui/new/card/CategoryCard.tsx'
+import { MenuMobile } from '@/components/ui/new/menu/MenuMobile.tsx'
 import axios from 'axios';
 
 interface AuthMeResponse {
@@ -68,6 +69,11 @@ export default function Menu() {
     navigate("/specialist" + path)
   }
 
+  // Navigation handlers for the mobile menu
+  const handleHomeClick = () => navigate('/specialist/menu');
+  const handleNewCaseClick = () => navigate('/specialist/case/new');
+  const handleNotificationsClick = () => navigate('/specialist/notifications');
+
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
   }
@@ -93,14 +99,14 @@ export default function Menu() {
         />
       </div>
       
-      <div className="px-4 md:px-6 lg:px-8 mb-12 mt-16">
+      <div className="px-4 md:px-6 lg:px-8 mb-8 mt-4">
         <h2 className="text-[#0120AC] text-md font-semibold text-left">Categorias</h2>
       </div>
 
-      <div className="px-4 md:px-6 lg:px-8 space-y-4">
+      <div className="px-4 md:px-6 lg:px-8 space-y-4 pb-24">
         <CategoryCard 
-          title="Casos para avaliação"
-          description="Pendentes"
+          title="Pacientes"
+          description="Avaliação de pacientes"
           onClick={() => handleNavigate('/patient/list')}
         />
         
@@ -111,6 +117,13 @@ export default function Menu() {
           theme="light_blue"
         />
       </div>
+      
+      {/* Use the reusable mobile menu with custom click handlers */}
+      <MenuMobile 
+        onHomeClick={handleHomeClick}
+        onNewCaseClick={handleNewCaseClick}
+        onNotificationsClick={handleNotificationsClick}
+      />
     </WaveBackgroundLayout>
   )
 }
