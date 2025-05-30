@@ -222,7 +222,7 @@ export default function SpecialistSignUpDetails() {
                         }
                       }}
                     >
-                      {isSubmitting ? "Enviando..." : "Próximo"}
+                      {isSubmitting ? "Enviando..." : "Cadastrar"}
                     </Button>
                   </div>
                 </div>

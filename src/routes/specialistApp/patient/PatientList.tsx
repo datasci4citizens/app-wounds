@@ -251,7 +251,7 @@ export default function PatientsPage() {
                 <div className="fixed bottom-4 left-4 right-4">
                     <Button 
                         type="button" 
-                        className="w-full bg-[#0F4B8F] hover:bg-[#0D3F7A] text-white rounded-xl py-3"
+                        className="w-full bg-[#A6BBFF] hover:bg-[#0D3F7A] text-[#3357E6] rounded-xl py-3"
                         onClick={() => navigate("/specialist/patient/create")}
                     >
                         <Plus className="mr-2 h-5 w-5"/>
