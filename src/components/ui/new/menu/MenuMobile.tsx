@@ -28,6 +28,18 @@ export function MenuMobile({
     return location.pathname === path || location.pathname.startsWith(path + '/');
   };
   
+  // Special check for home icon that should be active on both /specialist and /specialist/menu
+  const isHomeActive = () => {
+    if (activePath) {
+      return activePath === '/specialist' || activePath === '/specialist/menu';
+    }
+    return (
+      location.pathname === '/specialist' || 
+      location.pathname === '/specialist/menu' || 
+      location.pathname.startsWith('/specialist/menu/')
+    );
+  };
+  
   return (
     <div className={`fixed bottom-0 left-0 right-0 bg-[#F9FAFB] shadow-sm pt-3 pb-7 flex items-center justify-evenly ${className}`}>
       <button
@@ -35,11 +47,11 @@ export function MenuMobile({
         className="flex flex-col items-center justify-center w-24"
       >
         <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-          isActive('/specialist') ? 'bg-[#FAD5D2]' : ''
+          isHomeActive() ? 'bg-[#FAD5D2]' : ''
         }`}>
-          <FaHome className={`w-5 h-5 ${isActive('/specialist') ? 'text-[#0041E9]' : 'text-gray-400'}`} />
+          <FaHome className={`w-5 h-5 ${isHomeActive() ? 'text-[#0041E9]' : 'text-gray-400'}`} />
         </div>
-        <span className={`text-xs mt-1 ${isActive('/specialist') ? 'text-[#0041E9] font-medium' : 'text-gray-500'}`}>
+        <span className={`text-xs mt-1 ${isHomeActive() ? 'text-[#0041E9] font-medium' : 'text-gray-500'}`}>
           Home
         </span>
       </button>
