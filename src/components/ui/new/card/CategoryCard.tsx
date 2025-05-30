@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 
 interface CategoryCardProps {
   title: string;
-  description?: string;
+  description?: React.ReactNode;
   icon?: React.ReactNode;
   onClick?: () => void;
   className?: string;

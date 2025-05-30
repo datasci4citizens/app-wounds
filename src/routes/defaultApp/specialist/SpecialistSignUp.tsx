@@ -95,7 +95,7 @@ export default function SpecialistSignUp() {
         );
         
         const userData = response.data;
-        
+        localStorage.setItem("user_info", JSON.stringify(response.data));
         // Construct full name from first_name and last_name
         const fullName = `${userData.first_name || ''} ${userData.last_name || ''}`.trim();
         
