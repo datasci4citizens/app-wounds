@@ -14,6 +14,7 @@ import DatePicker from "@/components/common/DatePicker"; // Assuming path from W
 import { cn } from "@/lib/utils"; // Standard utility for shadcn/ui projects
 import { isAfter } from "date-fns";
 
+
 // Define interface for user data
 interface UserData {
   id: number;
@@ -94,7 +95,7 @@ export default function SpecialistSignUp() {
         );
         
         const userData = response.data;
-        
+        localStorage.setItem("user_info", JSON.stringify(response.data));
         // Construct full name from first_name and last_name
         const fullName = `${userData.first_name || ''} ${userData.last_name || ''}`.trim();
         
@@ -131,7 +132,6 @@ export default function SpecialistSignUp() {
           <div className="z-10 bg-[#F9FAFB] pb-6 px-6 pt-4">
             <AppHeader title="Informações pessoais" />
           </div>
-
           <Form {...form}>
             <form 
               className="flex-1 px-6 pb-6 bg-[#F9FAFB]">

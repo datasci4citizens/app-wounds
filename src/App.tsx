@@ -39,6 +39,7 @@ import PatientWoundAddUpdateImage from './routes/patientApp/wound/AddUpdate/Woun
 import PatientWoundAddUpdateConduct from './routes/patientApp/wound/AddUpdate/WoundAddUpdateConduct.tsx';
 import { WoundUpdateProvider as PatientWoundUpdateProvider } from './routes/patientApp/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx';
 import SpecialistSignUpDetails from './routes/defaultApp/specialist/SpecialistSignUpDetails.tsx';
+import axios from 'axios';
 
 const router = createBrowserRouter([
   // Public routes (no authentication required)
@@ -211,7 +212,7 @@ export function App() {
               }
             }
           }
-          return await fetch(`${import.meta.env.VITE_SERVER_URL}${url}`, { credentials: 'include', ...Auth, ...args }).then(res => res.json())
+          return await axios.get(`${import.meta.env.VITE_SERVER_URL}${url}`, { credentials: 'include', ...Auth, ...args }).then(res => res.data)
         }
       }}>
         <RouterProvider router={router} />

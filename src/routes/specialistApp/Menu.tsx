@@ -6,44 +6,61 @@ import { WaveBackgroundLayout } from '@/components/ui/new/wave/WaveBackground.ts
 import CategoryCard from '@/components/ui/new/card/CategoryCard.tsx';
 import axios from 'axios';
 
+interface AuthMeResponse {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
 export default function Menu() {
   const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState('')
   const [specialistName, setSpecialistName] = useState('')
 
   useEffect(() => {
-    // Try to get name from localStorage first (faster)
-    const storedName = localStorage.getItem("provider_name");
-    
-    if (storedName) {
-      setSpecialistName(storedName);
-    } else {
-      // Fetch user data from API if not available in localStorage
-      const fetchUserData = async () => {
-        try {
-          const token = localStorage.getItem("access_token");
-          
-          if (!token) {
-            console.error("No access token found");
-            return;
-          }
-          
-          const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/auth/me/`, {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          });
-          
-          if (response.data.first_name) {
-            setSpecialistName(response.data.first_name);
-            localStorage.setItem("provider_name", response.data.first_name);
-          }
-        } catch (error) {
-          console.error("Failed to fetch user data:", error);
-        }
-      };
+    // Try to get user info from localStorage first (faster)
+    try {
+      const userInfoString = localStorage.getItem("user_info");
       
-      fetchUserData();
+      if (userInfoString) {
+        const userInfo: AuthMeResponse = JSON.parse(userInfoString);
+        if (userInfo.first_name) {
+          setSpecialistName(userInfo.first_name);
+        }
+      } else {
+        // Fetch user data from API if not available in localStorage
+        const fetchUserData = async () => {
+          try {
+            const token = localStorage.getItem("access_token");
+            
+            if (!token) {
+              console.error("No access token found");
+              return;
+            }
+
+            const response = await axios.get(
+              `${import.meta.env.VITE_SERVER_URL}/specialists/`,
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+            
+            if (response.data) {
+              console.log("User data fetched successfully:", response.data);
+              // Store the complete user info object
+              localStorage.setItem("specialist_data", JSON.stringify(response.data[0]));
+              setSpecialistName(response.data[0].specialist_name);
+            }
+          } catch (error) {
+            console.error("Failed to fetch user data:", error);
+          }
+        };
+        
+        fetchUserData();
+      }
+    } catch (error) {
+      console.error("Error parsing user info from localStorage:", error);
+      // If there's an error parsing, fetch the data again
+      // ... (same fetch logic as above)
     }
   }, []);
 

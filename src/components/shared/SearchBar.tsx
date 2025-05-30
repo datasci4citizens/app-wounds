@@ -10,6 +10,7 @@ import { Button } from '../ui/button.tsx';
  * @property {string} [value] - Current value of the search input
  * @property {string} [className] - Additional CSS classes for the container
  * @property {function} [onAddClick] - Optional callback for the add button. If not provided, the button won't be rendered
+ * @property {function} [onFilterClick] - Optional callback for the filter button. If not provided, the button won't be rendered
  * @property {string|number} [height] - Optional custom height for the search bar
  */
 interface SearchBarProps {
@@ -18,14 +19,15 @@ interface SearchBarProps {
   value?: string;
   className?: string;
   onAddClick?: () => void;
+  onFilterClick?: () => void;
   height?: string | number;
 }
 
 /**
- * SearchBar component with optional add button
+ * SearchBar component with optional add and filter buttons
  * 
  * A customizable search input component that displays a search icon on the left side
- * and optionally a plus button on the right side if onAddClick is provided.
+ * and optionally buttons on the right side (filter and/or add) if their callbacks are provided.
  * 
  * @param {SearchBarProps} props - Component props
  * @returns {JSX.Element} The rendered SearchBar component
@@ -43,6 +45,25 @@ interface SearchBarProps {
  *   onAddClick={handleAddNew}
  *   height="64px"
  * />
+ * 
+ * @example
+ * // With filter button
+ * <SearchBar 
+ *   placeholder="Search patients..." 
+ *   onChange={handleSearch} 
+ *   value={searchQuery} 
+ *   onFilterClick={handleShowFilters}
+ * />
+ * 
+ * @example
+ * // With both buttons
+ * <SearchBar 
+ *   placeholder="Search patients..." 
+ *   onChange={handleSearch} 
+ *   value={searchQuery} 
+ *   onAddClick={handleAddNew}
+ *   onFilterClick={handleShowFilters}
+ * />
  */
 export function SearchBar({ 
   placeholder = "", 
@@ -50,6 +71,7 @@ export function SearchBar({
   value, 
   className = "",
   onAddClick,
+  onFilterClick,
   height
 }: SearchBarProps) {
   
@@ -60,30 +82,54 @@ export function SearchBar({
         <Search size={20} />
       </div>
       
-      {/* Search input with dynamic padding based on whether the add button is present */}
+      {/* Search input with dynamic padding based on whether buttons are present */}
       <input
         type="text"
         placeholder={placeholder}
         onChange={onChange}
         value={value}
-        className={`w-full rounded-[20px] bg-white py-2 pl-10 ${onAddClick ? 'pr-14' : 'pr-4'} text-sm border-none shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500`}
+        className={`w-full rounded-[20px] bg-white py-2 pl-10 ${
+          onAddClick && onFilterClick ? 'pr-24' : (onAddClick || onFilterClick ? 'pr-14' : 'pr-4')
+        } text-sm border-none shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500`}
         aria-label="Search"
         style={height ? { height } : undefined}
       />
       
-      {/* Optional add button that only renders when onAddClick is provided */}
-      {onAddClick && (
-        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 z-10">
+      {/* Container for buttons - only shown if at least one button is needed */}
+      <div className="absolute right-3 top-1/2 transform -translate-y-1/2 z-10 flex gap-2">
+        {/* Optional filter button */}
+        {onFilterClick && (
+          <Button 
+            onClick={onFilterClick} 
+            className="rounded-lg bg-[#fad5d2] hover:bg-[#f8c8c4] flex items-center justify-center p-0"
+            style={{ height: '32px', width: '32px' }}
+            aria-label="Filter"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="4" width="5" height="1.5" fill="#0120AC" />
+              <rect x="9" y="4" width="5" height="1.5" fill="#0120AC" />
+              <rect x="2" y="7.25" width="5" height="1.5" fill="#0120AC" />
+              <rect x="9" y="7.25" width="5" height="1.5" fill="#0120AC" />
+              <rect x="2" y="10.5" width="5" height="1.5" fill="#0120AC" />
+              <rect x="9" y="10.5" width="5" height="1.5" fill="#0120AC" />
+              <rect x="7.25" y="2.5" width="1.5" height="4" fill="#0120AC" />
+              <rect x="7.25" y="9.5" width="1.5" height="4" fill="#0120AC" />
+            </svg>
+          </Button>
+        )}
+        
+        {/* Optional add button */}
+        {onAddClick && (
           <Button 
             onClick={onAddClick} 
-            className="rounded-full bg-[#fad5d2] hover:bg-[#f8c8c4] flex items-center justify-center p-0"
+            className="rounded-lg bg-[#fad5d2] hover:bg-[#f8c8c4] flex items-center justify-center p-0"
             style={{ height: '32px', width: '32px' }}
             aria-label="Add new"
           >
             <Plus className="h-4 w-4 text-[#0120AC]" />
           </Button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

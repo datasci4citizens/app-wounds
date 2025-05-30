@@ -16,7 +16,6 @@ export function TermsWithPopup({ onChange }: TermsWithPopupProps) {
     if (onChange) onChange(newChecked);
   }
 
-  // Fecha popup clicando fora
   useEffect(() => {
     function onClickOutside(event: MouseEvent) {
       if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
@@ -31,7 +30,6 @@ export function TermsWithPopup({ onChange }: TermsWithPopupProps) {
     };
   }, [open]);
 
-  // Swipe down para fechar (simples)
   const startY = useRef<number | null>(null);
 
   function onTouchStart(e: React.TouchEvent) {
@@ -54,81 +52,53 @@ export function TermsWithPopup({ onChange }: TermsWithPopupProps) {
   return (
     <div className="flex flex-col items-center">
       <div className="flex items-center gap-2 max-w-md w-full">
-        <div className="flex-shrink-0" style={{ width: 18, height: 18 }}>
+        <div className="flex-shrink-0 w-[18px] h-[18px]">
           <Checkbox
             checked={checked}
             onCheckedChange={handleCheckedChange}
             className="w-[18px] h-[18px] min-w-[18px] min-h-[18px] border border-[#E7E5E4]"
           />
         </div>
-        <label
-          className="cursor-pointer select-none flex-grow"
-          style={{
-            fontFamily: "Roboto, sans-serif",
-            fontWeight: 400,
-            fontSize: 14,
-          }}
-        >
-          <span className="text-black">
-            Li e estou de acordo com os{" "}
-            <button
-              type="button"
-              className="text-[#6D8AFF]"
+          <label className="cursor-pointer select-none flex-grow text-sm font-normal text-black font-['Roboto']">
+            <span
+              className="text-black"
               onClick={() => setOpen(true)}
             >
-              Termos de Uso e Política de Privacidade
-            </button>
-          </span>
-        </label>
+              Li e estou de acordo com os{" "}
+              <span
+                className="text-[#6D8AFF] underline underline-offset-2"
+              >
+                Termos de Uso e Política de Privacidade
+              </span>
+            </span>
+          </label>
       </div>
 
       {open && (
-        <div
-          className="fixed inset-0 flex justify-center items-end bg-transparent z-[9999]"
-          // Sem overlay escuro, só transparente para permitir clique fora
-        >
+        <div className="fixed inset-0 flex justify-center items-end bg-transparent z-[9999]">
           <div
             ref={popupRef}
-            className="bg-white rounded-2xl p-6 overflow-auto shadow-[0_10px_30px_rgba(0,0,0,0.35)] flex flex-col items-center"
-            style={{
-              width: 400,
-              height: 500,
-              maxWidth: "90vw",
-              touchAction: "none",
-            }}
+            className="w-full max-w-[360px] h-[60vh] touch-none p-6 pt-5 pb-6 px-5 overflow-auto bg-white shadow-[0_10px_30px_rgba(0,0,0,0.35)] flex flex-col items-center"
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
+            style={{
+              borderTopLeftRadius: 24,
+              borderTopRightRadius: 24,
+              borderBottomLeftRadius: 0,
+              borderBottomRightRadius: 0,
+            }}
           >
-            {/* Retângulo pequeno arredondado */}
-            <div
-              className="mx-auto mb-4"
-              style={{
-                width: 40,
-                height: 6,
-                borderRadius: 3,
-                backgroundColor: "#BA2C5D",
-              }}
-            />
+            {/* Barra de fechamento */}
+            <div className="mx-auto mb-4 w-8 h-1 rounded-full bg-[#BA2C5D]" />
 
-            <h2
-              className="mb-2 font-semibold"
-              style={{ color: "#0120AC", textAlign: "center", fontSize: 20 }}
-            >
+            <h2 className="mb-2 font-semibold text-center text-[20px] text-[#0120AC]">
               Termos de Uso e Política de Privacidade
             </h2>
-            <p
-              style={{
-                fontFamily: "Roboto, sans-serif",
-                fontWeight: 400,
-                fontSize: 14,
-                lineHeight: "24px",
-                color: "#1F2937",
-                textAlign: "center",
-              }}
-            >
+
+            <div className="w-full max-h-[calc(75vh-100px)] overflow-y-auto text-left text-[14px] leading-[22px] text-[#1F2937] font-['Roboto'] font-normal">
               {/* Conteúdo dos termos */}
               Seu texto de termos aqui...
-            </p>
+            </div>
           </div>
         </div>
       )}
