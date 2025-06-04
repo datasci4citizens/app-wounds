@@ -1,9 +1,9 @@
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { useUser } from "@/lib/hooks/use-user";
 
 export function AuthGuard() {
-    const {id, isLoading, error} = useUser();
+    const { credentials, id, isLoading, error } = useUser();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -31,5 +31,5 @@ export function AuthGuard() {
         return null;
     }
 
-    return <Outlet/>;
+    return <Outlet />;
 }
