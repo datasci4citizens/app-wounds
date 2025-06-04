@@ -16,14 +16,11 @@ import { isBefore, isAfter, startOfDay } from "date-fns";
 import { useState, useEffect } from "react";
 import { WaveBackgroundLayout } from "@/components/ui/new/wave/WaveBackground";
 import { ProfessionalIcon } from "@/components/ui/new/ProfessionalIcon";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/new/Button";
 import useSWRMutation from "swr/mutation";
 import { getBaseURL, getRequest, postRequest } from "@/data/common/HttpExtensions";
 import { Checkbox } from "@/components/ui/new/general/Checkbox";
-import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
-import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
-import { cn } from "@/lib/utils";
-import { Check, Plus, X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import smokeFrequency from "@/localdata/smoke-frequency.json";
@@ -97,7 +94,7 @@ export default function PatientCreateRedesign() {
     const isValid = await form.trigger();
     if (isValid) {
       const data = form.getValues();
-      localStorage.setItem("patient_info", JSON.stringify(data));
+      console.log("Dados do paciente:", data); // <-- imprime no terminal
       navigate("/specialist/patient/create-details");
     }
   };
@@ -106,19 +103,21 @@ export default function PatientCreateRedesign() {
     setShowOptional(!showOptional);
   };
 
-  const handleAddComorbidity = () => {
-    if (!comorbiditiesInput.trim()) return;
-    const newItem = {
-      id: comorbiditiesInput.toLowerCase().replace(/\s+/g, "_"),
-      label: comorbiditiesInput.trim(),
-    };
-    setOtherComorbidities((prev) => [...prev, newItem]);
-    setSelectedComorbidity((prev) => [...prev, newItem.id]);
-    setComorbiditiesInput("");
-    // Also update form field for other_comorbidities
-    const current = form.getValues("other_comorbidities") || [];
-    form.setValue("other_comorbidities", [...current, newItem.id]);
-  };
+ const handleAddComorbidity = () => {
+  if (!comorbiditiesInput.trim()) return;
+
+  const selectedItem = otherComorbidities.find((item) => item.id === comorbiditiesInput);
+
+  if (!selectedItem) return;
+
+  if (selectedComorbidity.includes(selectedItem.id)) return; // já foi adicionada
+
+  const updated = [...selectedComorbidity, selectedItem.id];
+  setSelectedComorbidity(updated);
+  form.setValue("other_comorbidities", updated);
+  setComorbiditiesInput(""); // limpa a seleção
+};
+
 
   return (
     <div className="fixed inset-0 flex flex-col">
@@ -133,7 +132,6 @@ export default function PatientCreateRedesign() {
 
           <Form {...form}>
             <form className="space-y-6">
-              {/* === PARTE 1 (SEU FORMULARIO ATUAL) === */}
               <FormField
                 control={form.control}
                 name="name"
@@ -227,7 +225,7 @@ export default function PatientCreateRedesign() {
                 name="birthday"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[#0120AC]">Data de nascimento</FormLabel>
+                    <FormLabel className="text-[#0120AC] ">Data de nascimento</FormLabel>
                     <DatePicker
                       field={field}
                       disabled={(date) =>
@@ -240,71 +238,58 @@ export default function PatientCreateRedesign() {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="acceptTerms"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        checked={field.value === true}
-                        onChange={() => field.onChange(!field.value)}
-                        className="accent-[#0120AC] w-4 h-4"
-                      />
-                      <FormLabel className="text-sm font-normal text-[#0120AC]">
-                        Concordo em participar da pesquisa
-                      </FormLabel>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* === PARTE 2: FORMULÁRIO OPCIONAL APARECENDO AO CLICAR NO BOTAO === */}
               {showOptional && (
                 <>
-                  {/* Altura / Peso */}
                   <div className="flex gap-4">
                     <FormField
                       control={form.control}
                       name="height"
                       render={({ field }) => (
-                        <FormItem className="flex-1">
-                          <FormLabel>Altura</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              placeholder="1.70"
-                              {...field}
-                              onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                            />
-                          </FormControl>
+                        <FormItem>
+                          <FormLabel className="text-[#0120AC]">Altura</FormLabel>
+                          <div className="flex items-center gap-1">
+                            <FormControl>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                placeholder="1.70"
+                                className="w-[80px] placeholder:text-[#A6BBFF] bg-white text-[#0120AC] border border-[#A6BBFF] rounded-md"
+                                {...field}
+                                onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                              />
+                            </FormControl>
+                            <span className="text-[#0120AC]">m</span>
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
+
                     <FormField
                       control={form.control}
                       name="weight"
                       render={({ field }) => (
-                        <FormItem className="flex-1">
-                          <FormLabel>Peso</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              placeholder="70"
-                              {...field}
-                              onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                            />
-                          </FormControl>
+                        <FormItem>
+                          <FormLabel className="text-[#0120AC]">Peso</FormLabel>
+                          <div className="flex items-center gap-1">
+                            <FormControl>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                placeholder="70"
+                                className="w-[80px] placeholder:text-[#A6BBFF] bg-white text-[#0120AC] border-[#A6BBFF] rounded-md"
+                                {...field}
+                                onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                              />
+                            </FormControl>
+                            <span className="text-[#0120AC]">Kg</span>
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
                   </div>
+
 
                   {/* Comorbidades */}
                   <FormField
@@ -312,7 +297,7 @@ export default function PatientCreateRedesign() {
                     name="comorbidities"
                     render={() => (
                       <FormItem>
-                        <FormLabel>Comorbidades</FormLabel>
+                        <FormLabel className="text-[#0120AC]">Comorbidades</FormLabel>
                         <div className="grid grid-cols-2 gap-2">
                           {comorbiditiesData?.map((item) => (
                             <FormField
@@ -346,84 +331,66 @@ export default function PatientCreateRedesign() {
                   <FormField
                     control={form.control}
                     name="other_comorbidities"
-                    render={({ field }) => (
+                    render={() => (
                       <FormItem>
-                        <FormLabel>Outras comorbidades</FormLabel>
-                        <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-                          <PopoverTrigger asChild>
-                            <Button type="button" variant="outline">
-                              Adicionar outra
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-[300px]">
-                            <Command>
-                              <CommandInput
-                                placeholder="Pesquisar"
-                                value={comorbiditiesInput}
-                                onValueChange={setComorbiditiesInput}
-                              />
-                              <CommandList>
-                                <CommandEmpty>
-                                  <Button
-                                    type="button"
-                                    onClick={handleAddComorbidity}
-                                    className="w-full flex items-center justify-center gap-2"
-                                  >
-                                    <Plus className="h-4 w-4" />
-                                    Adicionar {comorbiditiesInput}
-                                  </Button>
-                                </CommandEmpty>
-                                <CommandGroup>
-                                  {otherComorbidities.map((item) => (
-                                    <CommandItem
-                                      key={item.id}
-                                      onSelect={() => {
-                                        const current = form.getValues("other_comorbidities") || [];
-                                        const updated = current.includes(item.id)
-                                          ? current.filter((v) => v !== item.id)
-                                          : [...current, item.id];
-                                        form.setValue("other_comorbidities", updated);
-                                        setSelectedComorbidity(updated);
-                                      }}
-                                    >
-                                      <Check
-                                        className={cn(
-                                          "mr-2 h-4 w-4",
-                                          selectedComorbidity.includes(item.id)
-                                            ? "opacity-100"
-                                            : "opacity-0"
-                                        )}
-                                      />
-                                      {item.label}
-                                    </CommandItem>
-                                  ))}
-                                </CommandGroup>
-                              </CommandList>
-                            </Command>
-                          </PopoverContent>
-                        </Popover>
+                        <FormLabel className="text-[#0120AC]">Outras comorbidades</FormLabel>
+                        
+                        {/* Select + botão */}
+                        <div className="flex items-center w-full gap-2">
+                        <Select value={comorbiditiesInput} onValueChange={setComorbiditiesInput}>
+                            <FormControl>
+                              <SelectTrigger className="w-full text-[#0120AC] border-[#A6BBFF]">
+                               <SelectValue
+                                  placeholder="Selecione uma comorbidade"
+                                  className="text-[#0120AC] placeholder:text-[#A6BBFF]"
+                                />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {otherComorbidities.map((item) => (
+                                <SelectItem key={item.id} value={item.id}>
+                                  {item.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
 
-                        {/* Tags */}
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {selectedComorbidity.map((item) => (
-                            <Button
-                              key={item}
-                              type="button"
-                              onClick={() => {
-                                const newSelected = selectedComorbidity.filter((v) => v !== item);
-                                setSelectedComorbidity(newSelected);
-                                form.setValue("other_comorbidities", newSelected);
-                              }}
-                              className="rounded-full h-6 px-3 text-xs flex items-center space-x-2"
-                            >
-                              <span>{item}</span>
-                              <X className="h-4 w-4" />
-                            </Button>
-                          ))}
+                          <Button
+                            type="button"
+                            onClick={handleAddComorbidity}
+                            className="bg-[#0120AC] text-white w-auto px-3 py-1 rounded"
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
+
+                        {/* Tags exibidas abaixo */}
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {selectedComorbidity.map((itemId) => {
+                            const label = otherComorbidities.find((c) => c.id === itemId)?.label || itemId;
+                            return (
+                                <Button
+                                  key={itemId}
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-6 max-w-full rounded-full px-3 text-xs flex items-center space-x-2 border-[#0120AC] text-[#0120AC] overflow-hidden"
+                                  onClick={() => {
+                                    const newSelected = selectedComorbidity.filter((id) => id !== itemId);
+                                    setSelectedComorbidity(newSelected);
+                                    form.setValue("other_comorbidities", newSelected);
+                                  }}
+                                >
+                                  <span className="truncate max-w-[150px] whitespace-nowrap">{label}</span>
+                                  <X className="h-3 w-3" />
+                                </Button>
+                            );
+                          })}
                         </div>
                       </FormItem>
                     )}
                   />
+
 
                   {/* Fumo */}
                   <FormField
@@ -431,10 +398,10 @@ export default function PatientCreateRedesign() {
                     name="smoke_frequency"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Fumante</FormLabel>
+                        <FormLabel className="text-[#0120AC]">Fumante</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger  className="w-full bg-white border-[#A6BBFF] text-[#0120AC] placeholder:text-[#A6BBFF] focus:ring-0 focus:outline-none">
                               <SelectValue placeholder="Selecione a frequência de fumo" />
                             </SelectTrigger>
                           </FormControl>
@@ -456,11 +423,11 @@ export default function PatientCreateRedesign() {
                     name="drink_frequency"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Bebida alcoólica</FormLabel>
+                        <FormLabel className="text-[#0120AC]">Bebida alcoólica</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Selecione a frequência" />
+                            <SelectTrigger  className="w-full bg-white border-[#A6BBFF] text-[#0120AC] placeholder:text-[#A6BBFF] focus:ring-0 focus:outline-none">
+                              <SelectValue  placeholder="Selecione a frequência" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -476,6 +443,29 @@ export default function PatientCreateRedesign() {
                   />
                 </>
               )}
+
+              <FormField
+                control={form.control}
+                name="acceptTerms"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        checked={field.value === true}
+                        onChange={() => field.onChange(!field.value)}
+                        className="accent-[#0120AC] w-4 h-4"
+                      />
+                      <FormLabel className="text-sm font-normal text-[#0120AC]">
+                        Concordo em participar da pesquisa
+                      </FormLabel>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              
 
               {/* Botoes */}
               <div className="flex flex-col items-center space-y-4 mt-6">
@@ -493,7 +483,7 @@ export default function PatientCreateRedesign() {
                   disabled={loading || !allFieldsValid}
                   onClick={handleNext}
                 >
-                  Próximo
+                  Cadastrar
                 </Button>
               </div>
             </form>
