@@ -7,9 +7,11 @@ export function AuthGuard() {
     const navigate = useNavigate();
     const location = useLocation();
 
+    const isDev = import.meta.env.DEV;
+
     useEffect(() => {
-        if (!isLoading) {
-            if (error || !id) {
+        if (!isLoading && !isDev) {
+            if (error || !credentials?.token || !id) {
                 if (location.pathname !== "/login") {
                     console.log("Redirecting to /login...");
                     navigate("/login");
@@ -19,14 +21,13 @@ export function AuthGuard() {
                 navigate("/patient/list");
             }
         }
-    }, [isLoading, error, id, navigate, location]);
+    }, [isLoading, error, credentials, id, navigate, location, isDev]);
 
-    if (isLoading) {
-        return <div>Loading...</div>; // Loading fallback
+    if (isLoading && !isDev) {
+        return <div>Loading...</div>;
     }
 
-    if (!id) {
-        // If not authenticated, don't render the content and show nothing
+    if (!isDev && (!credentials?.token || !id)) {
         return null;
     }
 

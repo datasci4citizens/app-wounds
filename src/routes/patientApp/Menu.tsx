@@ -1,0 +1,44 @@
+import { useNavigate } from 'react-router-dom'
+
+import { UserPlus } from 'lucide-react'
+
+import { Button } from '../../components/ui/button.tsx'
+import { Card,
+         CardHeader,
+         CardTitle,
+         CardContent} from '../../components/ui/card.tsx'
+
+export default function Menu() { // TODO: Remove
+  const navigate = useNavigate()
+
+  const handleNavigate = (path: string) => {
+    navigate(path)
+  }
+
+  return (
+    <div className='container mx-auto flex min-h-screen items-center justify-center p-4'>
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle className='text-center font-bold text-2xl'>Menu do Paciente</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col space-y-4">
+  
+          <Button 
+            onClick={() => handleNavigate('/wound/create')}
+            className='flex w-full items-center justify-center space-x-2'
+          >
+            <UserPlus className="mr-2 h-5 w-5" />
+            <span>Add Wound</span>
+          </Button>
+          <Button 
+            onClick={() => handleNavigate('/wound/add-update')}
+            className='flex w-full items-center justify-center space-x-2'
+          >
+            <UserPlus className="mr-2 h-5 w-5" />
+            <span>Update Wound</span>
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}

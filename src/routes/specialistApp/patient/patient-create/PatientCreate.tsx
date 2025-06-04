@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
+import { Checkbox } from "@/components/ui/new/general/Checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form.tsx";
 import type { UseFormReturn } from "react-hook-form";
@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils.ts";
 import { Check, ChevronDown, Plus, X } from "lucide-react";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, } from "@/components/ui/command"
 import useSWRMutation from "swr/mutation";
-import { getBaseURL, getRequest, postRequest } from "@/data/common/HttpExtensions.ts";
+import { getBaseURL, getRequest, postRequest} from "@/data/common/HttpExtensions.ts";
 import { useNavigate } from "react-router-dom";
 
 import smokeFrequency from '@/localdata/smoke-frequency.json';
@@ -32,9 +32,10 @@ export interface PatientPayload {
     weight?: number;
     smoke_frequency?: string;
     drink_frequency?: string;
-    accept_tcle?: boolean;
+    accept_tcl?: boolean;
     comorbidities?: number[];
     comorbidities_to_add?: string[];
+    specialist_id: number;
 }
 
 const PatientFormSchema = z.object({
@@ -72,12 +73,15 @@ interface Comorbidities {
 
 type PatientFormValues = z.infer<typeof PatientFormSchema>;
 
-export function PatientCreate() {
+export default function PatientCreate() {
     const navigate = useNavigate();
-    const {trigger: postTrigger} = useSWRMutation(getBaseURL("/patients/"), postRequest);
     const {
         data: comorbiditiesData, trigger: getComorbiditiesTrigger,
     } = useSWRMutation<Comorbidities[]>(getBaseURL("/comorbidities/"), getRequest);
+
+    const {
+        trigger: postTrigger,
+    } = useSWRMutation(getBaseURL("/patients/"), postRequest);
 
     useEffect(() => {
         getComorbiditiesTrigger();
@@ -124,14 +128,15 @@ export function PatientCreate() {
                 weight: data.weight,
                 smoke_frequency: data.smoke_frequency,
                 drink_frequency: data.drink_frequency,
-                accept_tcle: true,
+                accept_tcl: true,
                 comorbidities: data.comorbidities,
                 comorbidities_to_add: data.other_comorbidities,
+                specialist_id : 1 //TODO substituir isso futuramente 
             };
 
             console.log('Sending payload:', payload);
             await postTrigger(payload);
-            return navigate("/patient/list")
+            return navigate("/specialist/patient/create/qrcode", { state: "1234" });
         } catch (error) {
             console.error('Error submitting form:', error);
             throw error;
@@ -289,7 +294,6 @@ function OptionalInfoFields({form, comorbiditiesData = []}: {
     const [selectedComorbidity, setSelectedComorbidity] = useState<string[]>([]);
     const [otherComorbiditiesInputValue, setOtherComorbiditiesInputValue] = useState("");
     const [otherComorbiditiesOpen, setOtherComorbiditiesOpen] = useState(false); // Local state for popover open/close
-
     const handleSelect = (comorbidity: string) => {
         if (!selectedComorbidity.includes(comorbidity)) {
             setSelectedComorbidity([...selectedComorbidity, comorbidity]);
@@ -391,6 +395,7 @@ function OptionalInfoFields({form, comorbiditiesData = []}: {
                                                     <Checkbox
                                                         checked={field.value?.includes(comorbidity.comorbidity_id)}
                                                         onCheckedChange={(checked) => {
+                                                            console.log("como", field)
                                                             return checked
                                                                 ? field.onChange([...(field.value ?? []), comorbidity.comorbidity_id])
                                                                 : field.onChange(
@@ -475,7 +480,7 @@ function OptionalInfoFields({form, comorbiditiesData = []}: {
                                                             : [...currentValues, comorbidity.id];
 
                                                         form.setValue("other_comorbidities", newValue);
-                                                        handleSelect(comorbidity.label);
+                                                        handleSelect(comorbidity.id);
                                                         // setOpen(false)
                                                     }}
                                                 >

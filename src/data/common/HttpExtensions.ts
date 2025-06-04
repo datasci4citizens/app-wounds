@@ -4,7 +4,8 @@ export async function getRequest(url: string) {
         credentials: 'include',
         headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            "authorization" : "Bearer " + localStorage.getItem("access_token") 
         },
         mode: 'cors'
     }).then(res => {
@@ -21,7 +22,9 @@ export async function postRequest<T>(url: string, { arg }: { arg: T }) {  // Cha
             credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json'
+                'Accept': 'application/json',
+                "authorization" : "Bearer " + localStorage.getItem("access_token") 
+
             },
             body: JSON.stringify(arg)  // Use arg directly, as SWR wraps the data
         });
@@ -47,7 +50,8 @@ export async function patchRequest(url: string, { arg }: { arg: any }) {
             credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json'
+                'Accept': 'application/json',
+                "authorization" : "Bearer " + localStorage.getItem("access_token") 
             },
             body: JSON.stringify(arg)
         });
@@ -67,8 +71,10 @@ export async function patchRequest(url: string, { arg }: { arg: any }) {
 }
 
 export function getBaseURL(path: string, queryParams?: Record<string, string>): string {
-    const baseURL = import.meta.env.VITE_SERVER_URL;
-    const url = new URL(path, baseURL);
+    // Use proxy path instead of direct server URL to avoid CORS issues
+    const baseURL = '/api/';
+    // Create a URL that combines the base path with the specific API path
+    const url = new URL(path, window.location.origin + baseURL);
 
     if (queryParams) {
         Object.entries(queryParams).forEach(([key, value]) => {

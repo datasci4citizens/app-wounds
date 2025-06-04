@@ -38,10 +38,15 @@ export default {
 					from: { height: 'var(--radix-accordion-content-height)' },
 					to: { height: '0' },
 				},
+				loadingBar: {
+					'0%': { transform: 'translateX(-100%)' },
+					'100%': { transform: 'translateX(100%)' },
+				},
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
+				'loading-bar': 'loadingBar 1.5s ease-in-out infinite',
 			},
 			colors: {
 				border: stone[200],
@@ -60,7 +65,7 @@ export default {
 				},
 				primary: {
 					// biome-ignore lint/style/useNamingConvention: external naming
-					DEFAULT: sky[900],
+					DEFAULT: '#0F4B8F',
 					foreground: sky[50],
 				},
 				secondary: {
