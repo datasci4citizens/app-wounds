@@ -3,6 +3,13 @@ import type { ReactNode } from "react";
 import useSWR from "swr";
 
 interface UserContext {
+    credentials?: {
+        token: string;
+        refresh_token: string | null;
+        token_uri: string;
+        client_id: string;
+        client_secret: string;
+    };
     email?: string;
     id?: number;
     state?: string;
