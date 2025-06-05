@@ -1,5 +1,4 @@
-// filepath: /Users/gustavom/Documents/unicamp/app-wounds/src/routes/specialistApp/patient/PatientList.tsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, X, ArrowDownAZ, Calendar, ClockIcon } from "lucide-react"
 import useSWRMutation from "swr/mutation";
@@ -21,6 +20,7 @@ import {
 } from "@/components/ui/drawer";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { LoadingScreen, type LoadingScreenHandle } from '@/components/ui/new/loading/LoadingScreen';
 
 // Helper function to get initials from a name
 const getInitials = (name: string): string => {
@@ -60,6 +60,7 @@ type SortOption = 'name' | 'created_at' | 'updated_at';
 
 export default function PatientsPage() {
     const navigate = useNavigate();
+    const loadingRef = useRef<LoadingScreenHandle>(null);
     // Get specialist info from localStorage
     const [specialistId, setSpecialistId] = useState<string | null>(null);
     
@@ -77,6 +78,9 @@ export default function PatientsPage() {
     const [filtersApplied, setFiltersApplied] = useState(false);
     
     useEffect(() => {
+        // Show loading screen immediately when component mounts
+        loadingRef.current?.show();
+        
         try {
             const specialistData = localStorage.getItem("specialist_data");
             if (specialistData) {
@@ -99,15 +103,53 @@ export default function PatientsPage() {
         : getBaseURL("patients/");
 
     const {
-        data, trigger, error
+        data, trigger, isMutating
     } = useSWRMutation<Patient[]>(apiUrl, getRequest);
-    console.log(data, error)
-
+    
     useEffect(() => {
         if (apiUrl) {
-            trigger();
+            loadingRef.current?.show();
+            
+            const startTime = Date.now();
+            const minimumLoadingTime = 2000;
+            
+            trigger()
+                .then(() => {
+
+                    const elapsedTime = Date.now() - startTime;
+                    const remainingTime = Math.max(0, minimumLoadingTime - elapsedTime);
+                    
+                    if (remainingTime > 0) {
+                        setTimeout(() => {
+                            loadingRef.current?.hide();
+                        }, remainingTime);
+                    } else {
+                        loadingRef.current?.hide();
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error fetching patients:", error);
+                    
+                    const elapsedTime = Date.now() - startTime;
+                    const remainingTime = Math.max(0, minimumLoadingTime - elapsedTime);
+                    
+                    if (remainingTime > 0) {
+                        setTimeout(() => {
+                            loadingRef.current?.hide();
+                        }, remainingTime);
+                    } else {
+                        loadingRef.current?.hide();
+                    }
+                });
         }
     }, [trigger, apiUrl]);
+
+    useEffect(() => {
+        if (isMutating && data) {
+            loadingRef.current?.show();
+        }
+        
+    }, [isMutating]);
 
     const [searchTerm, setSearchTerm] = useState('');
     const patients: Patient[] = formatPatientBirthday(data || []);
@@ -166,202 +208,205 @@ export default function PatientsPage() {
         setSortOpen(false);
     };
 
-    // We don't need handleGenderSelect anymore since we're handling the selection directly in the RadioGroup
-
     return (
-        <WaveBackgroundLayout className="overflow-y-auto">
-            <div className="flex flex-col h-full w-full items-center px-4">
-                <div className="flex justify-center items-center mt-6 mb-6">
-                    <ProfessionalIcon size={0.6} borderRadius="50%" />
-                </div>
-                
-                <div className="w-full mt-6">
-                    <SearchBar 
-                        placeholder="Pesquise o nome do paciente"
-                        value={searchTerm}
-                        onChange={handleSearch}
-                        height="48px"
-                        onFilterClick={handleFilterClick}
-                    />
-                </div>
-                
-                <div className="w-full mt-3 flex flex-wrap items-center justify-between">
-                    {filtersApplied && (
-                        <div className="flex items-center">
-                            <div className="text-xs text-blue-700 font-medium">
-                                Filtros aplicados: {filters.gender}
-                            </div>
-                            <Button 
-                                variant="link" 
-                                className="text-xs text-blue-700 p-0 ml-2 h-auto" 
-                                onClick={clearFilters}
-                            >
-                                Limpar
-                            </Button>
-                        </div>
-                    )}
+        <>
+            <WaveBackgroundLayout className="overflow-y-auto">
+                <div className="flex flex-col h-full w-full items-center px-4">
+                    <div className="flex justify-center items-center mt-6 mb-6">
+                        <ProfessionalIcon size={0.6} borderRadius="50%" />
+                    </div>
                     
-                    <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="text-xs flex items-center gap-1 h-8 mt-2"
-                        onClick={handleSortClick}
-                    >
-                        {sortOption === 'name' && <ArrowDownAZ className="h-3.5 w-3.5" />}
-                        {sortOption === 'created_at' && <Calendar className="h-3.5 w-3.5" />}
-                        {sortOption === 'updated_at' && <ClockIcon className="h-3.5 w-3.5" />}
-                        {sortOption === 'name' && 'Ordenar por Nome'}
-                        {sortOption === 'created_at' && 'Ordenar por Data de criação'}
-                        {sortOption === 'updated_at' && 'Ordenar por Data de modificação'}
-                    </Button>
-                </div>
-
-                <div className="flex flex-col w-full mt-6 pb-16">
-                    {filteredAndSortedPatients.map((patient, index) => (
-                        <CategoryCard 
-                          title={patient.name}
-                          description={<>
-                            {patient.gender}<br />
-                            {patient.birthday}
-                            {sortOption !== 'name' && (
-                                <>
-                                    <br />
-                                    {sortOption === 'created_at' && (
-                                        <span className="text-xs text-gray-500">Criado em: {formatDate(patient.created_at)}</span>
-                                    )}
-                                    {sortOption === 'updated_at' && (
-                                        <span className="text-xs text-gray-500">Modificado em: {formatDate(patient.updated_at)}</span>
-                                    )}
-                                </>
-                            )}
-                          </>}
-                          key={index}
-                          icon={<div className="text-[#3357E6] font-semibold text-base">{getInitials(patient.name)}</div>}
-                          onClick={() => navigate('/specialist/patient/wounds', {state: {patient_id: patient.patient_id}})}
+                    <div className="w-full mt-6">
+                        <SearchBar 
+                            placeholder="Pesquise o nome do paciente"
+                            value={searchTerm}
+                            onChange={handleSearch}
+                            height="48px"
+                            onFilterClick={handleFilterClick}
                         />
-                    ))}
+                    </div>
                     
-                    {filteredAndSortedPatients.length === 0 && (
-                        <div className="text-center py-8 text-gray-500">
-                            Nenhum paciente encontrado
-                        </div>
-                    )}
-                </div>
+                    <div className="w-full mt-3 flex flex-wrap items-center justify-between">
+                        {filtersApplied && (
+                            <div className="flex items-center">
+                                <div className="text-xs text-blue-700 font-medium">
+                                    Filtros aplicados: {filters.gender}
+                                </div>
+                                <Button 
+                                    variant="link" 
+                                    className="text-xs text-blue-700 p-0 ml-2 h-auto" 
+                                    onClick={clearFilters}
+                                >
+                                    Limpar
+                                </Button>
+                            </div>
+                        )}
+                        
+                        <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="text-xs flex items-center gap-1 h-8 mt-2"
+                            onClick={handleSortClick}
+                        >
+                            {sortOption === 'name' && <ArrowDownAZ className="h-3.5 w-3.5" />}
+                            {sortOption === 'created_at' && <Calendar className="h-3.5 w-3.5" />}
+                            {sortOption === 'updated_at' && <ClockIcon className="h-3.5 w-3.5" />}
+                            {sortOption === 'name' && 'Ordenar por Nome'}
+                            {sortOption === 'created_at' && 'Ordenar por Data de criação'}
+                            {sortOption === 'updated_at' && 'Ordenar por Data de modificação'}
+                        </Button>
+                    </div>
 
-                <div className="fixed bottom-4 left-4 right-4">
-                    <Button 
-                        type="button" 
-                        className="w-full bg-[#A6BBFF] hover:bg-[#0D3F7A] text-[#3357E6] rounded-xl py-3"
-                        onClick={() => navigate("/specialist/patient/create")}
-                    >
-                        <Plus className="mr-2 h-5 w-5"/>
-                        Adicionar Paciente
-                    </Button>
+                    <div className="flex flex-col w-full mt-6 pb-16">
+                        {filteredAndSortedPatients.map((patient, index) => (
+                            <CategoryCard 
+                              title={patient.name}
+                              description={<>
+                                {patient.gender}<br />
+                                {patient.birthday}
+                                {sortOption !== 'name' && (
+                                    <>
+                                        <br />
+                                        {sortOption === 'created_at' && (
+                                            <span className="text-xs text-gray-500">Criado em: {formatDate(patient.created_at)}</span>
+                                        )}
+                                        {sortOption === 'updated_at' && (
+                                            <span className="text-xs text-gray-500">Modificado em: {formatDate(patient.updated_at)}</span>
+                                        )}
+                                    </>
+                                )}
+                              </>}
+                              key={index}
+                              icon={<div className="text-[#3357E6] font-semibold text-base">{getInitials(patient.name)}</div>}
+                              onClick={() => navigate('/specialist/patient/wounds', {state: {patient_id: patient.patient_id}})}
+                            />
+                        ))}
+                        
+                        {filteredAndSortedPatients.length === 0 && (
+                            <div className="text-center py-8 text-gray-500">
+                                Nenhum paciente encontrado
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="fixed bottom-4 left-4 right-4">
+                        <Button 
+                            type="button" 
+                            className="w-full bg-[#A6BBFF] hover:bg-[#0D3F7A] text-[#3357E6] rounded-xl py-3"
+                            onClick={() => navigate("/specialist/patient/create")}
+                        >
+                            <Plus className="mr-2 h-5 w-5"/>
+                            Adicionar Paciente
+                        </Button>
+                    </div>
                 </div>
-            </div>
+                
+                {/* Filter Drawer */}
+                <Drawer open={filterOpen} onOpenChange={setFilterOpen}>
+                    <DrawerContent>
+                        <DrawerHeader className="border-b pb-2 pt-4">
+                            <DrawerTitle className="text-xl font-medium text-center">Filtrar Pacientes</DrawerTitle>
+                            <DrawerClose className="absolute right-4 top-4 bg-transparent hover:bg-slate-100 rounded-full p-2">
+                                <X className="h-4 w-4" />
+                            </DrawerClose>
+                        </DrawerHeader>
+                        
+                        <div className="px-4 py-4">
+                            <div className="mb-6">
+                                <h3 className="mb-3 text-sm font-medium">Gênero</h3>
+                                <RadioGroup 
+                                    value={filters.gender === null ? "" : filters.gender}
+                                    onValueChange={(value) => setFilters({...filters, gender: value === "" ? null : value})}
+                                    className="flex justify-center space-x-6"
+                                >
+                                    <div className="flex items-center">
+                                        <RadioGroupItem value="" id="gender-all" className="mr-2" />
+                                        <Label htmlFor="gender-all" className="text-sm font-normal cursor-pointer">
+                                            Todos
+                                        </Label>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <RadioGroupItem value="Masculino" id="gender-male" className="mr-2" />
+                                        <Label htmlFor="gender-male" className="text-sm font-normal cursor-pointer">
+                                            Masculino
+                                        </Label>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <RadioGroupItem value="Feminino" id="gender-female" className="mr-2" />
+                                        <Label htmlFor="gender-female" className="text-sm font-normal cursor-pointer">
+                                            Feminino
+                                        </Label>
+                                    </div>
+                                </RadioGroup>
+                            </div>
+                        </div>
+                        
+                        <DrawerFooter className="border-t pt-4">
+                            <div className="flex gap-2 w-full">
+                                <Button 
+                                    type="button"
+                                    variant="outline" 
+                                    onClick={clearFilters}
+                                    className="flex-1 rounded-lg py-3 text-base"
+                                >
+                                    Limpar
+                                </Button>
+                                <Button 
+                                    type="button"
+                                    className="flex-1 bg-[#0F4B8F] hover:bg-[#0D3F7A] text-white rounded-lg py-3 text-base"
+                                    onClick={applyFilters}
+                                >
+                                    Aplicar
+                                </Button>
+                            </div>
+                        </DrawerFooter>
+                    </DrawerContent>
+                </Drawer>
+                
+                {/* Sort Drawer */}
+                <Drawer open={sortOpen} onOpenChange={setSortOpen}>
+                    <DrawerContent>
+                        <DrawerHeader className="border-b pb-2 pt-4">
+                            <DrawerTitle className="text-xl font-medium text-center">Ordenar Pacientes</DrawerTitle>
+                            <DrawerClose className="absolute right-4 top-4 bg-transparent hover:bg-slate-100 rounded-full p-2">
+                                <X className="h-4 w-4" />
+                            </DrawerClose>
+                        </DrawerHeader>
+                        
+                        <div className="px-4 py-4">
+                            <div className="space-y-4">
+                                <Button 
+                                    variant={sortOption === 'name' ? 'default' : 'outline'}
+                                    onClick={() => applySort('name')}
+                                    className="w-full flex justify-start gap-2 mb-2"
+                                >
+                                    <ArrowDownAZ className="h-4 w-4" />
+                                    Nome
+                                </Button>
+                                <Button 
+                                    variant={sortOption === 'created_at' ? 'default' : 'outline'}
+                                    onClick={() => applySort('created_at')}
+                                    className="w-full flex justify-start gap-2 mb-2"
+                                >
+                                    <Calendar className="h-4 w-4" />
+                                    Data de criação
+                                </Button>
+                                <Button 
+                                    variant={sortOption === 'updated_at' ? 'default' : 'outline'}
+                                    onClick={() => applySort('updated_at')}
+                                    className="w-full flex justify-start gap-2"
+                                >
+                                    <ClockIcon className="h-4 w-4" />
+                                    Data de modificação
+                                </Button>
+                            </div>
+                        </div>
+                    </DrawerContent>
+                </Drawer>
+            </WaveBackgroundLayout>
             
-            {/* Filter Drawer */}
-            <Drawer open={filterOpen} onOpenChange={setFilterOpen}>
-                <DrawerContent>
-                    <DrawerHeader className="border-b pb-2 pt-4">
-                        <DrawerTitle className="text-xl font-medium text-center">Filtrar Pacientes</DrawerTitle>
-                        <DrawerClose className="absolute right-4 top-4 bg-transparent hover:bg-slate-100 rounded-full p-2">
-                            <X className="h-4 w-4" />
-                        </DrawerClose>
-                    </DrawerHeader>
-                    
-                    <div className="px-4 py-4">
-                        <div className="mb-6">
-                            <h3 className="mb-3 text-sm font-medium">Gênero</h3>
-                            <RadioGroup 
-                                value={filters.gender === null ? "" : filters.gender}
-                                onValueChange={(value) => setFilters({...filters, gender: value === "" ? null : value})}
-                                className="flex justify-center space-x-6"
-                            >
-                                <div className="flex items-center">
-                                    <RadioGroupItem value="" id="gender-all" className="mr-2" />
-                                    <Label htmlFor="gender-all" className="text-sm font-normal cursor-pointer">
-                                        Todos
-                                    </Label>
-                                </div>
-                                <div className="flex items-center">
-                                    <RadioGroupItem value="Masculino" id="gender-male" className="mr-2" />
-                                    <Label htmlFor="gender-male" className="text-sm font-normal cursor-pointer">
-                                        Masculino
-                                    </Label>
-                                </div>
-                                <div className="flex items-center">
-                                    <RadioGroupItem value="Feminino" id="gender-female" className="mr-2" />
-                                    <Label htmlFor="gender-female" className="text-sm font-normal cursor-pointer">
-                                        Feminino
-                                    </Label>
-                                </div>
-                            </RadioGroup>
-                        </div>
-                    </div>
-                    
-                    <DrawerFooter className="border-t pt-4">
-                        <div className="flex gap-2 w-full">
-                            <Button 
-                                type="button"
-                                variant="outline" 
-                                onClick={clearFilters}
-                                className="flex-1 rounded-lg py-3 text-base"
-                            >
-                                Limpar
-                            </Button>
-                            <Button 
-                                type="button"
-                                className="flex-1 bg-[#0F4B8F] hover:bg-[#0D3F7A] text-white rounded-lg py-3 text-base"
-                                onClick={applyFilters}
-                            >
-                                Aplicar
-                            </Button>
-                        </div>
-                    </DrawerFooter>
-                </DrawerContent>
-            </Drawer>
-            
-            {/* Sort Drawer */}
-            <Drawer open={sortOpen} onOpenChange={setSortOpen}>
-                <DrawerContent>
-                    <DrawerHeader className="border-b pb-2 pt-4">
-                        <DrawerTitle className="text-xl font-medium text-center">Ordenar Pacientes</DrawerTitle>
-                        <DrawerClose className="absolute right-4 top-4 bg-transparent hover:bg-slate-100 rounded-full p-2">
-                            <X className="h-4 w-4" />
-                        </DrawerClose>
-                    </DrawerHeader>
-                    
-                    <div className="px-4 py-4">
-                        <div className="space-y-4">
-                            <Button 
-                                variant={sortOption === 'name' ? 'default' : 'outline'}
-                                onClick={() => applySort('name')}
-                                className="w-full flex justify-start gap-2 mb-2"
-                            >
-                                <ArrowDownAZ className="h-4 w-4" />
-                                Nome
-                            </Button>
-                            <Button 
-                                variant={sortOption === 'created_at' ? 'default' : 'outline'}
-                                onClick={() => applySort('created_at')}
-                                className="w-full flex justify-start gap-2 mb-2"
-                            >
-                                <Calendar className="h-4 w-4" />
-                                Data de criação
-                            </Button>
-                            <Button 
-                                variant={sortOption === 'updated_at' ? 'default' : 'outline'}
-                                onClick={() => applySort('updated_at')}
-                                className="w-full flex justify-start gap-2"
-                            >
-                                <ClockIcon className="h-4 w-4" />
-                                Data de modificação
-                            </Button>
-                        </div>
-                    </div>
-                </DrawerContent>
-            </Drawer>
-        </WaveBackgroundLayout>
+            {/* Add the LoadingScreen component */}
+            <LoadingScreen ref={loadingRef} />
+        </>
     );
 };
