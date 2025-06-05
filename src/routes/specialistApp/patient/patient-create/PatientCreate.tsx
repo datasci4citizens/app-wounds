@@ -358,7 +358,7 @@ export default function PatientCreateRedesign() {
                               <SelectValue placeholder="Selecione a frequência de fumo" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
+                          <SelectContent className="border-[#A6BBFF]">
                             {Object.entries(smokeFrequency).map(([key, val]) => (
                               <SelectItem key={key} value={key}>
                                 {val}
@@ -383,7 +383,7 @@ export default function PatientCreateRedesign() {
                               <SelectValue placeholder="Selecione a frequência de bebida" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
+                          <SelectContent className="border-[#A6BBFF]">
                             {Object.entries(drinkFrequency).map(([key, val]) => (
                               <SelectItem key={key} value={key}>
                                 {val}
