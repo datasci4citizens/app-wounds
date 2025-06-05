@@ -73,37 +73,14 @@ The application uses **React Router v6** with `createBrowserRouter`. The app is 
 ```
 src/
 ├── apps/
-│   ├── DefaultApp.tsx       # Login/SignUp -> Role selection
-│   ├── PatientApp.tsx       # Patient-only routes
-│   └── SpecialistApp.tsx    # Specialist-only routes
+│   ├── App.tsx  --> All routes of the three apps
 ├── routes/
-│   ├── login/
-│   ├── patientApp/
-│   ├── specialistApp/
-│   └── RoleSelection.tsx
+│   ├── defaultApp/    --> routes without login
+│   ├── specialistApp/ --> routes of the Specialist App
+│   ├── patientApp/    --> routes of the Patient App  
 ```
 
 Each app has its own router definition, layout and structure.
-
----
-
-## How Routing is Defined
-
-Each app file defines its own router:
-
-- `DefaultApp.tsx`: entry after login, with route to `/role-selection`
-- `PatientApp.tsx`: routes for patients only
-- `SpecialistApp.tsx`: routes for specialists only
-
-Your main `App.tsx` dynamically chooses which app to load:
-
-```tsx
-const role = useUserRole();
-
-if (role === "patient") return <PatientApp />;
-if (role === "specialist") return <SpecialistApp />;
-return <DefaultApp />;
-```
 
 ---
 
@@ -122,7 +99,7 @@ export default function PatientExample() {
 
 ### Step 2: Register the Route
 
-Go to `PatientApp.tsx` or `SpecialistApp.tsx` depending on the context.
+Go to `App.tsx` and add your new route:
 
 ```tsx
 import PatientExample from "@/routes/patientApp/example/PatientExample";
@@ -145,20 +122,6 @@ import PatientExample from "@/routes/patientApp/example/PatientExample";
 
 ---
 
-## Role Selection Page
-
-
-The page `/role-selection` is the first step after login, where the user selects whether they are a **patient** or **specialist**. This sets the role in localStorage.
-
-> ⚠️ Temporary mechanism: This manual role selection is only a placeholder. In the final version, the role will be provided directly by the backend after login, and this page will be removed from the flow.
-
-```tsx
-localStorage.setItem("user_role", "patient" or "specialist");
-```
-
-Your `App.tsx` uses this value to load the correct app.
-
----
 
 ## Auth Guard
 
