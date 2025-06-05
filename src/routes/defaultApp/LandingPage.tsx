@@ -6,6 +6,9 @@ import { Capacitor } from "@capacitor/core";
 import axios from "axios";
 import { GoogleAuthButton } from "@/components/ui/new/general/GoogleAuthButton";
 import { Browser } from '@capacitor/browser';
+import { App } from '@capacitor/app';
+import { useEffect } from "react";
+import { GoogleAuth } from "@codetrix-studio/capacitor-google-auth";
 
 // Define interfaces for API responses
 interface ProviderData {
@@ -39,10 +42,17 @@ const LandingPage = () => {
     console.log("Received code:", code);
     try {
       console.log(import.meta.env.VITE_SERVER_URL);
-      // Send the code to the backend
+      // Send the code to the backend with CORS headers
       const response = await axios.post<LoginResponse>(
         `${import.meta.env.VITE_SERVER_URL}/auth/login/google/`,
-        { code }
+        { code },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          withCredentials: true
+        }
       );
       console.log("Login successful:", response.data);
       
@@ -95,22 +105,87 @@ const LandingPage = () => {
   const handleNativeAuth = async () => {
     console.log("Starting native auth flow");
     try {
-      // Get the OAuth URL
-      const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-      const redirectUri = encodeURIComponent(`${import.meta.env.VITE_SERVER_URL}/auth/callback/`);
-      const scope = encodeURIComponent('email profile');
-      const responseType = 'code';
-      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`;
+      // Wrap GoogleAuth operations in try/catch blocks individually
+      try {
+        console.log("Signing Out");
+        await GoogleAuth.signOut();
+      } catch (signOutErr) {
+        console.log("Sign out error (can be ignored if not signed in):", signOutErr);
+        // Continue with sign in even if sign out fails
+      }
       
-      // Open browser for authentication
-      await Browser.open({ url: authUrl });
+      console.log("Signing in");
+      // Add a small delay before signing in to prevent app crashes
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      // For native platforms, we need to handle the redirect manually
-      // The user will need to copy the code from the browser
-    } catch (err) {
-      console.error("Native auth error:", err);
+      const googleUser = await GoogleAuth.signIn();
+      const idToken = googleUser.authentication.idToken;
+      console.log("Signed in:", idToken);
+      localStorage.removeItem("accessToken");
+
+      await handleAuthSuccess(idToken);
+    } catch (err: any) {
+      const full = JSON.stringify(err, Object.getOwnPropertyNames(err));
+
+      console.error("Erro ao logar (mobile):", err);
+      // Use console.error instead of alert for better debugging
+      console.error("Detalhes:", full);
     }
   };
+  
+  // Handle deep links for OAuth callback
+  // Initialize GoogleAuth on component mount for native platforms
+  useEffect(() => {
+    if (Capacitor.isNativePlatform()) {
+      // Initialize GoogleAuth with proper configuration
+      GoogleAuth.initialize({
+        clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+        scopes: ['profile', 'email'],
+        grantOfflineAccess: true,
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleAppUrlOpen = async (data: { url: string }) => {
+      console.log("App opened with URL:", data.url);
+      
+      if (data.url.includes('oauth2redirect')) {
+        try {
+          const url = new URL(data.url);
+          const code = url.searchParams.get('code');
+          const state = url.searchParams.get('state');
+          const storedState = localStorage.getItem('oauth_state');
+          
+          if (state !== storedState) {
+            console.error("State mismatch");
+            return;
+          }
+          
+          if (code) {
+            try {
+              await Browser.close();
+            } catch (browserErr) {
+              console.log("Browser close error:", browserErr);
+            }
+            await handleAuthSuccess(code);
+          }
+        } catch (err) {
+          console.error("Error processing deep link:", err);
+        }
+      }
+    };
+    
+    if (isNative) {
+      App.addListener('appUrlOpen', handleAppUrlOpen);
+    }
+    
+    return () => {
+      if (isNative) {
+        App.removeAllListeners();
+      }
+    };
+  }, []);
 
   // Web platform authentication
   const login = useGoogleLogin({
@@ -119,16 +194,24 @@ const LandingPage = () => {
       const code = tokenResponse.code;
       await handleAuthSuccess(code);
     },
+    onError: (errorResponse) => {
+      console.error("Google login error:", errorResponse);
+      alert("Google login failed. Please try again.");
+    },
     flow: 'auth-code',
     ux_mode: 'popup',
   });
   
   // Combined login function that handles both platforms
   const handleLogin = () => {
-    if (isNative) {
-      handleNativeAuth();
-    } else {
-      login();
+    try {
+      if (isNative) {
+          handleNativeAuth();
+      } else {
+        login();
+      }
+    } catch (err) {
+      console.error("Login error:", err);
     }
   };
   
