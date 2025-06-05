@@ -38,6 +38,7 @@ const patientSchema = z.object({
   accept_tcl: z.boolean().refine(val => val === true, {
     message: "Você precisa aceitar os termos.",
   }),
+  hospital_registration: z.string().min(1, "Campo obrigatório"),
   comorbidities: z.array(z.number()).optional(),
 });
 
@@ -63,6 +64,7 @@ export default function PatientCreateRedesign() {
       smoke_frequency: "",
       drink_frequency: "",
       accept_tcl: false,
+      hospital_registration: "",
       comorbidities: [],
     },
   });
@@ -82,6 +84,7 @@ export default function PatientCreateRedesign() {
   }, [fetchComorbidities]);
 
   const allFieldsValid = form.watch("name") &&
+    form.watch("hospital_registration") &&
     form.watch("gender") &&
     form.watch("birthday") &&
     form.watch("accept_tcl");
@@ -155,6 +158,24 @@ export default function PatientCreateRedesign() {
                     <FormControl>
                       <Input
                         placeholder="Nome completo"
+                        className="placeholder:text-[#A6BBFF] bg-white text-[#0120AC] border-none focus:ring-0 focus:outline-none"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="hospital_registration"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[#0120AC]">Registro hospitalar</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Número de registro"
                         className="placeholder:text-[#A6BBFF] bg-white text-[#0120AC] border-none focus:ring-0 focus:outline-none"
                         {...field}
                       />
