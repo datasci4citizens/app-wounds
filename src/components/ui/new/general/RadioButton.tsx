@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormLabel } from "@/components/ui/form.tsx";
+
 
 interface RadioButtonProps {
   name: string;
@@ -29,7 +29,7 @@ const RadioButton: React.FC<RadioButtonProps> = ({ name, label, value, checked, 
       <input
         type="radio"
         name={name}
-        value={value}
+        value={typeof value === 'string' ? value : String(value)}
         checked={checked}
         onChange={handleClick}
         className={`accent-[#A6BBFF] w-4 h-4`}

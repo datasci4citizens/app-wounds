@@ -100,16 +100,6 @@ export default function DatePicker({ field, onSelect, disabled }: DatePickerPopo
           month={currentDate}
           onMonthChange={setCurrentDate}
           className="p-3"
-          styles={{
-            selected: {
-              backgroundColor: '#A6BBFF', // Altera a cor de seleção
-              color: '#FFFFFF',
-            },
-            daySelected: {
-              backgroundColor: '#A6BBFF', // Cor de fundo para o dia selecionado
-              color: '#FFFFFF',
-            },
-          }}
         />
       </PopoverContent>
     </Popover>

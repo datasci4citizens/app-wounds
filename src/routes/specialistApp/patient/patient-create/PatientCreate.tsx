@@ -20,9 +20,8 @@ import { Button } from "@/components/ui/new/Button";
 import useSWRMutation from "swr/mutation";
 import { getBaseURL, getRequest, postRequest } from "@/data/common/HttpExtensions";
 import { Checkbox } from "@/components/ui/new/general/Checkbox";
-import { Plus, X } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import smokeFrequency from "@/localdata/smoke-frequency.json";
 import drinkFrequency from "@/localdata/drink-frequency.json";
 import PageTitleWithBackButton from "@/components/shared/PageTitleWithBackButton";
@@ -59,8 +58,8 @@ export default function PatientCreateRedesign() {
       phone_number: "",
       gender: "",
       birthday: undefined,
-      height: null,
-      weight: null,
+      height: undefined,
+      weight: undefined,
       smoke_frequency: "",
       drink_frequency: "",
       accept_tcl: false,
@@ -68,14 +67,11 @@ export default function PatientCreateRedesign() {
     },
   });
 
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const [showOptional, setShowOptional] = useState(false);
-  const [selectedComorbidity, setSelectedComorbidity] = useState<string[]>([]);
-  const [comorbiditiesInput, setComorbiditiesInput] = useState("");
   const [specialistId, setSpecialistId] = useState<string | null>(null);
 
 
-  // SWR to fetch comorbidities list
   const { data: comorbiditiesData, trigger: fetchComorbidities } = useSWRMutation<Comorbidity[]>(
     getBaseURL("/comorbidities/"),
     getRequest
@@ -120,7 +116,7 @@ export default function PatientCreateRedesign() {
 
         console.log("Dados do paciente enviados:", payload); 
 
-        const response = await postRequest(getBaseURL("/patients/"), payload);
+        const response = await postRequest(getBaseURL("/patients/"), { arg: payload });
 
         if (response.status === 200) {
           navigate("/specialist/patient/create/qrcode");
@@ -133,21 +129,6 @@ export default function PatientCreateRedesign() {
 
   const toggleOptional = async () => {
     setShowOptional(!showOptional);
-  };
-
-  const handleAddComorbidity = () => {
-    if (!comorbiditiesInput.trim()) return;
-
-    const selectedItem = comorbiditiesData?.find((item) => item.name === comorbiditiesInput);
-
-    if (!selectedItem) return;
-
-    if (selectedComorbidity.includes(selectedItem.cid11_code)) return; // já foi adicionada
-
-    const updated = [...selectedComorbidity, selectedItem.cid11_code];
-    setSelectedComorbidity(updated);
-    form.setValue("comorbidities", updated);
-    setComorbiditiesInput(""); // limpa a seleção
   };
 
   return (
@@ -254,20 +235,20 @@ export default function PatientCreateRedesign() {
 
               {showOptional && (
                 <>
-                  <div className="flex gap-4">
+                  <div className="flex justify-between gap-8">
                     <FormField
                       control={form.control}
                       name="height"
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="flex-1">
                           <FormLabel className="text-[#0120AC]">Altura</FormLabel>
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-2">
                             <FormControl>
                               <Input
                                 type="number"
                                 step="0.01"
                                 placeholder="1.70"
-                                className="w-[80px] placeholder:text-[#A6BBFF] bg-white text-[#0120AC] border border-[#A6BBFF] rounded-md"
+                                className="w-[120px] placeholder:text-[#A6BBFF] bg-white text-[#0120AC] border border-[#A6BBFF] rounded-md"
                                 {...field}
                                 onChange={(e) => field.onChange(parseFloat(e.target.value))}
                               />
@@ -283,15 +264,15 @@ export default function PatientCreateRedesign() {
                       control={form.control}
                       name="weight"
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="flex-1">
                           <FormLabel className="text-[#0120AC]">Peso</FormLabel>
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-2">
                             <FormControl>
                               <Input
                                 type="number"
                                 step="0.01"
                                 placeholder="70"
-                                className="w-[80px] placeholder:text-[#A6BBFF] bg-white text-[#0120AC] border-[#A6BBFF] rounded-md"
+                                className="w-[120px] placeholder:text-[#A6BBFF] bg-white text-[#0120AC] border-[#A6BBFF] rounded-md"
                                 {...field}
                                 onChange={(e) => field.onChange(parseFloat(e.target.value))}
                               />
