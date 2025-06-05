@@ -248,6 +248,9 @@ export default function PatientCreateRedesign() {
                         isBefore(date, new Date("1900-01-01")) ||
                         isAfter(date, startOfDay(new Date()))
                       }
+                      className="w-full text-left font-normal bg-white text-[#0120AC] hover:bg-white hover:text-[#0120AC] focus:bg-white focus:text-[#0120AC] border-[#A6BBFF]"
+                      placeholderColor="#A6BBFF"
+                      iconColor="#0120AC"
                     />
                     <FormMessage />
                   </FormItem>
@@ -421,7 +424,8 @@ export default function PatientCreateRedesign() {
               <div className="flex flex-col items-center space-y-4 mt-6">
                 <Button
                   type="button"
-                  className="w-[220px] border border-[#0120AC] text-[#0120AC] bg-white rounded-[20px]"
+                  variant="outline"
+                  className="w-[220px]"
                   onClick={toggleOptional}
                 >
                   {showOptional ? "Ocultar opcionais" : "Adicionar opcionais"}

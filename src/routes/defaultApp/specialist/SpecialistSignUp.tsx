@@ -163,6 +163,9 @@ export default function SpecialistSignUp() {
                         <DatePicker
                           field={field}
                           disabled={(date) => isAfter(date, new Date())} // Prevent selecting future dates
+                          className="w-full text-left font-normal bg-white text-black hover:bg-white hover:text-black focus:bg-white focus:text-black border-input"
+                          placeholderColor="#edebeb"
+                          iconColor="#6f6f6f"
                         />
                       </FormControl>
                       <FormMessage />
