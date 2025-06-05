@@ -25,27 +25,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 import smokeFrequency from "@/localdata/smoke-frequency.json";
 import drinkFrequency from "@/localdata/drink-frequency.json";
+import PageTitleWithBackButton from "@/components/shared/PageTitleWithBackButton";
 
 const patientSchema = z.object({
   name: z.string().min(1, "Campo obrigatório"),
   phone_number: z.string().optional(),
-  sex: z.string().min(1, "Campo obrigatório"),
-  email: z.string().min(1, "Campo obrigatório").email("Email inválido"),
+  gender: z.string().min(1, "Campo obrigatório"),
   birthday: z.date({ required_error: "Campo obrigatório" }),
-  acceptTerms: z.boolean().refine(val => val === true, {
+  height: z.number().optional(),
+  weight: z.number().optional(),
+  smoke_frequency: z.string().optional(),
+  drink_frequency: z.string().optional(),
+  accept_tcl: z.boolean().refine(val => val === true, {
     message: "Você precisa aceitar os termos.",
   }),
+  comorbidities: z.array(z.number()).optional(),
 });
 
 type PatientFormData = z.infer<typeof patientSchema>;
-
-const otherComorbiditiesInitialValue = [
-  { id: "asthma", label: "Asma" },
-  { id: "chronic_kidney_disease", label: "Doença renal crônica" },
-  { id: "copd", label: "DPOC (Doença Pulmonar Obstrutiva Crônica)" },
-  { id: "heart_failure", label: "Insuficiência cardíaca" },
-  { id: "arthritis", label: "Artrite" },
-];
 
 interface Comorbidity {
   cid11_code: string;
@@ -60,19 +57,23 @@ export default function PatientCreateRedesign() {
     defaultValues: {
       name: "",
       phone_number: "",
-      sex: "",
-      email: "",
+      gender: "",
       birthday: undefined,
-      acceptTerms: false,
+      height: null,
+      weight: null,
+      smoke_frequency: "",
+      drink_frequency: "",
+      accept_tcl: false,
+      comorbidities: [],
     },
   });
 
   const [loading, setLoading] = useState(false);
   const [showOptional, setShowOptional] = useState(false);
   const [selectedComorbidity, setSelectedComorbidity] = useState<string[]>([]);
-  const [otherComorbidities, setOtherComorbidities] = useState(otherComorbiditiesInitialValue);
   const [comorbiditiesInput, setComorbiditiesInput] = useState("");
-  const [popoverOpen, setPopoverOpen] = useState(false);
+  const [specialistId, setSpecialistId] = useState<string | null>(null);
+
 
   // SWR to fetch comorbidities list
   const { data: comorbiditiesData, trigger: fetchComorbidities } = useSWRMutation<Comorbidity[]>(
@@ -82,20 +83,51 @@ export default function PatientCreateRedesign() {
 
   useEffect(() => {
     fetchComorbidities();
-  }, []);
+  }, [fetchComorbidities]);
 
   const allFieldsValid = form.watch("name") &&
-    form.watch("sex") &&
-    form.watch("email") &&
+    form.watch("gender") &&
     form.watch("birthday") &&
-    form.watch("acceptTerms");
+    form.watch("accept_tcl");
 
   const handleNext = async () => {
     const isValid = await form.trigger();
     if (isValid) {
       const data = form.getValues();
-      console.log("Dados do paciente:", data); // <-- imprime no terminal
-      navigate("/specialist/patient/create-details");
+
+       try {
+            const specialistData = localStorage.getItem("specialist_data");
+            if (specialistData) {
+                const parsedData = JSON.parse(specialistData);
+                setSpecialistId(parsedData.id);
+            } else {
+                const userInfo = localStorage.getItem("user_info");
+                if (userInfo) {
+                    const parsedInfo = JSON.parse(userInfo);
+                    setSpecialistId(parsedInfo.id);
+                }
+            }
+        } catch (error) {
+            console.error("Error getting specialist info:", error);
+        }
+
+
+      if (specialistId) {
+        const payload = {
+          specialist_id: Number(specialistId),
+          ...data,
+        };
+
+        console.log("Dados do paciente enviados:", payload); 
+
+        const response = await postRequest(getBaseURL("/patients/"), payload);
+
+        if (response.status === 200) {
+          navigate("/specialist/patient/create/qrcode");
+        } else {
+          console.error("Erro ao cadastrar paciente:", response);
+        }
+      }
     }
   };
 
@@ -103,21 +135,20 @@ export default function PatientCreateRedesign() {
     setShowOptional(!showOptional);
   };
 
- const handleAddComorbidity = () => {
-  if (!comorbiditiesInput.trim()) return;
+  const handleAddComorbidity = () => {
+    if (!comorbiditiesInput.trim()) return;
 
-  const selectedItem = otherComorbidities.find((item) => item.id === comorbiditiesInput);
+    const selectedItem = comorbiditiesData?.find((item) => item.name === comorbiditiesInput);
 
-  if (!selectedItem) return;
+    if (!selectedItem) return;
 
-  if (selectedComorbidity.includes(selectedItem.id)) return; // já foi adicionada
+    if (selectedComorbidity.includes(selectedItem.cid11_code)) return; // já foi adicionada
 
-  const updated = [...selectedComorbidity, selectedItem.id];
-  setSelectedComorbidity(updated);
-  form.setValue("other_comorbidities", updated);
-  setComorbiditiesInput(""); // limpa a seleção
-};
-
+    const updated = [...selectedComorbidity, selectedItem.cid11_code];
+    setSelectedComorbidity(updated);
+    form.setValue("comorbidities", updated);
+    setComorbiditiesInput(""); // limpa a seleção
+  };
 
   return (
     <div className="fixed inset-0 flex flex-col">
@@ -126,10 +157,12 @@ export default function PatientCreateRedesign() {
           <div className="flex justify-center mb-4">
             <ProfessionalIcon size={0.6} borderRadius="50%" />
           </div>
-          <h1 className="text-center text-[#0120AC] text-xl font-semibold mb-6">
-            Cadastro de paciente
-          </h1>
 
+           <PageTitleWithBackButton 
+                title={"Cadastro de Paciente"} 
+                backPath="/specialist/menu"
+            />
+          
           <Form {...form}>
             <form className="space-y-6">
               <FormField
@@ -170,18 +203,18 @@ export default function PatientCreateRedesign() {
 
               <FormField
                 control={form.control}
-                name="sex"
+                name="gender"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-[#0120AC]">Sexo</FormLabel>
-                    <div className="flex gap-6 mt-2">
+                    <div className="flex justify-center gap-16 mt-2">
                       <label className="flex items-center gap-2 text-sm text-[#0120AC]">
                         <input
                           type="radio"
                           value="female"
                           checked={field.value === "female"}
                           onChange={() => field.onChange("female")}
-                          className="accent-[#0120AC] w-4 h-4"
+                          className="accent-[#6D8AFF] w-4 h-4"
                         />
                         Feminino
                       </label>
@@ -191,30 +224,11 @@ export default function PatientCreateRedesign() {
                           value="male"
                           checked={field.value === "male"}
                           onChange={() => field.onChange("male")}
-                          className="accent-[#0120AC] w-4 h-4"
+                          className="accent-[#6D8AFF] w-4 h-4"
                         />
                         Masculino
                       </label>
                     </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-[#0120AC]">Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Email"
-                        type="email"
-                        className="placeholder:text-[#A6BBFF] bg-white text-[#0120AC] border-none focus:ring-0 focus:outline-none"
-                        {...field}
-                      />
-                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -290,7 +304,6 @@ export default function PatientCreateRedesign() {
                     />
                   </div>
 
-
                   {/* Comorbidades */}
                   <FormField
                     control={form.control}
@@ -305,7 +318,7 @@ export default function PatientCreateRedesign() {
                               control={form.control}
                               name="comorbidities"
                               render={({ field }) => (
-                                <FormItem className="flex items-center gap-2">
+                                <FormItem className="flex items-center gap-2 text-[#0120AC]">
                                   <Checkbox
                                     checked={field.value?.includes(item.comorbidity_id)}
                                     onCheckedChange={(checked) =>
@@ -327,72 +340,7 @@ export default function PatientCreateRedesign() {
                     )}
                   />
 
-                  {/* Outras comorbidades */}
-                  <FormField
-                    control={form.control}
-                    name="other_comorbidities"
-                    render={() => (
-                      <FormItem>
-                        <FormLabel className="text-[#0120AC]">Outras comorbidades</FormLabel>
-                        
-                        {/* Select + botão */}
-                        <div className="flex items-center w-full gap-2">
-                        <Select value={comorbiditiesInput} onValueChange={setComorbiditiesInput}>
-                            <FormControl>
-                              <SelectTrigger className="w-full text-[#0120AC] border-[#A6BBFF]">
-                               <SelectValue
-                                  placeholder="Selecione uma comorbidade"
-                                  className="text-[#0120AC] placeholder:text-[#A6BBFF]"
-                                />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {otherComorbidities.map((item) => (
-                                <SelectItem key={item.id} value={item.id}>
-                                  {item.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-
-                          <Button
-                            type="button"
-                            onClick={handleAddComorbidity}
-                            className="bg-[#0120AC] text-white w-auto px-3 py-1 rounded"
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                        </div>
-
-                        {/* Tags exibidas abaixo */}
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          {selectedComorbidity.map((itemId) => {
-                            const label = otherComorbidities.find((c) => c.id === itemId)?.label || itemId;
-                            return (
-                                <Button
-                                  key={itemId}
-                                  type="button"
-                                  variant="outline"
-                                  size="sm"
-                                  className="h-6 max-w-full rounded-full px-3 text-xs flex items-center space-x-2 border-[#0120AC] text-[#0120AC] overflow-hidden"
-                                  onClick={() => {
-                                    const newSelected = selectedComorbidity.filter((id) => id !== itemId);
-                                    setSelectedComorbidity(newSelected);
-                                    form.setValue("other_comorbidities", newSelected);
-                                  }}
-                                >
-                                  <span className="truncate max-w-[150px] whitespace-nowrap">{label}</span>
-                                  <X className="h-3 w-3" />
-                                </Button>
-                            );
-                          })}
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-
-
-                  {/* Fumo */}
+                  {/* Frequência de Fumo */}
                   <FormField
                     control={form.control}
                     name="smoke_frequency"
@@ -401,7 +349,7 @@ export default function PatientCreateRedesign() {
                         <FormLabel className="text-[#0120AC]">Fumante</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger  className="w-full bg-white border-[#A6BBFF] text-[#0120AC] placeholder:text-[#A6BBFF] focus:ring-0 focus:outline-none">
+                            <SelectTrigger className="w-full bg-white border-[#A6BBFF] text-[#0120AC] placeholder:text-[#A6BBFF] focus:ring-0 focus:outline-none">
                               <SelectValue placeholder="Selecione a frequência de fumo" />
                             </SelectTrigger>
                           </FormControl>
@@ -417,7 +365,7 @@ export default function PatientCreateRedesign() {
                     )}
                   />
 
-                  {/* Bebida */}
+                  {/* Frequência de Bebida */}
                   <FormField
                     control={form.control}
                     name="drink_frequency"
@@ -426,8 +374,8 @@ export default function PatientCreateRedesign() {
                         <FormLabel className="text-[#0120AC]">Bebida alcoólica</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger  className="w-full bg-white border-[#A6BBFF] text-[#0120AC] placeholder:text-[#A6BBFF] focus:ring-0 focus:outline-none">
-                              <SelectValue  placeholder="Selecione a frequência" />
+                            <SelectTrigger className="w-full bg-white border-[#A6BBFF] text-[#0120AC] placeholder:text-[#A6BBFF] focus:ring-0 focus:outline-none">
+                              <SelectValue placeholder="Selecione a frequência de bebida" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -446,15 +394,15 @@ export default function PatientCreateRedesign() {
 
               <FormField
                 control={form.control}
-                name="acceptTerms"
+                name="accept_tcl"
                 render={({ field }) => (
                   <FormItem>
-                    <div className="flex items-center gap-2">
+                    <div className="flex justify-center gap-2">
                       <input
                         type="radio"
                         checked={field.value === true}
                         onChange={() => field.onChange(!field.value)}
-                        className="accent-[#0120AC] w-4 h-4"
+                        className="accent-[#6D8AFF] w-4 h-4"
                       />
                       <FormLabel className="text-sm font-normal text-[#0120AC]">
                         Concordo em participar da pesquisa
