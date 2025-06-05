@@ -21,6 +21,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { LoadingScreen, type LoadingScreenHandle } from '@/components/ui/new/loading/LoadingScreen';
+import PageTitleWithBackButton from "@/components/shared/PageTitleWithBackButton";
 
 // Helper function to get initials from a name
 const getInitials = (name: string): string => {
@@ -111,7 +112,7 @@ export default function PatientsPage() {
             loadingRef.current?.show();
             
             const startTime = Date.now();
-            const minimumLoadingTime = 2000;
+            const minimumLoadingTime = 500;
             
             trigger()
                 .then(() => {
@@ -212,9 +213,15 @@ export default function PatientsPage() {
         <>
             <WaveBackgroundLayout className="overflow-y-auto">
                 <div className="flex flex-col h-full w-full items-center px-4">
-                    <div className="flex justify-center items-center mt-6 mb-6">
+                    <div className="flex justify-center items-center mt-6">
                         <ProfessionalIcon size={0.6} borderRadius="50%" />
                     </div>
+
+                    <PageTitleWithBackButton 
+                        title={"Pacientes"} 
+                        backPath="/specialist/menu"
+                    />
+                    
                     
                     <div className="w-full mt-6">
                         <SearchBar 
@@ -278,7 +285,12 @@ export default function PatientsPage() {
                               </>}
                               key={index}
                               icon={<div className="text-[#3357E6] font-semibold text-base">{getInitials(patient.name)}</div>}
-                              onClick={() => navigate('/specialist/patient/wounds', {state: {patient_id: patient.patient_id}})}
+                              onClick={() => {
+                                // Use React Router navigation with state to pass patient_id
+                                navigate('/specialist/patient/wounds', { 
+                                  state: { patient_id: patient.patient_id } 
+                                });
+                              }}
                             />
                         ))}
                         
