@@ -289,7 +289,7 @@ export default function PatientsPage() {
                         )}
                     </div>
 
-                    <div className="fixed bottom-4 left-4 right-4">
+                    <div className="fixed bottom-4 left-4 right-4 px-4">
                         <Button 
                             type="button" 
                             className="w-full bg-[#A6BBFF] hover:bg-[#0D3F7A] text-[#3357E6] rounded-xl py-3"
