@@ -55,9 +55,9 @@ export interface WoundRegion {
 }
 
 export interface Wound {
-    wound_region: string;
-    wound_subregion: string;
-    wound_type: string;
+    region: string;
+    subregion: string;
+    type: string;
     start_date: string;
     end_date: string;
     patient_id: number;

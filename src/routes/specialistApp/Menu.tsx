@@ -60,8 +60,6 @@ export default function Menu() {
       }
     } catch (error) {
       console.error("Error parsing user info from localStorage:", error);
-      // If there's an error parsing, fetch the data again
-      // ... (same fetch logic as above)
     }
   }, []);
 
