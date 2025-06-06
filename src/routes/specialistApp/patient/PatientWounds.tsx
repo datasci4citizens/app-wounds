@@ -1,20 +1,29 @@
-import { Plus } from "lucide-react"
+import { Plus, FileDown, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button.tsx"
-import { Card, CardContent } from "@/components/ui/card.tsx"
+import { Card } from "@/components/ui/card.tsx"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import type { Patient, Wound } from "@/data/common/Mapper.ts";
 import { calculateAge } from "@/data/common/Mapper.ts";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getRegionDescription, getSubregionDescription, getWoundType } from "@/data/common/LocalDataMapper.tsx";
 import useSWR from "swr";
 import { useRef, useEffect, useState, useCallback } from "react";
 import { LoadingScreen, type LoadingScreenHandle } from '@/components/ui/new/loading/LoadingScreen';
 import { WaveBackgroundLayout } from "@/components/ui/new/wave/WaveBackground.tsx";
 import { ProfessionalIcon } from "@/components/ui/new/ProfessionalIcon";
 import PageTitleWithBackButton from "@/components/shared/PageTitleWithBackButton";
+import jsPDF from 'jspdf';
 
-// Define a custom request function to handle CORS properly and include authentication
+
 const customGetRequest = async (url: string) => {
-    // Get the authentication token from localStorage
     const token = localStorage.getItem("access_token");
     
     if (!token) {
@@ -27,7 +36,7 @@ const customGetRequest = async (url: string) => {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         },
-        mode: 'cors'  // Explicitly set mode to cors
+        mode: 'cors'
     });
     
     if (!response.ok) {
@@ -37,27 +46,103 @@ const customGetRequest = async (url: string) => {
     return response.json();
 };
 
-// Patient Info Card component that matches the design in the image
-const PatientInfoCard = ({ title, content, onEdit }: { 
+// Define a custom DELETE request function
+const customDeleteRequest = async (url: string) => {
+    const token = localStorage.getItem("access_token");
+    
+    if (!token) {
+        throw new Error("Authentication token not found");
+    }
+    
+    const response = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        mode: 'cors'
+    });
+    
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    
+    return true; // Return true for successful deletion
+};
+
+
+const PatientInfoCard = ({ title, content, onEdit, onSave }: { 
     title: string; 
     content: string; 
     onEdit?: () => void;
+    onSave?: (newContent: string) => void;
 }) => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [editContent, setEditContent] = useState(content);
+
+    const handleEdit = () => {
+        if (onEdit) {
+            onEdit();
+        } else {
+            setIsEditing(true);
+            setEditContent(content);
+        }
+    };
+
+    const handleSave = () => {
+        if (onSave) {
+            onSave(editContent);
+        }
+        setIsEditing(false);
+    };
+
+    const handleCancel = () => {
+        setIsEditing(false);
+        setEditContent(content);
+    };
+
     return (
         <div className="w-full bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-6">
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-[#0120AC] text-lg font-semibold">{title}</h3>
-                {onEdit && (
+                {isEditing ? (
+                    <div className="flex gap-2">
+                        <Button 
+                            variant="link" 
+                            onClick={handleCancel} 
+                            className="text-gray-500 p-0 h-auto text-sm font-medium"
+                        >
+                            Cancelar
+                        </Button>
+                        <Button 
+                            variant="link" 
+                            onClick={handleSave} 
+                            className="text-[#0120AC] p-0 h-auto text-sm font-medium"
+                        >
+                            Salvar
+                        </Button>
+                    </div>
+                ) : (
                     <Button 
                         variant="link" 
-                        onClick={onEdit} 
+                        onClick={handleEdit} 
                         className="text-[#0120AC] p-0 h-auto text-sm font-medium"
                     >
                         Editar
                     </Button>
                 )}
             </div>
-            <p className="text-gray-600 text-sm">{content}</p>
+            <div className="min-h-[120px]">
+                {isEditing ? (
+                    <textarea
+                        value={editContent}
+                        onChange={(e) => setEditContent(e.target.value)}
+                        className="w-full p-2 border border-gray-200 rounded text-gray-600 text-sm h-[120px] resize-none"
+                    />
+                ) : (
+                    <p className="text-gray-600 text-sm">{content}</p>
+                )}
+            </div>
         </div>
     );
 };
@@ -72,26 +157,127 @@ const InfoItem = ({ label, value }: { label: string; value: string | number }) =
     );
 };
 
-const WoundCard = ({wound, index}: { wound: Wound, index: number }) => {
+const WoundCard = ({wound, index, onDelete}: { 
+    wound: Wound; 
+    index: number;
+    onDelete: (wound_id: number) => Promise<void>;
+}) => {
     const navigate = useNavigate();
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const handleCardClick = () => {
         navigate('/specialist/wound/detail', {state: {wound_id: wound.wound_id}});
     };
+    
+    const handleEdit = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        navigate('/specialist/wound/edit', {state: {wound_id: wound.wound_id}});
+    };
+    
+    const handleDelete = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setIsDeleteDialogOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        setIsDeleting(true);
+        try {
+            await onDelete(wound.wound_id);
+        } catch (error) {
+            console.error('Error deleting wound:', error);
+            setIsDeleting(false);
+            setIsDeleteDialogOpen(false);
+        }
+    };
 
     return (
-        <Card className="mb-4 w-full shadow-sm border-b border-gray-200 cursor-pointer" onClick={handleCardClick}>
-            <CardContent className="p-4 flex justify-between items-center">
-                <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">{`Ferida ${index + 1}`}</h3>
-                    <div className="space-y-1 text-sm text-gray-500 leading-tight">
-                        <p>Tipo de ferida: {getWoundType(wound.wound_type)}</p>
-                        <p>Local: {getRegionDescription(wound.wound_region)}</p>
-                        <p>Subregião: {getSubregionDescription(wound.wound_region, wound.wound_subregion)}</p>
+        <>
+            <Card 
+                onClick={handleCardClick} 
+                className="mb-6 w-full rounded-2xl overflow-hidden border border-blue-100 bg-white cursor-pointer"
+            >
+                {/* Header section with wound name and type */}
+                <div className="p-4 bg-white">
+                    <h3 className="text-base text-blue-800 mb-1">{`Ferida ${index + 1}`}</h3>
+                    <p className="text-sm text-blue-800">
+                        {/* Updated to match API response structure */}
+                        Tipo de ferida: {wound.type}, local: {wound.region}
+                    </p>
+                </div>
+                
+                {/* Image placeholder section with gray background */}
+                <div className="bg-gray-200 h-48 flex items-center justify-center">
+                    <div className="flex flex-col items-center">
+                        {/* Triangle on top */}
+                        <div className="w-10 h-10 mb-2"> 
+                            <div className="w-0 h-0 mx-auto
+                                border-l-[18px] border-l-transparent
+                                border-b-[30px] border-b-gray-400
+                                border-r-[18px] border-r-transparent">
+                            </div>
+                        </div>
+                        
+                        {/* Square and circle side */}
+                        <div className="flex items-center justify-center space-x-8">
+                            <div className="w-9 h-9 bg-gray-400"></div>
+                            <div className="w-9 h-9 bg-gray-400 rounded-full"></div>
+                        </div>
                     </div>
                 </div>
-            </CardContent>
-        </Card>
+                
+                {/* Care instructions section */}
+                <div className="p-4">
+                    <h4 className="text-sm text-blue-800 mb-1">Instruções para o cuidado</h4>
+                    <p className="text-xs text-blue-800">
+                        {/* {wound.notes || "Sem instruções específicas registradas."} */}
+                        {"Sem instruções específicas registradas."}
+                    </p>
+                </div>
+                
+                {/* Action buttons */}
+                <div className="flex justify-end p-4 gap-2">
+                    <button 
+                        onClick={handleDelete}
+                        className="py-1 px-6 text-xs text-blue-800 font-normal rounded-full border border-blue-800 hover:bg-gray-50"
+                        disabled={isDeleting}
+                    >
+                        Excluir
+                    </button>
+                    <button 
+                        onClick={handleEdit}
+                        className="py-1 px-6 text-xs bg-blue-800 text-white font-normal rounded-full"
+                    >
+                        Editar
+                    </button>
+                </div>
+            </Card>
+
+            {/* Confirmation Dialog */}
+            <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="flex items-center">
+                            <AlertTriangle className="h-5 w-5 text-red-500 mr-2" />
+                            Confirmar exclusão
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Tem certeza que deseja excluir esta ferida? Esta ação não poderá ser desfeita.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction 
+                            onClick={confirmDelete}
+                            disabled={isDeleting}
+                            className="bg-red-500 hover:bg-red-600"
+                        >
+                            {isDeleting ? "Excluindo..." : "Excluir"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </>
     );
 };
 
@@ -100,6 +286,7 @@ export default function PatientsWounds() {
     const location = useLocation();
     const loadingRef = useRef<LoadingScreenHandle>(null);
     const [error, setError] = useState<string | null>(null);
+    const [deleteSuccess, setDeleteSuccess] = useState<string | null>(null);
     
     // Handle missing patient_id
     const patient_id = location.state?.patient_id as number;
@@ -114,8 +301,12 @@ export default function PatientsWounds() {
         loadingRef.current?.show();
     }, [patient_id]);
 
+    // Add mutate for SWR to refresh the data after deletion
     const {
-        data: _wounds, isLoading: isLoadingWounds, error: woundError
+        data: _wounds, 
+        isLoading: isLoadingWounds, 
+        error: woundError,
+        mutate: mutateWounds
     } = useSWR<Wound[]>(
         patient_id ? `${import.meta.env.VITE_SERVER_URL}/wounds?patient_id=${patient_id}` : null,
         customGetRequest,
@@ -143,10 +334,9 @@ export default function PatientsWounds() {
         }
     );
 
-    // Handle combined loading states
+
     useEffect(() => {
         if (!isLoadingWounds && !isLoadingPatient) {
-            // Both requests are done, add a small delay for UX
             const timer = setTimeout(() => {
                 loadingRef.current?.hide();
             }, 1000);
@@ -154,7 +344,6 @@ export default function PatientsWounds() {
         }
     }, [isLoadingWounds, isLoadingPatient]);
 
-    // Handle errors
     useEffect(() => {
         if (woundError || patientError) {
             loadingRef.current?.hide();
@@ -163,17 +352,43 @@ export default function PatientsWounds() {
 
     const wounds = _wounds || [];
     
-    const handleEditPatient = () => {
-        // Navigate to patient edit page or open edit modal
-        navigate('/specialist/patient/edit', {state: {patient_id: patient_id}});
+
+    const [patientDescription, setPatientDescription] = useState(
+        "Lorem ipsum odor amet, consectetuer adipiscing elit. Mattis penatibus consectetur justo porta diam molestie. Diam tristique ante aenean maximus nisi."
+    );
+    
+    const savePatientDescription = (newDescription: string) => {
+        setPatientDescription(newDescription);
+        // If you have an API endpoint to save this data, make the request here:
+        // Example:
+        // loadingRef.current?.show();
+        // try {
+        //   const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/patients/${patient_id}`, {
+        //     method: 'PATCH',
+        //     headers: {
+        //       'Content-Type': 'application/json',
+        //       'Authorization': `Bearer ${localStorage.getItem("access_token")}`
+        //     },
+        //     body: JSON.stringify({ description: newDescription })
+        //   });
+        //
+        //   if (!response.ok) throw new Error('Failed to update');
+        //   
+        //   setDeleteSuccess("Informações atualizadas com sucesso!");
+        //   setTimeout(() => setDeleteSuccess(null), 3000);
+        // } catch (error) {
+        //   console.error('Error updating patient:', error);
+        //   setError("Erro ao atualizar informações do paciente.");
+        //   setTimeout(() => setError(null), 3000);
+        // } finally {
+        //   loadingRef.current?.hide();
+        // }
     };
 
     // Extract patient information safely
     const patientName = patient?.name || "Carregando...";
     const patientAge = patient?.birthday ? calculateAge(new Date(patient.birthday)) : "N/A";
-    const patientDescription = 
-        "Lorem ipsum odor amet, consectetuer adipiscing elit. Mattis penatibus consectetur justo porta diam molestie. Diam tristique ante aenean maximus nisi.";
-
+    
     // Add state for comorbidities lookup table
     const [comorbidities, setComorbidities] = useState<Record<number, string>>({});
     
@@ -230,20 +445,163 @@ export default function PatientsWounds() {
 
     const patientHabits = patient ? formatHabits() : "Não informado";
 
+    // Add this function to the PatientWounds component
+    const generatePDF = async () => {
+        if (!patient) return;
+        
+        loadingRef.current?.show();
+        
+        try {
+            // Create a new PDF document
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            
+            // Add a title
+            pdf.setFontSize(20);
+            pdf.setTextColor(1, 32, 172); // #0120AC in RGB
+            pdf.text(`Paciente: ${patientName}`, pageWidth / 2, 20, { align: 'center' });
+            
+            // Add patient information section
+            pdf.setFontSize(16);
+            pdf.text('Sobre o paciente', 20, 40);
+            
+            pdf.setFontSize(12);
+            pdf.setTextColor(80, 80, 80); // Dark gray for regular text
+            
+            const description = patientDescription;
+            const splitDescription = pdf.splitTextToSize(description, pageWidth - 40);
+            pdf.text(splitDescription, 20, 50);
+            
+            // Add a line separator
+            pdf.setDrawColor(200, 200, 200); // Light gray line
+            pdf.line(20, 70, pageWidth - 20, 70);
+            
+            // Add patient details (age, comorbidity, habits)
+            pdf.setTextColor(1, 32, 172);
+            pdf.setFontSize(14);
+            pdf.text('Idade', 20, 85);
+            
+            pdf.setFontSize(12);
+            pdf.text(patientAge.toString(), 20, 95);
+            
+            pdf.setFontSize(14);
+            pdf.text('Comorbidade', 20, 110);
+            
+            pdf.setFontSize(12);
+            const splitComorbidity = pdf.splitTextToSize(patientComorbidity, pageWidth - 40);
+            pdf.text(splitComorbidity, 20, 120);
+            
+            pdf.setFontSize(14);
+            pdf.text('Hábitos', 20, 140);
+            
+            pdf.setFontSize(12);
+            const splitHabits = pdf.splitTextToSize(patientHabits, pageWidth - 40);
+            pdf.text(splitHabits, 20, 150);
+            
+            // Add wound section if there are wounds
+            if (wounds.length > 0) {
+                pdf.setFontSize(16);
+                pdf.text('Feridas', 20, 180);
+                
+                let yPosition = 190;
+                
+                // Add each wound
+                wounds.forEach((wound, index) => {
+                    // Check if we need a new page
+                    if (yPosition > 250) {
+                        pdf.addPage();
+                        yPosition = 20;
+                    }
+                    
+                    pdf.setFontSize(14);
+                    pdf.text(`Ferida ${index + 1}`, 20, yPosition);
+                    yPosition += 10;
+                    
+                    pdf.setFontSize(12);
+                    pdf.text(`Tipo: ${wound.type}`, 25, yPosition);
+                    yPosition += 8;
+                    
+                    pdf.text(`Local: ${wound.region}`, 25, yPosition);
+                    yPosition += 8;
+                    
+                    if (wound.subregion) {
+                        pdf.text(`Subregião: ${wound.subregion}`, 25, yPosition);
+                        yPosition += 15;
+                    }
+                });
+            } else {
+                pdf.setFontSize(14);
+                pdf.text('Nenhuma ferida cadastrada para este paciente.', 20, 180);
+            }
+            
+            // Add a footer with date
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('pt-BR');
+            pdf.setFontSize(10);
+            pdf.setTextColor(100, 100, 100);
+            pdf.text(`Relatório gerado em: ${dateStr}`, pageWidth - 20, 287, { align: 'right' });
+            
+            // Save the PDF
+            pdf.save(`Paciente_${patient.name.replace(/\s+/g, '_')}.pdf`);
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            setError('Erro ao gerar o PDF');
+        } finally {
+            loadingRef.current?.hide();
+        }
+    };
+
+    // Handle wound deletion
+    const handleDeleteWound = async (wound_id: number) => {
+        try {
+            loadingRef.current?.show();
+            
+            // Make the DELETE request
+            await customDeleteRequest(`${import.meta.env.VITE_SERVER_URL}/wounds/${wound_id}/`);
+            
+            // Show success message
+            setDeleteSuccess("Ferida excluída com sucesso!");
+            
+            // Remove success message after 3 seconds
+            setTimeout(() => {
+                setDeleteSuccess(null);
+            }, 3000);
+            
+            // Refresh the wounds data
+            await mutateWounds();
+            
+        } catch (error) {
+            console.error("Error deleting wound:", error);
+            setError("Erro ao excluir ferida. Tente novamente mais tarde.");
+            
+            // Remove error message after 3 seconds
+            setTimeout(() => {
+                setError(null);
+            }, 3000);
+        } finally {
+            loadingRef.current?.hide();
+        }
+    };
+
     return (
         <>
-            <WaveBackgroundLayout className="overflow-y-auto bg-[#F9FAFB]">
-                <div className="flex flex-col h-full w-full items-center px-4">
+            {/* Change the WaveBackgroundLayout styling */}
+            <WaveBackgroundLayout className="absolute inset-0 overflow-auto">
+                <div className="flex flex-col w-full min-h-full items-center px-4">
                     {/* Header with Professional Icon */}
                     <div className="flex justify-center items-center mt-6 mb-6">
                         <ProfessionalIcon size={0.6} borderRadius="50%" />
                     </div>
 
-                    {/* Replace this section with the shared PageHeader component */}
-                    <PageTitleWithBackButton 
-                        title={patientName} 
-                        backPath="/specialist/patient/list"
-                    />
+                    {/* PageHeader component */}
+                    <div className="flex w-full items-center justify-between mb-4">
+                        <PageTitleWithBackButton 
+                            title={patientName} 
+                            backPath="/specialist/patient/list"
+                            className="mb-0 mt-0 flex-1"
+                        />
+                        {/* Remove the PDF button from here */}
+                    </div>
 
                     {/* Error display */}
                     {error && (
@@ -252,14 +610,21 @@ export default function PatientsWounds() {
                         </div>
                     )}
 
+                    {/* Success message */}
+                    {deleteSuccess && (
+                        <div className="w-full bg-green-50 border border-green-200 rounded-md p-4 mb-6">
+                            <p className="text-green-600">{deleteSuccess}</p>
+                        </div>
+                    )}
+
                     {/* Patient Info section based on the image */}
                     {!isLoadingPatient && patient && (
-                        <>
+                        <div id="patient-info-section">
                             {/* "Sobre o paciente" card as shown in the image */}
                             <PatientInfoCard 
                                 title="Sobre o paciente" 
                                 content={patientDescription} 
-                                onEdit={handleEditPatient}
+                                onSave={savePatientDescription}
                             />
                             
                             {/* Patient details section - UPDATED with lighter divider */}
@@ -279,11 +644,10 @@ export default function PatientsWounds() {
                                     value={patientHabits}
                                 />
                             </div>
-                        </>
+                        </div>
                     )}
 
-                    {/* Wounds section - old style */}
-                    <h2 className="text-xl font-semibold text-left w-full mb-4">Feridas</h2>
+                    {/* Wounds section - updated to pass onDelete handler */}
                     
                     <div className="w-full">
                         {isLoadingWounds ? (
@@ -294,22 +658,38 @@ export default function PatientsWounds() {
                             </div>
                         ) : (
                             wounds.map((wound, index) => (
-                                <WoundCard wound={wound} index={index} key={wound.wound_id} />
+                                <WoundCard 
+                                    wound={wound} 
+                                    index={index} 
+                                    key={wound.wound_id}
+                                    onDelete={handleDeleteWound}
+                                />
                             ))
                         )}
                     </div>
                     
-                    <Button 
-                        type="button" 
-                        className="bg-sky-900 mt-6 mb-6" 
-                        onClick={() => {
-                            navigate('/specialist/wound/create', {state: {patient_id: patient_id}});
-                        }}
-                        disabled={!patient_id}
-                    >
-                        <Plus className="mr-2 h-5 w-5"/>
-                        Adicionar Ferida
-                    </Button>
+                    {/* Update the button area to be centered */}
+                    <div className="flex justify-center gap-2 w-full mt-4 mb-8">
+                        <button
+                            onClick={generatePDF}
+                            className="py-1 px-6 text-xs text-blue-800 font-normal rounded-full border border-blue-800 hover:bg-gray-50 flex items-center gap-1"
+                            disabled={isLoadingPatient || !patient}
+                        >
+                            <FileDown className="h-3.5 w-3.5" />
+                            Exportar PDF
+                        </button>
+                        <Button 
+                            type="button" 
+                            className="py-1 px-6 text-xs bg-blue-800 text-white font-normal rounded-full flex items-center gap-1" 
+                            onClick={() => {
+                                navigate('/specialist/wound/create', {state: {patient_id: patient_id}});
+                            }}
+                            disabled={!patient_id}
+                        >
+                            <Plus className="h-3.5 w-3.5"/>
+                            Adicionar Ferida
+                        </Button>
+                    </div>
                 </div>
             </WaveBackgroundLayout>
             
