@@ -69,7 +69,7 @@ export default function Menu() {
 
   // Navigation handlers for the mobile menu
   const handleHomeClick = () => navigate('/specialist/menu');
-  const handleNewCaseClick = () => navigate('/specialist/case/new');
+  const handleNewCaseClick = () => navigate('/specialist/patient/create');
   const handleNotificationsClick = () => navigate('/specialist/notifications');
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
