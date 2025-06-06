@@ -104,10 +104,10 @@ export default function WoundDetail() {
                         <div className="flex flex-col text-sm leading-relaxed space-y-2 self-start mt-6">
                             <p>
                                 <span
-                                    className="font-bold text-base">Local: </span> {getRegionDescription(wound.wound_region)}
+                                    className="font-bold text-base">Local: </span> {getRegionDescription(wound.region)}
                             </p>
                             <p>
-                                <span className="font-bold text-base">Tipo: </span> {getWoundType(wound.wound_type)}
+                                <span className="font-bold text-base">Tipo: </span> {getWoundType(wound.type)}
                             </p>
                             <p>
                                 <span className="font-bold text-base">Data inicio: </span>

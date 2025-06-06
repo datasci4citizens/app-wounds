@@ -22,9 +22,9 @@ const WoundCard = ({wound, index}: { wound: Wound, index: number }) => {
                 <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">{`Ferida ${index + 1}`}</h3>
                     <div className="space-y-1 text-sm text-gray-500 leading-tight">
-                        <p>Tipo de ferida: {getWoundType(wound.wound_type)}</p>
-                        <p>Local: {getRegionDescription(wound.wound_region)}</p>
-                        <p>Subregião: {getSubregionDescription(wound.wound_region, wound.wound_subregion)}</p>
+                        <p>Tipo de ferida: {getWoundType(wound.type)}</p>
+                        <p>Local: {getRegionDescription(wound.region)}</p>
+                        <p>Subregião: {getSubregionDescription(wound.region, wound.subregion)}</p>
                     </div>
                 </div>
             </CardContent>
