@@ -135,18 +135,17 @@ export default function PatientCreateRedesign() {
   };
 
   return (
-    <div className="fixed inset-0 flex flex-col">
-      <WaveBackgroundLayout className="flex-1 bg-[#F9FAFB] overflow-y-auto pb-10">
-        <div className="w-full max-w-[430px] mx-auto px-6">
-          <div className="flex justify-center mb-4">
-            <ProfessionalIcon size={0.6} borderRadius="50%" />
-          </div>
+    <WaveBackgroundLayout className="bg-[#F9FAFB]">
+      <div className="flex justify-center items-center mt-6 mb-6">
+        <ProfessionalIcon size={0.6} borderRadius="50%" />
+      </div>  
 
-           <PageTitleWithBackButton 
-                title={"Cadastro de Paciente"} 
-                backPath="/specialist/menu"
-            />
-          
+      <PageTitleWithBackButton 
+              title={"Cadastro de Paciente"} 
+              backPath="/specialist/menu"
+      />      
+
+      <div className="w-full max-w-[430px] mx-auto px-6">
           <Form {...form}>
             <form className="space-y-6">
               <FormField
@@ -248,7 +247,7 @@ export default function PatientCreateRedesign() {
                         isBefore(date, new Date("1900-01-01")) ||
                         isAfter(date, startOfDay(new Date()))
                       }
-                      className="w-full text-left font-normal bg-white text-[#0120AC] hover:bg-white hover:text-[#0120AC] focus:bg-white focus:text-[#0120AC] border-[#A6BBFF]"
+                      className="w-full text-left font-normal bg-white placeholder:text-[#A6BBFF] text-[#0120AC] hover:bg-white hover:text-[#0120AC] focus:bg-white focus:text-[#0120AC] border-none"
                       placeholderColor="#A6BBFF"
                       iconColor="#0120AC"
                     />
@@ -444,6 +443,5 @@ export default function PatientCreateRedesign() {
           </Form>
         </div>
       </WaveBackgroundLayout>
-    </div>
   );
 }
