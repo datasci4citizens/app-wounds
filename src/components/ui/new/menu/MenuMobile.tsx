@@ -66,7 +66,7 @@ export function MenuMobile({
           <Plus className={`w-5 h-5 ${isActive('/specialist/case/new') ? 'text-[#0041E9]' : 'text-gray-400'}`} />
         </div>
         <span className={`text-xs mt-1 ${isActive('/specialist/case/new') ? 'text-[#0041E9] font-medium' : 'text-gray-500'}`}>
-          Novo caso
+          Novo Paciente
         </span>
       </button>
       

@@ -60,8 +60,6 @@ export default function Menu() {
       }
     } catch (error) {
       console.error("Error parsing user info from localStorage:", error);
-      // If there's an error parsing, fetch the data again
-      // ... (same fetch logic as above)
     }
   }, []);
 
@@ -71,7 +69,7 @@ export default function Menu() {
 
   // Navigation handlers for the mobile menu
   const handleHomeClick = () => navigate('/specialist/menu');
-  const handleNewCaseClick = () => navigate('/specialist/case/new');
+  const handleNewCaseClick = () => navigate('/specialist/patient/create');
   const handleNotificationsClick = () => navigate('/specialist/notifications');
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {

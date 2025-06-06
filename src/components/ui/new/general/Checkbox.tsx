@@ -13,6 +13,8 @@ export function Checkbox({ className, ...props }: React.ComponentPropsWithoutRef
         bg-white
         data-[state=checked]:bg-[#6D8AFF]
         data-[state=checked]:outline-none
+        border
+        border-[#A6BBFF]
         ${className ?? ''}
       `}
       {...props}

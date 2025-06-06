@@ -13,17 +13,18 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'default', size = 'default', fullWidth = false, children, ...props }, ref) => {
     return (
       <button
+        style={{ WebkitTapHighlightColor: 'transparent' }}
         className={cn(
           // Base styles
           "inline-flex items-center justify-center rounded-[20px] px-4 py-2.5 gap-2.5 transition-colors",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+          "focus-visible:outline-none focus:outline-none active:outline-none",
           "disabled:opacity-50 disabled:pointer-events-none",
           
           // Variant styles
-          variant === 'default' && "bg-[#0120AC] text-white hover:bg-[#0120AC]/90",
-          variant === 'outline' && "border border-input bg-white hover:bg-slate-100 text-[#0120AC]",
-          variant === 'ghost' && "hover:bg-accent hover:text-accent-foreground",
-          variant === 'link' && "underline-offset-4 hover:underline text-primary",
+          variant === 'default' && "bg-[#0120AC] text-white hover:bg-[#0120AC]/90 active:bg-[#0120AC] active:text-white",
+          variant === 'outline' && "border border-[#0120AC] bg-white hover:bg-[#0120AC] hover:text-white text-[#0120AC] active:bg-[#0120AC] active:text-white",
+          variant === 'ghost' && "hover:bg-accent hover:text-accent-foreground active:bg-accent/80",
+          variant === 'link' && "underline-offset-4 hover:underline text-primary active:opacity-80",
           
           // Size styles
           size === 'default' && "h-11 w-full",
