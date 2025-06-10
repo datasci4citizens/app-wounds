@@ -14,6 +14,8 @@ interface AuthMeResponse {
   email: string;
 }
 
+//Testing 
+
 export default function Menu() {
   const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState('')
