@@ -8,6 +8,10 @@ interface MenuMobileProps {
   onHomeClick?: () => void;
   onNewCaseClick?: () => void;
   onNotificationsClick?: () => void;
+  plusButtonLabel?: string
+  plusButtonPath?: string
+  homePath?: string
+  notificationsPath?: string
   activePath?: string; // Optional override for active path
 }
 
@@ -16,6 +20,10 @@ export function MenuMobile({
   onHomeClick, 
   onNewCaseClick, 
   onNotificationsClick,
+  plusButtonLabel,
+  plusButtonPath,
+  homePath,
+  notificationsPath,
   activePath 
 }: MenuMobileProps) {
   const location = useLocation();
@@ -31,12 +39,11 @@ export function MenuMobile({
   // Special check for home icon that should be active on both /specialist and /specialist/menu
   const isHomeActive = () => {
     if (activePath) {
-      return activePath === '/specialist' || activePath === '/specialist/menu';
+      return activePath === homePath;
     }
     return (
-      location.pathname === '/specialist' || 
-      location.pathname === '/specialist/menu' || 
-      location.pathname.startsWith('/specialist/menu/')
+      location.pathname === homePath || 
+      (homePath && location.pathname.startsWith(homePath))
     );
   };
   
@@ -61,12 +68,12 @@ export function MenuMobile({
         className="flex flex-col items-center justify-center w-24"
       >
         <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-          isActive('/specialist/case/new') ? 'bg-[#FAD5D2]' : ''
+          plusButtonPath && isActive(plusButtonPath) ? 'bg-[#FAD5D2]' : ''
         }`}>
-          <Plus className={`w-5 h-5 ${isActive('/specialist/case/new') ? 'text-[#0041E9]' : 'text-gray-400'}`} />
+          <Plus className={`w-5 h-5 ${plusButtonPath && isActive(plusButtonPath) ? 'text-[#0041E9]' : 'text-gray-400'}`} />
         </div>
-        <span className={`text-xs mt-1 ${isActive('/specialist/case/new') ? 'text-[#0041E9] font-medium' : 'text-gray-500'}`}>
-          Novo Paciente
+        <span className={`text-xs mt-1 ${plusButtonPath && isActive(plusButtonPath) ? 'text-[#0041E9] font-medium' : 'text-gray-500'}`}>
+          {plusButtonLabel}
         </span>
       </button>
       
@@ -75,11 +82,11 @@ export function MenuMobile({
         className="flex flex-col items-center justify-center w-24"
       >
         <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-          isActive('/specialist/notifications') ? 'bg-[#FAD5D2]' : ''
+          notificationsPath && isActive(notificationsPath) ? 'bg-[#FAD5D2]' : ''
         }`}>
-          <IoNotifications className={`w-5 h-5 ${isActive('/specialist/notifications') ? 'text-[#0041E9]' : 'text-gray-400'}`} />
+          <IoNotifications className={`w-5 h-5 ${notificationsPath && isActive(notificationsPath) ? 'text-[#0041E9]' : 'text-gray-400'}`} />
         </div>
-        <span className={`text-xs mt-1 ${isActive('/specialist/notifications') ? 'text-[#0041E9] font-medium' : 'text-gray-500'}`}>
+        <span className={`text-xs mt-1 ${notificationsPath && isActive(notificationsPath) ? 'text-[#0041E9] font-medium' : 'text-gray-500'}`}>
           Notificações
         </span>
       </button>
