@@ -62,6 +62,7 @@ export interface Wound {
     end_date: string;
     patient_id: number;
     wound_id: number;
+    image_id: number | null;
     tracking_records?: WoundRecord[];
 }
 
