@@ -24,6 +24,7 @@ import SpecialistWoundAddUpdateImage from './routes/specialistApp/wound/AddUpdat
 import SpecialistWoundAddUpdateConduct from './routes/specialistApp/wound/AddUpdate/WoundAddUpdateConduct.tsx';
 import { WoundUpdateProvider as SpecialistWoundUpdateProvider } from './routes/specialistApp/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx';
 import SpecialistNotifications from './routes/specialistApp/notifications/Notifications.tsx';
+import SpecialistSignUpDetails from './routes/defaultApp/specialist/SpecialistSignUpDetails.tsx';
 
 // Patient routes
 import PatientSignUp from './routes/defaultApp/patient/PatientSignUp.tsx';
@@ -39,7 +40,7 @@ import PatientWoundAddUpdate from './routes/patientApp/wound/AddUpdate/WoundAddU
 import PatientWoundAddUpdateImage from './routes/patientApp/wound/AddUpdate/WoundAddUpdateImage.tsx';
 import PatientWoundAddUpdateConduct from './routes/patientApp/wound/AddUpdate/WoundAddUpdateConduct.tsx';
 import { WoundUpdateProvider as PatientWoundUpdateProvider } from './routes/patientApp/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx';
-import SpecialistSignUpDetails from './routes/defaultApp/specialist/SpecialistSignUpDetails.tsx';
+import PatientNotifications from './routes/patientApp/notifications/Notifications.tsx';
 
 import axios from 'axios';
 
@@ -158,6 +159,10 @@ const router = createBrowserRouter([
       {
         path: 'menu',
         element: <AppLayout><PatientMenu /></AppLayout>,
+      },
+      {
+        path: 'notifications',
+        element: <AppLayout><PatientNotifications /></AppLayout>,
       },
       {
         path: 'wounds',
