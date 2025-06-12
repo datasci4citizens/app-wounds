@@ -6,6 +6,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "@/components/ui/textarea.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { useWoundUpdate } from "@/routes/specialistApp/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx";
+import { WaveBackgroundLayout } from "@/components/ui/new/wave/WaveBackground";
+import { ProfessionalIcon } from "@/components/ui/new/ProfessionalIcon";
+import PageTitleWithBackButton from "@/components/shared/PageTitleWithBackButton";
+import { ArrowLeft } from "lucide-react";
 
 const FormSchema = z.object({
     extraNotes: z.string().optional(),
@@ -123,56 +127,74 @@ export default function WoundAddUpdateConduct() {
     }
 
     return (
-        <div className="flex flex-col w-full h-full items-center">
-            <div className="text-black text-2xl font-semibold leading-loose">Conduta</div>
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)}
-                      className="flex-1 max-h-screen w-full mx-auto p-8 space-y-6 overflow-y-auto">
-                    <FormField
-                        control={form.control}
-                        name="extraNotes"
-                        render={({field}) => (
-                            <FormItem>
-                                <FormLabel>Anotações extras</FormLabel>
-                                <FormControl>
-                                    <Textarea
-                                        placeholder="Anotações extra"
-                                        className="resize-none"
-                                        {...field}
-                                    />
-                                </FormControl>
-                                <FormMessage/>
-                            </FormItem>
-                        )}
-                    />
+        <WaveBackgroundLayout className="absolute inset-0 overflow-auto">
+            <div className="flex flex-col w-full min-h-full items-center px-6">
+                {/* Header with Professional Icon */}
+                <div className="flex justify-center items-center mt-6 mb-6">
+                    <ProfessionalIcon size={0.6} borderRadius="50%" />
+                </div>
+                <PageTitleWithBackButton 
+                    title="Conduta"
+                    onBackClick={() => navigate(-1)}
+                    className="mb-6 [&>h1]:text-lg [&>h1]:font-medium"
+                />
+                
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)}
+                        className="flex-1 w-full mx-auto space-y-6">
+                        <div className="bg-white rounded-lg shadow-sm p-5 border border-[#A6BBFF]/30">
+                            <FormField
+                                control={form.control}
+                                name="extraNotes"
+                                render={({field}) => (
+                                    <FormItem>
+                                        <FormLabel className="text-[#0120AC] font-medium">Anotações extras</FormLabel>
+                                        <FormControl>
+                                            <Textarea
+                                                placeholder="Anotações extras"
+                                                className="resize-none min-h-32 border-[#0120AC] rounded-lg text-[#0120AC] bg-white placeholder:text-[#A6BBFF]"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
 
-                    <FormField
-                        control={form.control}
-                        name="guidelines"
-                        render={({field}) => (
-                            <FormItem>
-                                <FormLabel>Orientações dadas ao paciente</FormLabel>
-                                <FormControl>
-                                    <Textarea
-                                        placeholder="Conduta"
-                                        className="resize-none"
-                                        {...field}
-                                    />
-                                </FormControl>
-                                <FormMessage/>
-                            </FormItem>
-                        )}
-                    />
+                        <div className="bg-white rounded-lg shadow-sm p-5 border border-[#A6BBFF]/30">
+                            <FormField
+                                control={form.control}
+                                name="guidelines"
+                                render={({field}) => (
+                                    <FormItem>
+                                        <FormLabel className="text-[#0120AC] font-medium">Orientações dadas ao paciente</FormLabel>
+                                        <FormControl>
+                                            <Textarea
+                                                placeholder="Conduta"
+                                                className="resize-none min-h-32 border-[#0120AC] rounded-lg text-[#0120AC] bg-white placeholder:text-[#A6BBFF]"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
 
-                    <div className="flex flex-col items-center justify-center space-y-6 !mt-8">
-                        <Button type="submit">
-                            Enviar
-                        </Button>
-                    </div>
-
-                </form>
-            </Form>
-        </div>
+                        <div className="flex flex-col items-center justify-center space-y-6 !mt-8 mb-8">
+                            <Button 
+                                type="submit"
+                                className="bg-[#0120AC] hover:bg-[#0120AC]/90 text-white py-1 px-12 rounded-full text-sm font-medium flex items-center gap-2"
+                            >
+                                Enviar
+                                <ArrowLeft className="h-3.5 w-3.5 rotate-180" />
+                            </Button>
+                        </div>
+                    </form>
+                </Form>
+            </div>
+        </WaveBackgroundLayout>
     );
 }
 ;
