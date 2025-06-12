@@ -2,8 +2,6 @@ import React, { useState, useRef } from 'react'
 import { ImagePlus } from 'lucide-react'
 import { Button } from '@/components/ui/button.tsx'
 import { useNavigate, useLocation } from "react-router-dom";
-import useSWRMutation from "swr/mutation";
-import { postRequest } from "@/data/common/HttpExtensions.ts";
 import { useWoundUpdate } from "@/routes/specialistApp/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx";
 import { LoadingScreen, type LoadingScreenHandle } from '@/components/ui/new/loading/LoadingScreen';
 
