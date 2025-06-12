@@ -9,7 +9,7 @@ interface CategoryCardProps {
   className?: string;
   bgColor?: string;
   imageUrl?: string;
-  theme?: 'blue' | 'purple' | 'light_blue' | 'custom';
+  theme?: 'blue' | 'purple' | 'light_blue' | 'pink' | 'custom';
   customThemeColor?: string;
 }
 
@@ -29,6 +29,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
     blue: "#3357E6",
     light_blue: "#A6BBFF",
     purple: "#7E5CEF",
+    pink: "#BA2C5D",
     custom: customThemeColor || "#3357E6", // Fallback to blue if no custom color
   };
 
