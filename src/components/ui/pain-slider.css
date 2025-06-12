@@ -1,0 +1,45 @@
+/* Estilos para o slider de nível de dor */
+.pain-slider[data-pain-level="0"] .slider-range,
+.pain-slider[data-pain-level="1"] .slider-range,
+.pain-slider[data-pain-level="2"] .slider-range,
+.pain-slider[data-pain-level="3"] .slider-range,
+.pain-slider[data-pain-level="4"] .slider-range {
+  background-color: #FFD700 !important; /* Amarelo para níveis 0-4 */
+}
+
+.pain-slider[data-pain-level="5"] .slider-range,
+.pain-slider[data-pain-level="6"] .slider-range,
+.pain-slider[data-pain-level="7"] .slider-range {
+  background-color: #FFA500 !important; /* Laranja para níveis 5-7 */
+}
+
+.pain-slider[data-pain-level="8"] .slider-range,
+.pain-slider[data-pain-level="9"] .slider-range,
+.pain-slider[data-pain-level="10"] .slider-range {
+  background-color: #FF0000 !important; /* Vermelho para níveis 8-10 */
+}
+
+/* Estilo para o thumbs do slider */
+.pain-slider .thumb {
+  border-color: currentColor !important;
+}
+
+.pain-slider[data-pain-level="0"] .thumb,
+.pain-slider[data-pain-level="1"] .thumb,
+.pain-slider[data-pain-level="2"] .thumb,
+.pain-slider[data-pain-level="3"] .thumb,
+.pain-slider[data-pain-level="4"] .thumb {
+  color: #FFD700 !important;
+}
+
+.pain-slider[data-pain-level="5"] .thumb,
+.pain-slider[data-pain-level="6"] .thumb,
+.pain-slider[data-pain-level="7"] .thumb {
+  color: #FFA500 !important;
+}
+
+.pain-slider[data-pain-level="8"] .thumb,
+.pain-slider[data-pain-level="9"] .thumb,
+.pain-slider[data-pain-level="10"] .thumb {
+  color: #FF0000 !important;
+}
