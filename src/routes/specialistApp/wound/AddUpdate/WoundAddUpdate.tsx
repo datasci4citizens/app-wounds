@@ -68,25 +68,47 @@ export default function WoundAddUpdate() {
 
     const onSubmit = async (data: WoundFormValues) => {
         try {
+            console.log("woundId recebido:", woundId);
+            console.log("Payload após atualização:", {
+                ...form.getValues(),
+                wound_id: woundId
+            });
+
             await setWoundUpdate((prev) => ({
                 ...prev,
-                wound_width: parseInt(data.woundWidth),
-                wound_length: parseInt(data.woundLength),
+                // Corrigir nomes de campos para corresponder à API
+                width: parseInt(data.woundWidth), // Corrigido de wound_width
+                length: parseInt(data.woundLength), // Corrigido de wound_length
                 exudate_amount: data.exudateAmount ?? "",
                 exudate_type: data.exudateType ?? "",
                 tissue_type: data.tissueType ?? "",
                 wound_edges: data.woundEdges ?? "",
-                skin_around_the_wound: data.skinAround ?? "",
-                had_a_fever: data.hadFever ?? false,
+                skin_around: data.skinAround ?? "", // Corrigido de skin_around_the_wound
+                had_fever: data.hadFever ?? false, // Corrigido de had_a_fever
                 pain_level: data.painLevel.toString(),
-                dressing_changes_per_day: data.dressingChanges ?? "",
+                dressing_changes_per_day: data.dressingChanges ?? "", // Corrigido de dressing_changer_per_day
                 guidelines_to_patient: "",
                 extra_notes: "",
                 track_date: data.date ? data.date.toISOString().split('T')[0] : "",
                 wound_id: woundId,
             }));
 
-            return navigate('/specialist/wound/add-update/image');
+            // Extrair o patient_id do location.state
+            const patient_id = location.state?.patient_id;
+            console.log("WoundAddUpdate - Navegando para Image com patient_id:", patient_id);
+
+            // Verificar se patient_id está definido antes de navegar
+            if (!patient_id) {
+                console.error("patient_id não está definido ao navegar de WoundAddUpdate para WoundAddUpdateImage");
+            }
+
+            // Passar tanto patient_id quanto wound_id para a próxima tela
+            return navigate('/specialist/wound/add-update/image', { 
+                state: { 
+                    patient_id, 
+                    wound_id: woundId 
+                } 
+            });
         } catch (error) {
             console.error('Error submitting form:', error);
             throw error;
