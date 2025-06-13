@@ -21,6 +21,7 @@ import { WaveBackgroundLayout } from "@/components/ui/new/wave/WaveBackground.ts
 import { ProfessionalIcon } from "@/components/ui/new/ProfessionalIcon";
 import PageTitleWithBackButton from "@/components/shared/PageTitleWithBackButton";
 import jsPDF from 'jspdf';
+import { getRegionDescription, getSubregionDescription, getWoundType } from "@/data/common/LocalDataMapper.tsx";
 
 
 const customGetRequest = async (url: string) => {
@@ -268,10 +269,23 @@ const WoundCard = ({wound, index, onDelete}: {
             >
                 {/* Header section com nome e tipo da ferida */}
                 <div className="p-4 bg-white">
-                    <h3 className="text-base text-blue-800 mb-1">{`Ferida ${index + 1}`}</h3>
-                    <p className="text-sm text-blue-800">
-                        Tipo de ferida: {wound.type}, local: {wound.region}
-                    </p>
+                    <h3 className="text-sm text-blue-800 mb-1.5 font-semibold">{`Ferida ${index + 1}`}</h3>
+                    <div className="space-y-0.5">
+                        <div className="flex items-start">
+                            <span className="text-xs text-blue-800 font-medium mr-1">Tipo:</span>
+                            <span className="text-xs text-blue-600">{getWoundType(wound.type)}</span>
+                        </div>
+                        <div className="flex items-start">
+                            <span className="text-xs text-blue-800 font-medium mr-1">Local:</span>
+                            <span className="text-xs text-blue-600">{getRegionDescription(wound.region)}</span>
+                        </div>
+                        {wound.subregion && (
+                            <div className="flex items-start">
+                                <span className="text-xs text-blue-800 font-medium mr-1">Subregião:</span>
+                                <span className="text-xs text-blue-600">{getSubregionDescription(wound.region, wound.subregion)}</span>
+                            </div>
+                        )}
+                    </div>
                 </div>
                 
                 {/* Seção de imagem - modificada para mostrar a imagem real quando disponível */}
@@ -317,9 +331,9 @@ const WoundCard = ({wound, index, onDelete}: {
                 </div>
                 
                 {/* Care instructions section */}
-                <div className="p-4">
-                    <h4 className="text-sm text-blue-800 mb-1">Instruções para o cuidado</h4>
-                    <p className="text-xs text-blue-800">
+                <div className="p-4 pt-2 border-t border-blue-50">
+                    <h4 className="text-xs text-blue-800 font-medium mb-1.5">Instruções para o cuidado</h4>
+                    <p className="text-xs text-blue-600">
                         {/* {wound.notes || "Sem instruções específicas registradas."} */}
                         {"Sem instruções específicas registradas."}
                     </p>
@@ -608,14 +622,14 @@ export default function PatientsWounds() {
                     yPosition += 10;
                     
                     pdf.setFontSize(12);
-                    pdf.text(`Tipo: ${wound.type}`, 25, yPosition);
+                    pdf.text(`Tipo: ${getWoundType(wound.type)}`, 25, yPosition);
                     yPosition += 8;
                     
-                    pdf.text(`Local: ${wound.region}`, 25, yPosition);
+                    pdf.text(`Local: ${getRegionDescription(wound.region)}`, 25, yPosition);
                     yPosition += 8;
                     
                     if (wound.subregion) {
-                        pdf.text(`Subregião: ${wound.subregion}`, 25, yPosition);
+                        pdf.text(`Subregião: ${getSubregionDescription(wound.region, wound.subregion)}`, 25, yPosition);
                         yPosition += 15;
                     }
                 });

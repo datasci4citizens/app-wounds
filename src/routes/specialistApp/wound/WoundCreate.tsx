@@ -9,10 +9,14 @@ import DatePicker from "@/components/common/DatePicker.tsx";
 import { isAfter, isBefore, startOfDay } from "date-fns";
 import { useLocation, useNavigate } from "react-router-dom";
 import { LoadingScreen, type LoadingScreenHandle } from '@/components/ui/new/loading/LoadingScreen';
+import { WaveBackgroundLayout } from "@/components/ui/new/wave/WaveBackground";
+import PageTitleWithBackButton from "@/components/shared/PageTitleWithBackButton";
+import { ArrowLeft } from "lucide-react";
 
 // Importações dos dados necessários
 import woundRegion from '@/localdata/wound-location.json'
 import woundTypes from '@/localdata/wound-type.json'
+import { ProfessionalIcon } from '@/components/ui/new/ProfessionalIcon';
 
 // Tipos e interfaces
 type TwoCharString = `${string}${string}`;
@@ -92,14 +96,21 @@ export default function WoundCreate() {
         
         // Redirecionar para a lista de pacientes após um breve atraso
         setTimeout(() => {
-            navigate('/specialist/patients');
+            navigate('/specialist/patient/list');
         }, 2000);
         
         return (
-            <div className="flex flex-col w-full h-full items-center p-8">
-                <AlertMessage type="error" message="ID do paciente não encontrado. Por favor, selecione um paciente." />
-                <p className="text-gray-500">Redirecionando para a lista de pacientes...</p>
-            </div>
+            <WaveBackgroundLayout className="absolute inset-0 overflow-auto">
+                <div className="flex flex-col w-full min-h-full items-center p-4 pt-8">
+                    <PageTitleWithBackButton 
+                        title="Adicionar nova ferida"
+                        backPath="/specialist/patient/list"
+                        className="mb-6"
+                    />
+                    <AlertMessage type="error" message="ID do paciente não encontrado. Por favor, selecione um paciente." />
+                    <p className="text-gray-500 mt-4">Redirecionando para a lista de pacientes...</p>
+                </div>
+            </WaveBackgroundLayout>
         );
     }
 
@@ -302,143 +313,167 @@ export default function WoundCreate() {
 
     return (
         <>
-            <div className="flex flex-col w-full h-full items-center">
-                <div className="text-black text-2xl font-semibold leading-loose">Adicionar ferida</div>
-                
-                {/* Exibir mensagens de alerta quando necessário */}
-                {alertMessage && (
-                    <div className="w-full px-8">
-                        <AlertMessage type={alertMessage.type} message={alertMessage.message} />
+            {/* Removido estilo global que não é suportado neste contexto */}
+            <WaveBackgroundLayout className="absolute inset-0 overflow-auto">
+                <div className="flex flex-col w-full min-h-full items-center px-6">
+                    {/* Header with Professional Icon */}
+                    <div className="flex justify-center items-center mt-6 mb-6">
+                        <ProfessionalIcon size={0.6} borderRadius="50%" />
                     </div>
-                )}
-                
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)}
-                          className="flex-1 max-h-screen w-full mx-auto p-8 space-y-6 overflow-y-auto">
-                        <FormField
-                            control={form.control}
-                            name="region"
-                            render={({field}) => (
-                                <FormItem>
-                                    <FormLabel>Região da ferida</FormLabel>
-                                    <Select
-                                        onValueChange={(value) => {
-                                            field.onChange(value);
-                                            setSelectedRegion(value as WoundRegionKey);
-                                            // Reset wound_location when region changes
-                                            form.setValue('subregion', '');
-                                        }}
-                                        value={field.value}
-                                    >
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Selecione a região"/>
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {Object.entries(woundRegion as WoundRegionData).map(([key, value]) => (
-                                                <SelectItem key={key} value={key}>
-                                                    {value.description}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage/>
-                                </FormItem>
-                            )}
-                        />
+                    <PageTitleWithBackButton 
+                        title="Adicionar nova ferida"
+                        onBackClick={() => navigate('/specialist/patient/wounds', { state: { patient_id } })}
+                        className="mb-6 [&>h1]:text-lg [&>h1]:font-medium"
+                    />
+                    
+                    {/* Exibir mensagens de alerta quando necessário */}
+                    {alertMessage && (
+                        <div className="w-full px-4">
+                            <AlertMessage type={alertMessage.type} message={alertMessage.message} />
+                        </div>
+                    )}
+                    
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} 
+                              className="w-full max-w-md mx-auto space-y-4" 
+                              style={{fontFamily: "Roboto, sans-serif"}}>
+                            <FormField
+                                control={form.control}
+                                name="region"
+                                render={({field}) => (
+                                    <FormItem>
+                                        <FormLabel className="text-[#0120AC] font-medium">Região da ferida</FormLabel>
+                                        <Select
+                                            onValueChange={(value) => {
+                                                field.onChange(value);
+                                                setSelectedRegion(value as WoundRegionKey);
+                                                // Reset wound_location when region changes
+                                                form.setValue('subregion', '');
+                                            }}
+                                            value={field.value}
+                                        >
+                                            <FormControl>
+                                                <SelectTrigger className="bg-white text-sm border-[#0120AC] rounded-lg">
+                                                    <SelectValue 
+                                                        placeholder="Selecione a região" 
+                                                        style={{color: field.value ? 'inherit' : '#A6BBFF'}}
+                                                    />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {Object.entries(woundRegion as WoundRegionData).map(([key, value]) => (
+                                                    <SelectItem key={key} value={key}>
+                                                        {value.description}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage/>
+                                    </FormItem>
+                                )}
+                            />
 
-                        <FormField
-                            control={form.control}
-                            name="subregion"
-                            render={({field}) => (
-                                <FormItem>
-                                    <FormLabel>Localização da ferida</FormLabel>
-                                    <Select
-                                        onValueChange={field.onChange}
-                                        disabled={!selectedRegion}
-                                        value={field.value || ""}
-                                    >
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Selecione a localização"/>
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {selectedRegion &&
-                                                (woundRegion as WoundRegionData)[selectedRegion]?.subregions &&
-                                                Object.entries((woundRegion as WoundRegionData)[selectedRegion]?.subregions || {})
-                                                    .map(([key, value]) => (
-                                                        <SelectItem key={key} value={key}>
-                                                            {value}
-                                                        </SelectItem>
-                                                    ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage/>
-                                </FormItem>
-                            )}
-                        />
+                            <FormField
+                                control={form.control}
+                                name="subregion"
+                                render={({field}) => (
+                                    <FormItem>
+                                        <FormLabel className="text-[#0120AC] font-medium">Localização da ferida</FormLabel>
+                                        <Select
+                                            onValueChange={field.onChange}
+                                            disabled={!selectedRegion}
+                                            value={field.value || ""}
+                                        >
+                                            <FormControl>
+                                                <SelectTrigger className="bg-white text-sm border-[#0120AC] rounded-lg">
+                                                    <SelectValue 
+                                                        placeholder="Selecione a localização"
+                                                        style={{color: field.value ? 'inherit' : '#A6BBFF'}}
+                                                    />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {selectedRegion &&
+                                                    (woundRegion as WoundRegionData)[selectedRegion]?.subregions &&
+                                                    Object.entries((woundRegion as WoundRegionData)[selectedRegion]?.subregions || {})
+                                                        .map(([key, value]) => (
+                                                            <SelectItem key={key} value={key}>
+                                                                {value}
+                                                            </SelectItem>
+                                                        ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage/>
+                                    </FormItem>
+                                )}
+                            />
 
-                        <FormField
-                            control={form.control}
-                            name="type"
-                            render={({field}) => (
-                                <FormItem>
-                                    <FormLabel>Tipo da ferida</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value}>
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Selecione o tipo"/>
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {Object.entries(woundTypes).map(([key, label]) => (
-                                                <SelectItem key={key} value={key}>
-                                                    {label}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage/>
-                                </FormItem>
-                            )}
-                        />
+                            <FormField
+                                control={form.control}
+                                name="type"
+                                render={({field}) => (
+                                    <FormItem>
+                                        <FormLabel className="text-[#0120AC] font-medium">Tipo da ferida</FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger className="bg-white text-sm border-[#0120AC] rounded-lg">
+                                                    <SelectValue 
+                                                        placeholder="Selecione o tipo"
+                                                        style={{color: field.value ? 'inherit' : '#A6BBFF'}}
+                                                    />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {Object.entries(woundTypes).map(([key, label]) => (
+                                                    <SelectItem key={key} value={key}>
+                                                        {label}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage/>
+                                    </FormItem>
+                                )}
+                            />
 
-                        <FormField
-                            control={form.control}
-                            name="start_date"
-                            render={({field}) => (
-                                <FormItem>
-                                    <FormLabel>Data do começo*</FormLabel>
-                                    <DatePicker
-                                        field={field}
-                                        disabled={(date) => {
-                                            const today = startOfDay(new Date());
-                                            return (isBefore(date, new Date("1900-01-01")) || isAfter(date, today));
-                                        }}
-                                    />
-                                    <FormMessage />
-                                    {/* Dica adicional para o usuário */}
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        Selecione uma data entre 01/01/1900 e hoje
-                                    </p>
-                                </FormItem>
-                            )}
-                        />
+                            <FormField
+                                control={form.control}
+                                name="start_date"
+                                render={({field}) => (
+                                    <FormItem>
+                                        <FormLabel className="text-[#0120AC] font-medium">Data de começo</FormLabel>
+                                        <DatePicker
+                                            field={field}
+                                            disabled={(date) => {
+                                                const today = startOfDay(new Date());
+                                                return (isBefore(date, new Date("1900-01-01")) || isAfter(date, today));
+                                            }}
+                                            className="w-full text-left font-normal bg-white placeholder:text-[#A6BBFF] text-[#0120AC] hover:bg-white hover:text-[#0120AC] focus:bg-white focus:text-[#0120AC] border-[#0120AC] rounded-lg"
+                                            placeholderColor="#A6BBFF"
+                                            iconColor="#0120AC"
+                                        />
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
-                        <Button 
-                            type="submit" 
-                            className="w-full bg-sky-900 !mt-8"
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? "Enviando..." : "Adicionar"}
-                        </Button>
-                    </form>
-                </Form>
-            </div>
+                            {/* Botão de submissão no estilo do design do Figma */}
+                            <div className="mt-10 flex justify-center mb-10" style={{ marginTop: "60px" }}>
+                                <Button 
+                                    type="submit" 
+                                    className="py-1 px-6 text-xs bg-[#0120AC] text-white font-normal rounded-full flex items-center gap-1 w-[216px]"
+                                    disabled={isSubmitting}
+                                >
+                                    {isSubmitting ? "Enviando..." : "Continuar"}
+                                    <ArrowLeft className="h-3.5 w-3.5 rotate-180" />
+                                </Button>
+                            </div>
+                        </form>
+                    </Form>
+                </div>
+            </WaveBackgroundLayout>
             
-            {/* Adicionar o componente LoadingScreen */}
+            {/* Componente LoadingScreen */}
             <LoadingScreen ref={loadingRef} />
         </>
     );
