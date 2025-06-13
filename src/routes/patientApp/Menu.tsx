@@ -96,7 +96,7 @@ export default function Menu() {
         <CategoryCard 
           title="Estou Preocupado"
           description="Solicitar avaliação rápida"
-          onClick={() => handleNavigate('/emergency')}
+          onClick={() => handleNavigate('/fast-care')}
           theme="pink"
         />
       </div>

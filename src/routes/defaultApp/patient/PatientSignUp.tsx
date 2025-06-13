@@ -49,7 +49,7 @@ function PatientSignUpQrCode() {
       
       if (response.status === 200) {
         // Sucesso - redirecionar para próxima página
-        navigate('/patient/menu');
+        navigate('/patient-registered');
       } else {
         console.error("Erro ao validar código:", response);
         setError('Código inválido ou expirado. Tente novamente.');
