@@ -142,7 +142,7 @@ function PatientSignUpQrCode() {
         <div className="mb-4">
           <QrCodeIcon/>
         </div>
-        <span className="w-[328px] text-justify font-['Roboto'] font-normal text-[14px] leading-[24px] text-[#1A3BCC]">
+        <span className="w-[328px] text-justify font-normal text-[14px] leading-[24px] text-[#1A3BCC]">
             Para prosseguir com o cadastro, fotografe o código fornecido pelo profissional. Clique em Abrir Câmera para ler o QrCode.
         </span>
       </div>

@@ -59,7 +59,7 @@ export function TermsWithPopup({ onChange }: TermsWithPopupProps) {
             className="w-[18px] h-[18px] min-w-[18px] min-h-[18px] border border-[#E7E5E4]"
           />
         </div>
-          <label className="cursor-pointer select-none flex-grow text-sm font-normal text-black font-['Roboto']">
+          <label className="cursor-pointer select-none flex-grow text-sm font-normal text-black font-normal">
             <span
               className="text-black"
               onClick={() => setOpen(true)}
@@ -95,7 +95,7 @@ export function TermsWithPopup({ onChange }: TermsWithPopupProps) {
               Termos de Uso e Política de Privacidade
             </h2>
 
-            <div className="w-full max-h-[calc(75vh-100px)] overflow-y-auto text-left text-[14px] leading-[22px] text-[#1F2937] font-['Roboto'] font-normal">
+            <div className="w-full max-h-[calc(75vh-100px)] overflow-y-auto text-left text-[14px] leading-[22px] text-[#1F2937] font-normal">
               {/* Conteúdo dos termos */}
               Seu texto de termos aqui...
             </div>
