@@ -38,14 +38,26 @@ const LandingPage = () => {
   console.log("Is native platform:", isNative);
 
   // Handle OAuth success response
-  const handleAuthSuccess = async (code: string) => {
+  const handleAuthSuccess = async (code: string, isToken: boolean) => {
     console.log("Received code:", code);
     try {
       console.log(import.meta.env.VITE_SERVER_URL);
       // Send the code to the backend with CORS headers
+      let requestBody;
+      if(isToken) {
+        requestBody = {
+          token: code,
+          // Add any other necessary fields here
+        };
+      } else {
+        requestBody = {
+          code: code,
+          // Add any other necessary fields here
+        };
+      }
       const response = await axios.post<LoginResponse>(
         `${import.meta.env.VITE_SERVER_URL}/auth/login/google/`,
-        { code },
+        requestBody,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -123,7 +135,7 @@ const LandingPage = () => {
       console.log("Signed in:", idToken);
       localStorage.removeItem("accessToken");
 
-      await handleAuthSuccess(idToken);
+      await handleAuthSuccess(idToken, true);
     } catch (err: any) {
       const full = JSON.stringify(err, Object.getOwnPropertyNames(err));
 
@@ -168,7 +180,7 @@ const LandingPage = () => {
             } catch (browserErr) {
               console.log("Browser close error:", browserErr);
             }
-            await handleAuthSuccess(code);
+            await handleAuthSuccess(code, true);
           }
         } catch (err) {
           console.error("Error processing deep link:", err);
@@ -192,7 +204,7 @@ const LandingPage = () => {
     onSuccess: async (tokenResponse) => {
       console.log("OAuth success:", tokenResponse);
       const code = tokenResponse.code;
-      await handleAuthSuccess(code);
+      await handleAuthSuccess(code, false);
     },
     onError: (errorResponse) => {
       console.error("Google login error:", errorResponse);
