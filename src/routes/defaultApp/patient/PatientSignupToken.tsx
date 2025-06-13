@@ -80,7 +80,7 @@ function PatientSignUpToken() {
         <div className="mb-2">
              <IconTypcnKeyboard height="100px" width="100px" />
           </div>
-        <span className="w-[328px] text-justify font-['Roboto'] font-normal text-[14px] leading-[24px] text-[#1A3BCC]">
+        <span className="w-[328px] text-justify font-normal text-[14px] leading-[24px] text-[#1A3BCC]">
           Digite o código de 8 dígitos fornecido pelo profissional para prosseguir com o cadastro
         </span>
       </div>
