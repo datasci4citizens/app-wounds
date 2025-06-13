@@ -48,7 +48,7 @@ function PatientSignUpToken() {
       )
       
       if (response.status === 200) {
-        navigate('/patient/menu')
+        navigate('/patient-registered')
       } else {
         console.error("Erro ao validar código:", response)
         setError('Erro ao validar o código. Tente novamente.')
