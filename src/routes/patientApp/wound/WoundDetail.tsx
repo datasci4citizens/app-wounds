@@ -8,7 +8,7 @@ import { formatDate } from "@/data/common/Mapper.ts";
 import { useLocation, useNavigate } from "react-router-dom";
 import { format, parseISO } from "date-fns";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible.tsx";
-import { getExudateType, getRegionDescription, getTissueType, getWoundType } from "@/data/common/LocalDataMapper.tsx";
+import { getExudateType, getRegionDescription, getSubregionDescription, getTissueType, getWoundType } from "@/data/common/LocalDataMapper.tsx";
 
 const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundRecord, woundId: number }) => {
     const navigate = useNavigate();
@@ -106,6 +106,11 @@ export default function WoundDetail() {
                                 <span
                                     className="font-bold text-base">Local: </span> {getRegionDescription(wound.region)}
                             </p>
+                            {wound.subregion && (
+                                <p>
+                                    <span className="font-bold text-base">Subregião: </span> {getSubregionDescription(wound.region, wound.subregion)}
+                                </p>
+                            )}
                             <p>
                                 <span className="font-bold text-base">Tipo: </span> {getWoundType(wound.type)}
                             </p>

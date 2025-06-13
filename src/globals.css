@@ -12,3 +12,6 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
+
+/* Importação dos estilos do PainSlider */
+@import './components/ui/pain-slider.css';

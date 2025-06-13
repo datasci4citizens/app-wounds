@@ -1,16 +1,21 @@
 import React, { useState, useRef } from 'react'
-import { ImagePlus } from 'lucide-react'
+import { ImagePlus, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button.tsx'
 import { useNavigate, useLocation } from "react-router-dom";
 import { useWoundUpdate } from "@/routes/specialistApp/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx";
 import { LoadingScreen, type LoadingScreenHandle } from '@/components/ui/new/loading/LoadingScreen';
+import { WaveBackgroundLayout } from '@/components/ui/new/wave/WaveBackground';
+import { ProfessionalIcon } from '@/components/ui/new/ProfessionalIcon';
+import PageTitleWithBackButton from '@/components/shared/PageTitleWithBackButton';
 
 // Componente para exibir mensagens de alerta simples (consistente com WoundCreate)
 function AlertMessage({ type, message }: { type: 'error' | 'success', message: string }) {
-    const bgColor = type === 'error' ? 'bg-red-100 border-red-400 text-red-700' : 'bg-green-100 border-green-400 text-green-700';
+    const styles = type === 'error' 
+        ? 'bg-red-50 border-red-300 text-red-700' 
+        : 'bg-green-50 border-green-300 text-green-700';
     
     return (
-        <div className={`border ${bgColor} px-4 py-3 rounded relative mb-4`} role="alert">
+        <div className={`border ${styles} px-4 py-3 rounded-lg shadow-sm relative mb-4 text-sm font-medium`} role="alert">
             <span className="block sm:inline">{message}</span>
         </div>
     );
@@ -265,103 +270,142 @@ export default function WoundAddUpdateImage() {
     };
 
     return (
-        <div className="flex flex-col w-full h-full items-center">
-            <div className="text-black text-2xl font-semibold leading-loose">Foto</div>
-
-            <div className="flex-1 max-h-screen w-full mx-auto p-8 space-y-6 overflow-y-auto">
-                {/* Exibir mensagens de alerta quando necessário */}
-                {alertMessage && (
-                    <AlertMessage type={alertMessage.type} message={alertMessage.message} />
-                )}
-                
-                <div className=" text-sm font-semibold space-y-2">
-                    <p className="font-bold text-base">Orientações para a foto:</p>
-                    <ol className="space-y-2 list-decimal pl-5">
-                        <li>Após a limpeza da ferida, secar as bordas da ferida;</li>
-                        <li>Utilizar um fundo branco e retirar quaisquer objetos que podem aparecer na foto;</li>
-                        <li>Usar uma régua descartável (com as iniciais do participante e a semana do tratamento);</li>
-                        <li>A distância da foto será 20 cm, sendo medida com a própria régua descartável;</li>
-                        <li>Não utilizar flash;</li>
-                        <li>Conferir a nitidez da foto tirada.</li>
-                    </ol>
-                </div>
-
-                <div className="border-2 border-gray-200 rounded-lg w-full mt-8 h-[190px] overflow-hidden">
-                    <label className="block text-center cursor-pointer w-full h-full">
-                        <input
-                            type="file"
-                            accept="image/*"
-                            capture="environment"
-                            onChange={handlePhotoUpload}
-                            className="hidden"
-                        />
-                        {photoUrl ? (
-                            <img
-                                src={photoUrl}
-                                alt="Uploaded photo"
-                                className="w-auto h-auto object-cover" // Scale up the image
-                            />
-                        ) : (
-                            <div className="flex items-center justify-center w-full h-full">
-                                <ImagePlus className="w-16 h-16"/>
-                            </div>
-                        )}
-                    </label>
-                </div>
-
-                <div className="flex flex-col items-center justify-center space-y-6 !mt-8">
-                    <div className="flex justify-center gap-4">
-                        <Button 
-                            type="button" 
-                            onClick={handleRetake}
-                            disabled={!photoUrl || isSubmitting}
-                        >
-                            Tirar novamente
-                        </Button>
-
-                        <Button 
-                            type="submit" 
-                            disabled={!photoUrl || isSubmitting} 
-                            onClick={onSubmit}
-                            className={isSubmitting ? "opacity-70 cursor-not-allowed" : ""}
-                        >
-                            {isSubmitting ? "Enviando..." : "Enviar"}
-                        </Button>
+        <>
+            {/* Removido estilo global que não é suportado neste contexto */}
+            <WaveBackgroundLayout className="absolute inset-0 overflow-auto">
+                <div className="flex flex-col w-full min-h-full items-center px-6">
+                    {/* Header with Professional Icon */}
+                    <div className="flex justify-center items-center mt-6 mb-6">
+                        <ProfessionalIcon size={0.6} borderRadius="50%" />
                     </div>
+                    <PageTitleWithBackButton 
+                        title="Envio de imagem"
+                        onBackClick={() => navigate(-1)}
+                        className="mb-6 [&>h1]:text-lg [&>h1]:font-medium"
+                    />
 
-                    {showSkipConfirmation ? (
-                        <div className="flex justify-center gap-4">
-                            <Button 
-                                type="button"
-                                variant="outline"
-                                onClick={() => setShowSkipConfirmation(false)}
-                                disabled={isSubmitting}
-                            >
-                                Cancelar
-                            </Button>
-                            <Button 
-                                type="button"
-                                onClick={confirmSkip}
-                                disabled={isSubmitting}
-                            >
-                                Confirmar pular
-                            </Button>
+                    <div className="flex flex-col w-full h-full items-center">
+                        <div className="flex-1 max-h-screen w-full mx-auto space-y-6">
+                            {/* Exibir mensagens de alerta quando necessário */}
+                            {alertMessage && (
+                                <AlertMessage type={alertMessage.type} message={alertMessage.message} />
+                            )} 
+                            <div className="bg-white rounded-lg shadow-sm p-4 border border-[#A6BBFF]/30">
+                                <h2 className="text-[#0120AC] text-base font-medium mb-2">Orientações para a foto:</h2>
+                                <ol className="space-y-1.5 list-decimal pl-5">
+                                    <li className="text-[#0120AC] text-xs leading-tight">
+                                        Higienize o local e seque bem as bordas da ferida antes de tirar a foto.
+                                    </li>
+                                    <li className="text-[#0120AC] text-xs leading-tight">
+                                        Utilize um fundo branco e remova objetos ou elementos que possam aparecer na imagem.
+                                    </li>
+                                    <li className="text-[#0120AC] text-xs leading-tight">
+                                        Posicione uma régua descartável próxima à ferida, contendo as iniciais do paciente e a semana do tratamento anotadas.
+                                    </li>
+                                    <li className="text-[#0120AC] text-xs leading-tight">
+                                        Mantenha uma distância de 20 cm entre a câmera e a ferida — utilize a régua para medir.
+                                    </li>
+                                    <li className="text-[#0120AC] text-xs leading-tight">
+                                        Desative o flash da câmera para evitar distorções de cor.
+                                    </li>
+                                    <li className="text-[#0120AC] text-xs leading-tight">
+                                        Após tirar a foto, verifique a nitidez e o foco.
+                                    </li>
+                                </ol>
+                            </div>
+
+                            <div className="flex justify-center items-center w-full mt-8">
+                                <div className="bg-white border border-[#A6BBFF]/50 rounded-lg w-56 h-56 overflow-hidden shadow-sm flex flex-col items-center justify-center">
+                                    <label className="block text-center cursor-pointer w-full h-full flex flex-col items-center justify-center">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            capture="environment"
+                                            onChange={handlePhotoUpload}
+                                            className="hidden"
+                                        />
+                                        {photoUrl ? (
+                                            <img
+                                                src={photoUrl}
+                                                alt="Uploaded photo"
+                                                className="w-full h-full object-contain" 
+                                            />
+                                        ) : (
+                                            <div className="flex flex-col items-center justify-center w-full h-full p-4">
+                                                <div className="w-28 h-28 bg-[#A6BBFF]/20 rounded-full flex items-center justify-center mb-4">
+                                                    <ImagePlus className="w-12 h-12 text-[#0120AC]"/>
+                                                </div>
+                                                <span className="text-[#0120AC] text-sm font-medium">Enviar imagem</span>
+                                            </div>
+                                        )}
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col items-center justify-center space-y-6 !mt-8">
+                                <div className="flex justify-center gap-4">
+                                    {photoUrl && (
+                                        <Button 
+                                            type="button" 
+                                            onClick={handleRetake}
+                                            disabled={isSubmitting}
+                                            variant="outline"
+                                            className="border-[#0120AC] text-[#0120AC] hover:bg-[#0120AC]/5 py-1 px-4 rounded-full text-sm font-medium"
+                                        >
+                                            Tirar novamente
+                                        </Button>
+                                    )}
+
+                                    <Button 
+                                        type="submit" 
+                                        disabled={!photoUrl || isSubmitting} 
+                                        onClick={onSubmit}
+                                        className={`bg-[#0120AC] hover:bg-[#0120AC]/90 text-white py-1 px-6 rounded-full text-sm font-medium flex items-center gap-2 ${isSubmitting ? "opacity-70 cursor-not-allowed" : ""}`}
+                                    >
+                                        {isSubmitting ? "Enviando..." : "Enviar"}
+                                        {!isSubmitting && <ArrowLeft className="h-3.5 w-3.5 rotate-180" />}
+                                    </Button>
+                                </div>
+
+                                {showSkipConfirmation ? (
+                                    <div className="flex justify-center gap-4">
+                                        <Button 
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() => setShowSkipConfirmation(false)}
+                                            disabled={isSubmitting}
+                                            className="border-[#0120AC] text-[#0120AC] hover:bg-[#0120AC]/5 py-1 px-4 rounded-full text-sm font-medium"
+                                        >
+                                            Cancelar
+                                        </Button>
+                                        <Button 
+                                            type="button"
+                                            onClick={confirmSkip}
+                                            disabled={isSubmitting}
+                                            className="bg-[#0120AC] hover:bg-[#0120AC]/90 text-white py-1 px-4 rounded-full text-sm font-medium"
+                                        >
+                                            Confirmar pular
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    <Button 
+                                        type="button" 
+                                        onClick={handleSkip}
+                                        variant="outline"
+                                        disabled={isSubmitting}
+                                        className="border-[#0120AC] text-[#0120AC] hover:bg-[#0120AC]/5 py-1 px-4 rounded-full text-sm font-medium mt-2"
+                                    >
+                                        Pular
+                                    </Button>
+                                )}
+                            </div>
+
+                            {/* Componente LoadingScreen */}
+                            <LoadingScreen ref={loadingRef} className="bg-[#0120AC]/10" />
                         </div>
-                    ) : (
-                        <Button 
-                            type="button" 
-                            onClick={handleSkip}
-                            variant="outline"
-                            disabled={isSubmitting}
-                        >
-                            Pular
-                        </Button>
-                    )}
-                </div>
-
-                {/* Componente LoadingScreen */}
-                <LoadingScreen ref={loadingRef} />
+                    </div>
             </div>
-        </div>
+            </WaveBackgroundLayout>
+        </>
     );
 };
