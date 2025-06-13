@@ -29,7 +29,6 @@ import SpecialistSignUpDetails from './routes/defaultApp/specialist/SpecialistSi
 // Patient routes
 import PatientSignUp from './routes/defaultApp/patient/PatientSignUp.tsx';
 import PatientRegistered from './routes/defaultApp/patient/PatientRegistered.tsx';
-import PatientSignUpQrCode from './routes/defaultApp/patient/PatientSignUpQRCode.tsx';
 import PatientSignUpToken from './routes/defaultApp/patient/PatientSignupToken.tsx';
 import PatientMenu from './routes/patientApp/Menu.tsx';
 import PatientWounds from './routes/patientApp/patient/PatientWounds.tsx';
@@ -59,10 +58,6 @@ const router = createBrowserRouter([
   {
     path: '/patient-signup',
     element: <AppLayout><PatientSignUp /></AppLayout>,
-  },
-  {
-    path: '/patient-signup-qrcode',
-    element: <AppLayout><PatientSignUpQrCode /></AppLayout>,
   },
   {
     path: '/patient-signup-token',
