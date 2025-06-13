@@ -168,8 +168,8 @@ export default function SpecialistSignUpDetails() {
                                 email: formData.email || "",
                                 birthday: formData.dateOfBirth ? new Date(formData.dateOfBirth).toISOString().split('T')[0] : null,
                                 speciality: detailsData.specialty || null,
-                                city_character: formData.city || null,
-                                state_character: formData.state || null,
+                                city: formData.city || null,
+                                state: formData.state || null,
                                 specialist_character: detailsData.specialistCode || null
                               };
                               

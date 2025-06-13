@@ -21,6 +21,7 @@ import { WaveBackgroundLayout } from "@/components/ui/new/wave/WaveBackground.ts
 import { ProfessionalIcon } from "@/components/ui/new/ProfessionalIcon";
 import PageTitleWithBackButton from "@/components/shared/PageTitleWithBackButton";
 import jsPDF from 'jspdf';
+import { getRegionDescription, getSubregionDescription, getWoundType } from "@/data/common/LocalDataMapper.tsx";
 
 
 const customGetRequest = async (url: string) => {
@@ -165,6 +166,75 @@ const WoundCard = ({wound, index, onDelete}: {
     const navigate = useNavigate();
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [imageUrl, setImageUrl] = useState<string | null>(null);
+    const [imageLoading, setImageLoading] = useState(false);
+    const [imageError, setImageError] = useState(false);
+    
+    // Função para buscar a imagem da ferida
+    useEffect(() => {
+        const fetchWoundImage = async () => {
+            // Se a ferida não tiver image_id, não tente buscar
+            if (!wound.image_id) {
+                return;
+            }
+            
+            setImageLoading(true);
+            setImageError(false);
+            
+            try {
+                const accessToken = localStorage.getItem('access_token');
+                if (!accessToken) {
+                    throw new Error('Token de acesso não encontrado');
+                }
+                
+                // 1. Primeiro buscar os metadados da imagem
+                const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/images/${wound.image_id}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    },
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Erro ao buscar metadados da imagem: ${response.status}`);
+                }
+                
+                // 2. Extrair a URL da imagem do JSON retornado
+                const imageData = await response.json();
+                console.log('Metadados da imagem:', imageData);
+                
+                if (!imageData.image_url) {
+                    throw new Error('URL da imagem não encontrada na resposta');
+                }
+                
+                // 3. Carregar a imagem real da URL fornecida
+                const imageResponse = await fetch(imageData.image_url);
+                if (!imageResponse.ok) {
+                    throw new Error(`Erro ao carregar imagem da URL: ${imageResponse.status}`);
+                }
+                
+                // 4. Criar um blob e URL para mostrar a imagem
+                const imageBlob = await imageResponse.blob();
+                const url = URL.createObjectURL(imageBlob);
+                setImageUrl(url);
+                
+            } catch (error) {
+                console.error('Erro ao carregar imagem da ferida:', error);
+                setImageError(true);
+            } finally {
+                setImageLoading(false);
+            }
+        };
+        
+        fetchWoundImage();
+        
+        // Limpar URL criado quando o componente for desmontado
+        return () => {
+            if (imageUrl) {
+                URL.revokeObjectURL(imageUrl);
+            }
+        };
+    }, [wound.image_id]);
 
     const handleCardClick = () => {
         navigate('/specialist/wound/detail', {state: {wound_id: wound.wound_id}});
@@ -197,39 +267,73 @@ const WoundCard = ({wound, index, onDelete}: {
                 onClick={handleCardClick} 
                 className="mb-6 w-full rounded-2xl overflow-hidden border border-blue-100 bg-white cursor-pointer"
             >
-                {/* Header section with wound name and type */}
+                {/* Header section com nome e tipo da ferida */}
                 <div className="p-4 bg-white">
-                    <h3 className="text-base text-blue-800 mb-1">{`Ferida ${index + 1}`}</h3>
-                    <p className="text-sm text-blue-800">
-                        {/* Updated to match API response structure */}
-                        Tipo de ferida: {wound.type}, local: {wound.region}
-                    </p>
-                </div>
-                
-                {/* Image placeholder section with gray background */}
-                <div className="bg-gray-200 h-48 flex items-center justify-center">
-                    <div className="flex flex-col items-center">
-                        {/* Triangle on top */}
-                        <div className="w-10 h-10 mb-2"> 
-                            <div className="w-0 h-0 mx-auto
-                                border-l-[18px] border-l-transparent
-                                border-b-[30px] border-b-gray-400
-                                border-r-[18px] border-r-transparent">
+                    <h3 className="text-sm text-blue-800 mb-1.5 font-semibold">{`Ferida ${index + 1}`}</h3>
+                    <div className="space-y-0.5">
+                        <div className="flex items-start">
+                            <span className="text-xs text-blue-800 font-medium mr-1">Tipo:</span>
+                            <span className="text-xs text-blue-600">{getWoundType(wound.type)}</span>
+                        </div>
+                        <div className="flex items-start">
+                            <span className="text-xs text-blue-800 font-medium mr-1">Local:</span>
+                            <span className="text-xs text-blue-600">{getRegionDescription(wound.region)}</span>
+                        </div>
+                        {wound.subregion && (
+                            <div className="flex items-start">
+                                <span className="text-xs text-blue-800 font-medium mr-1">Subregião:</span>
+                                <span className="text-xs text-blue-600">{getSubregionDescription(wound.region, wound.subregion)}</span>
                             </div>
-                        </div>
-                        
-                        {/* Square and circle side */}
-                        <div className="flex items-center justify-center space-x-8">
-                            <div className="w-9 h-9 bg-gray-400"></div>
-                            <div className="w-9 h-9 bg-gray-400 rounded-full"></div>
-                        </div>
+                        )}
                     </div>
                 </div>
                 
+                {/* Seção de imagem - modificada para mostrar a imagem real quando disponível */}
+                <div className="bg-gray-200 h-48 flex items-center justify-center overflow-hidden">
+                    {imageLoading ? (
+                        // Indicador de carregamento
+                        <div className="flex flex-col items-center">
+                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-500"></div>
+                            <p className="text-xs text-gray-500 mt-2">Carregando imagem...</p>
+                        </div>
+                    ) : imageUrl && !imageError ? (
+                        // Imagem carregada com sucesso
+                        <img
+                            src={imageUrl}
+                            alt={`Imagem da ferida ${index + 1}`}
+                            className="w-full h-full object-cover"
+                            onError={() => setImageError(true)}
+                        />
+                    ) : (
+                        // Placeholder para quando não há imagem ou ocorreu erro
+                        <div className="flex flex-col items-center">
+                            {/* Triangle on top */}
+                            <div className="w-10 h-10 mb-2"> 
+                                <div className="w-0 h-0 mx-auto
+                                    border-l-[18px] border-l-transparent
+                                    border-b-[30px] border-b-gray-400
+                                    border-r-[18px] border-r-transparent">
+                                </div>
+                            </div>
+                            
+                            {/* Square and circle side */}
+                            <div className="flex items-center justify-center space-x-8">
+                                <div className="w-9 h-9 bg-gray-400"></div>
+                                <div className="w-9 h-9 bg-gray-400 rounded-full"></div>
+                            </div>
+                            
+                            {/* Mensagem de erro, se aplicável */}
+                            {imageError && wound.image_id && (
+                                <p className="text-xs text-red-500 mt-2">Erro ao carregar imagem</p>
+                            )}
+                        </div>
+                    )}
+                </div>
+                
                 {/* Care instructions section */}
-                <div className="p-4">
-                    <h4 className="text-sm text-blue-800 mb-1">Instruções para o cuidado</h4>
-                    <p className="text-xs text-blue-800">
+                <div className="p-4 pt-2 border-t border-blue-50">
+                    <h4 className="text-xs text-blue-800 font-medium mb-1.5">Instruções para o cuidado</h4>
+                    <p className="text-xs text-blue-600">
                         {/* {wound.notes || "Sem instruções específicas registradas."} */}
                         {"Sem instruções específicas registradas."}
                     </p>
@@ -518,14 +622,14 @@ export default function PatientsWounds() {
                     yPosition += 10;
                     
                     pdf.setFontSize(12);
-                    pdf.text(`Tipo: ${wound.type}`, 25, yPosition);
+                    pdf.text(`Tipo: ${getWoundType(wound.type)}`, 25, yPosition);
                     yPosition += 8;
                     
-                    pdf.text(`Local: ${wound.region}`, 25, yPosition);
+                    pdf.text(`Local: ${getRegionDescription(wound.region)}`, 25, yPosition);
                     yPosition += 8;
                     
                     if (wound.subregion) {
-                        pdf.text(`Subregião: ${wound.subregion}`, 25, yPosition);
+                        pdf.text(`Subregião: ${getSubregionDescription(wound.region, wound.subregion)}`, 25, yPosition);
                         yPosition += 15;
                     }
                 });
