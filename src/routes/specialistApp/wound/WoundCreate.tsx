@@ -17,6 +17,7 @@ import { ArrowLeft } from "lucide-react";
 import woundRegion from '@/localdata/wound-location.json'
 import woundTypes from '@/localdata/wound-type.json'
 import { ProfessionalIcon } from '@/components/ui/new/ProfessionalIcon';
+import { useUser } from '@/lib/hooks/use-user';
 
 // Tipos e interfaces
 type TwoCharString = `${string}${string}`;
@@ -78,6 +79,8 @@ type WoundFormValues = z.infer<typeof woundFormSchema>;
 export default function WoundCreate() {
     const navigate = useNavigate();
     const location = useLocation();
+    const user = useUser();
+
     const loadingRef = useRef<LoadingScreenHandle>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     
@@ -184,9 +187,9 @@ export default function WoundCreate() {
 
             const payload = {
                 patient_id: patient_id,
-                region: data.region,
-                subregion: data.subregion || null,
-                type: data.type,
+                region: (data.region + " " + data.subregion).trim(),
+                specialist_id: user.id,
+                wound_type: data.type,
                 start_date: formattedStartDate, // Data formatada corretamente
                 end_date: null,
                 image_id: null,
