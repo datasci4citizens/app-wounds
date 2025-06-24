@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
 import { WaveBackgroundLayout } from '@/components/ui/new/wave/WaveBackground.tsx';
-import { ProfessionalIcon } from '@/components/ui/new/ProfessionalIcon.tsx';
 import { MenuMobile } from '@/components/ui/new/menu/MenuMobile.tsx';
 import { useNavigate } from 'react-router-dom';
+import { PatientIcon } from '@/components/ui/new/PatientIcon';
 
 export default function Notifications() {
   const navigate = useNavigate();
   
   // Navigation handlers for the mobile menu
-  const handleHomeClick = () => navigate('/specialist/menu');
-  const handleNewCaseClick = () => navigate('/specialist/case/new');
-  const handleNotificationsClick = () => navigate('/specialist/notifications');
+  const handleHomeClick = () => navigate('/patient/menu');
+  const handleNewCaseClick = () => navigate('/patient/wounds');
+  const handleNotificationsClick = () => navigate('/patient/notifications');
 
   // State for notifications (to be implemented)
   // const [notifications, setNotifications] = useState([]);
@@ -39,7 +39,7 @@ export default function Notifications() {
   return (
     <WaveBackgroundLayout className="bg-[#F9FAFB]">
       <div className="flex justify-center items-center mt-6 mb-6">
-        <ProfessionalIcon size={0.6} borderRadius="50%" />
+        <PatientIcon size={0.6} borderRadius="50%" />
       </div>
       <div className="text-center">
         <h1 className="text-[#0120AC] text-xl font-bold">
@@ -67,12 +67,12 @@ export default function Notifications() {
       {/* Include the mobile menu with notifications path active */}
       <MenuMobile 
         onHomeClick={handleHomeClick}
-        onNewCaseClick={handleNewCaseClick}
         onNotificationsClick={handleNotificationsClick}
-        plusButtonLabel="Novo Paciente"
-        plusButtonPath="/specialist/patient/create"
-        homePath="/specialist/menu"
-        notificationsPath="/specialist/notifications"
+        onNewCaseClick={handleNewCaseClick}
+        plusButtonLabel="Nova atualização"
+        plusButtonPath= "/patient/wounds"
+        homePath="/patient/menu"
+        notificationsPath="/patient/notifications"
       />
     </WaveBackgroundLayout>
   );

@@ -24,11 +24,11 @@ import SpecialistWoundAddUpdateImage from './routes/specialistApp/wound/AddUpdat
 import SpecialistWoundAddUpdateConduct from './routes/specialistApp/wound/AddUpdate/WoundAddUpdateConduct.tsx';
 import { WoundUpdateProvider as SpecialistWoundUpdateProvider } from './routes/specialistApp/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx';
 import SpecialistNotifications from './routes/specialistApp/notifications/Notifications.tsx';
+import SpecialistSignUpDetails from './routes/defaultApp/specialist/SpecialistSignUpDetails.tsx';
 
 // Patient routes
 import PatientSignUp from './routes/defaultApp/patient/PatientSignUp.tsx';
 import PatientRegistered from './routes/defaultApp/patient/PatientRegistered.tsx';
-import PatientSignUpQrCode from './routes/defaultApp/patient/PatientSignUpQRCode.tsx';
 import PatientSignUpToken from './routes/defaultApp/patient/PatientSignupToken.tsx';
 import PatientMenu from './routes/patientApp/Menu.tsx';
 import PatientWounds from './routes/patientApp/patient/PatientWounds.tsx';
@@ -39,7 +39,10 @@ import PatientWoundAddUpdate from './routes/patientApp/wound/AddUpdate/WoundAddU
 import PatientWoundAddUpdateImage from './routes/patientApp/wound/AddUpdate/WoundAddUpdateImage.tsx';
 import PatientWoundAddUpdateConduct from './routes/patientApp/wound/AddUpdate/WoundAddUpdateConduct.tsx';
 import { WoundUpdateProvider as PatientWoundUpdateProvider } from './routes/patientApp/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx';
-import SpecialistSignUpDetails from './routes/defaultApp/specialist/SpecialistSignUpDetails.tsx';
+import PatientNotifications from './routes/patientApp/notifications/Notifications.tsx';
+import PatientFastCare from './routes/patientApp/fast-care/FastCare.tsx';
+import PatientImmediateAttention from './routes/patientApp/fast-care/ImmediateAttention.tsx';
+import PatientFastCareConfirmation from './routes/patientApp/fast-care/Confirmation.tsx';
 
 import axios from 'axios';
 
@@ -58,10 +61,6 @@ const router = createBrowserRouter([
   {
     path: '/patient-signup',
     element: <AppLayout><PatientSignUp /></AppLayout>,
-  },
-  {
-    path: '/patient-signup-qrcode',
-    element: <AppLayout><PatientSignUpQrCode /></AppLayout>,
   },
   {
     path: '/patient-signup-token',
@@ -160,6 +159,10 @@ const router = createBrowserRouter([
         element: <AppLayout><PatientMenu /></AppLayout>,
       },
       {
+        path: 'notifications',
+        element: <AppLayout><PatientNotifications /></AppLayout>,
+      },
+      {
         path: 'wounds',
         element: <AppLayout><PatientWounds /></AppLayout>,
       },
@@ -198,6 +201,18 @@ const router = createBrowserRouter([
             <PatientWoundAddUpdateConduct />
           </PatientWoundUpdateProvider>
         </AppLayout>,
+      },
+      {
+        path: 'fast-care',
+        element: <AppLayout><PatientFastCare /></AppLayout>,
+      },
+      {
+        path: 'fast-care/immediate-attention',
+        element: <AppLayout><PatientImmediateAttention /></AppLayout>,
+      },
+      {
+        path: 'fast-care/confirmation',
+        element: <AppLayout><PatientFastCareConfirmation /></AppLayout>,
       },
     ],
   },

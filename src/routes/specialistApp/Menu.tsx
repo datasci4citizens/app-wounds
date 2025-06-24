@@ -121,6 +121,10 @@ export default function Menu() {
         onHomeClick={handleHomeClick}
         onNewCaseClick={handleNewCaseClick}
         onNotificationsClick={handleNotificationsClick}
+        plusButtonLabel="Novo Paciente"
+        plusButtonPath="/specialist/patient/create"
+        homePath="/specialist/menu"
+        notificationsPath="/specialist/notifications"
       />
     </WaveBackgroundLayout>
   )
