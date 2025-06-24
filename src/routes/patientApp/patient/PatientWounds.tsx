@@ -116,7 +116,7 @@ const WoundCard = ({wound, index}: {
     
     const handleEdit = (e: React.MouseEvent) => {
         e.stopPropagation();
-        navigate('/patient/wound/add-update', {state: {wound_id: wound.wound_id}});
+        navigate('/patient/wound/add-update/image', {state: {wound_id: wound.wound_id, patient_id: wound.patient_id}});
     };
 
     return (

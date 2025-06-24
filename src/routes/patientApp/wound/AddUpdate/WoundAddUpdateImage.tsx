@@ -219,12 +219,14 @@ export default function WoundAddUpdateImage() {
                     // Use o wound_id do contexto se o da URL não estiver disponível
                     const finalWoundId = wound_id || woundUpdate?.wound_id;
                     
-                    console.log("Navegando para Conduta com wound_id:", finalWoundId);
+                    console.log("Navegando para WoundAddUpdate com wound_id:", finalWoundId);
                     
-                    // Para o paciente, voltar para a lista de feridas após enviar a foto
-                    navigate('/patient/wounds', { 
+                    // Navegar para a tela de atualização de ferida com o ID da imagem
+                    navigate('/patient/wound/add-update', { 
                         state: { 
-                            patient_id
+                            patient_id, 
+                            wound_id: finalWoundId,
+                            image_id: imageId // Passar o ID da imagem para a página de atualização
                         } 
                     });
                 }, 1000);
@@ -262,8 +264,17 @@ export default function WoundAddUpdateImage() {
         
         setTimeout(() => {
             loadingRef.current?.hide();
-            navigate('/patient/wounds', {
-                state: { patient_id }
+            
+            // Use o wound_id do contexto se o da URL não estiver disponível
+            const finalWoundId = wound_id || woundUpdate?.wound_id;
+            
+            // Navegar para a tela de atualização de ferida sem imagem
+            navigate('/patient/wound/add-update', {
+                state: { 
+                    patient_id,
+                    wound_id: finalWoundId
+                    // Não incluir image_id já que estamos pulando o upload da imagem
+                }
             });
         }, 500);
     };

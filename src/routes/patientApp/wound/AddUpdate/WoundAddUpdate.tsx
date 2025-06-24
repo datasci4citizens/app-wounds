@@ -13,7 +13,6 @@ import exudateAmounts from '@/localdata/exudate-amount.json'
 import exudateTypes from '@/localdata/exudate-type.json'
 import { Switch } from "@/components/ui/switch.tsx";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useWoundUpdate } from "@/routes/patientApp/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx";
 import { WaveBackgroundLayout } from "@/components/ui/new/wave/WaveBackground";
 import { PatientIcon } from "@/components/ui/new/PatientIcon";
 import PageTitleWithBackButton from "@/components/shared/PageTitleWithBackButton";
@@ -37,7 +36,7 @@ export default function WoundAddUpdate() {
     const location = useLocation();
     const woundId = location.state?.wound_id as number;
     const patient_id = location.state?.patient_id as number;
-    const {setWoundUpdate} = useWoundUpdate();
+    const image_id = location.state?.image_id as number;
 
     const form = useForm<WoundFormValues>({
         resolver: zodResolver(FormSchema),
@@ -52,49 +51,99 @@ export default function WoundAddUpdate() {
         },
     });
 
-
-
-
     const onSubmit = async (data: WoundFormValues) => {
         try {
             console.log("woundId recebido:", woundId);
-            console.log("Payload após atualização:", {
-                ...form.getValues(),
-                wound_id: woundId
-            });
-
-            await setWoundUpdate((prev) => ({
-                ...prev,
-                width: parseInt(data.woundWidth),
-                length: parseInt(data.woundLength),
+            console.log("image_id recebido:", image_id);
+            
+            const accessToken = localStorage.getItem('access_token');
+            if (!accessToken) {
+                console.error('Access token is missing');
+                alert("Sua sessão expirou. Por favor, faça login novamente.");
+                navigate('/login');
+                return;
+            }
+            
+            // Verificar se wound_id está definido
+            if (!woundId) {
+                console.error('Wound ID is missing');
+                alert("ID da ferida não encontrado. Por favor, tente novamente.");
+                return;
+            }
+            
+            // Preparar o payload para a API
+            const payload = {
+                // Dados do formulário
+                wound_length: parseInt(data.woundLength) || 0,
+                wound_width: parseInt(data.woundWidth) || 0,
+                exudate_amount: data.dressingChanges || "0",
+                exudate_type: data.pusColor || "0",
+                tissue_type: "tc", 
+                wound_edges: "in",
+                skin_around_the_wound: "in", 
+                had_a_fever: data.hadFever || false,
                 pain_level: data.painLevel.toString(),
-                dressing_changes_per_day: data.dressingChanges,
-                exudate_type: data.pusColor,
-                had_fever: data.hadFever,
-                extra_notes: data.additionalNotes ?? "",
+                dressing_changes_per_day: data.dressingChanges || "",
+                guidelines_to_patient: "",
+                extra_notes: data.additionalNotes || "",
                 track_date: new Date().toISOString().split('T')[0],
                 wound_id: woundId,
-            }));
-
-            // Extrair o patient_id do location.state
-            const patient_id = location.state?.patient_id;
-            console.log("WoundAddUpdate - Navegando para Image com patient_id:", patient_id);
-
-            // Verificar se patient_id está definido antes de navegar
-            if (!patient_id) {
-                console.error("patient_id não está definido ao navegar de WoundAddUpdate para WoundAddUpdateImage");
-            }
-
-            // Passar tanto patient_id quanto wound_id para a próxima tela
-            return navigate('/patient/wound/add-update/image', { 
-                state: { 
-                    patient_id, 
-                    wound_id: woundId 
-                } 
+                patient_id: patient_id || 0,
+                specialist_id: 0,
+                image_id: image_id || 0 
+            };
+            
+            console.log("Payload final para a API:", payload);
+            
+            // Fazer a chamada à API diretamente
+            const apiUrl = `${import.meta.env.VITE_SERVER_URL}/tracking-records/`;
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
             });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Failed to submit tracking record:', errorData);
+                throw new Error('Failed to submit tracking record');
+            }
+            
+            const result = await response.json();
+            console.log("Resposta da API:", result);
+            
+            // Se temos um image_id no tracking record, atualizar a ferida principal
+            if (result.image_id) {
+                try {
+                    // Chamar a API para atualizar o image_id na ferida principal
+                    const updateWoundResponse = await fetch(`${import.meta.env.VITE_SERVER_URL}/wounds/${woundId}/`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            image_id: result.image_id
+                        }),
+                    });
+                    
+                    if (!updateWoundResponse.ok) {
+                        console.warn('Não foi possível atualizar o image_id na ferida:', await updateWoundResponse.text());
+                    }
+                } catch (error) {
+                    console.error('Erro ao atualizar image_id na ferida:', error);
+                }
+            }
+            
+            // Navegar de volta para a lista de feridas
+            navigate('/patient/wounds', { state: { patient_id } });
+            
         } catch (error) {
             console.error('Error submitting form:', error);
-            throw error;
+            alert("Erro ao enviar os dados. Por favor, tente novamente.");
         }
     };
 
@@ -107,9 +156,9 @@ export default function WoundAddUpdate() {
                     <PatientIcon size={0.6} borderRadius="50%" />
                 </div>
                 <PageTitleWithBackButton 
-                    title="Atualização de ferida"
+                    title="Finalizar atualização de ferida"
                     backPath="/patient/wounds"
-                    onBackClick={() => navigate('/patient/wounds', { state: { patient_id } })}
+                    onBackClick={() => navigate(-1)}
                     className="mb-6 [&>h1]:text-lg [&>h1]:font-medium"
                 />
                 <Form {...form}>
@@ -121,7 +170,7 @@ export default function WoundAddUpdate() {
                                 type="submit"
                                 className="py-1 px-6 text-xs bg-[#0120AC] text-white font-normal rounded-full flex items-center gap-1 w-[216px]"
                             >
-                                Adicionar foto
+                                Enviar
                                 <ArrowLeft className="h-3.5 w-3.5 rotate-180" />
                             </Button>
                         </div>
