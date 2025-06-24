@@ -12,6 +12,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import exudateAmounts from '@/localdata/exudate-amount.json'
 import exudateTypes from '@/localdata/exudate-type.json'
+import woundEdges from '@/localdata/wound-edges.json'
+import skinAround from '@/localdata/skin-around.json'
 import tissueTypes from '@/localdata/tissue-type.json'
 import { useState } from "react";
 import { Switch } from "@/components/ui/switch.tsx";
@@ -429,7 +431,7 @@ function WoundsOptionalFields({form}: { form: UseFormReturn<z.infer<typeof FormS
                                 </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                                {Object.entries(exudateTypes).map(([key, value]) => (
+                                {Object.entries(skinAround).map(([key, value]) => (
                                     <SelectItem key={key} value={key}>
                                         {value}
                                     </SelectItem>
@@ -451,15 +453,34 @@ function WoundsOptionalFields({form}: { form: UseFormReturn<z.infer<typeof FormS
                             <FormControl>
                                 <SelectTrigger className="bg-white border-[#0120AC] rounded-lg text-[#0120AC]">
                                     <SelectValue 
-                                        placeholder="Selecione o estado da pele"
+                                        placeholder="Selecione o estado das bordas"
                                         style={{color: field.value ? 'inherit' : '#A6BBFF'}}
                                     />
                                 </SelectTrigger>
                             </FormControl>
-                            <SelectContent>
-                                {Object.entries(tissueTypes).map(([key, value]) => (
-                                    <SelectItem key={key} value={key}>
-                                        {value.type}
+                            <SelectContent 
+                                className="max-h-[50vh] overflow-y-auto w-[95vw] max-w-[400px]" 
+                                position="popper"
+                                sideOffset={5}
+                                align="start"
+                            >
+                                {Object.entries(woundEdges).map(([key, value]) => (
+                                    <SelectItem 
+                                        key={key} 
+                                        value={key}
+                                        className="py-3"
+                                    >
+                                        <div 
+                                            style={{
+                                                whiteSpace: "break-spaces",
+                                                overflowWrap: "break-word",
+                                                wordBreak: "break-word",
+                                                hyphens: "auto",
+                                                lineHeight: "1.5" 
+                                            }}
+                                        >
+                                            {value}
+                                        </div>
                                     </SelectItem>
                                 ))}
                             </SelectContent>
