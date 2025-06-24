@@ -106,7 +106,8 @@ const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundReco
         navigate('/specialist/wound/record-detail', {
             state: {
                 wound_id: woundId,
-                tracking_record_id: woundRecord.tracking_record_id
+                tracking_record_id: woundRecord.tracking_record_id,
+                woundRecord: woundRecord
             }
         });
     };
