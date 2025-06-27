@@ -10,7 +10,6 @@ export default function Notifications() {
   // Navigation handlers for the mobile menu
   const handleHomeClick = () => navigate('/patient/menu');
   const handleNewCaseClick = () => navigate('/patient/wounds');
-  const handleNotificationsClick = () => navigate('/patient/notifications');
 
   // State for notifications (to be implemented)
   // const [notifications, setNotifications] = useState([]);
@@ -66,13 +65,11 @@ export default function Notifications() {
       
       {/* Include the mobile menu with notifications path active */}
       <MenuMobile 
-        onHomeClick={handleHomeClick}
-        onNotificationsClick={handleNotificationsClick}
+        onHomeClick={handleHomeClick} 
         onNewCaseClick={handleNewCaseClick}
         plusButtonLabel="Nova atualização"
         plusButtonPath= "/patient/wounds"
         homePath="/patient/menu"
-        notificationsPath="/patient/notifications"
       />
     </WaveBackgroundLayout>
   );

@@ -68,7 +68,6 @@ export default function Menu() {
   // Navigation handlers for the mobile menu
   const handleHomeClick = () => navigate('/patient/menu');
   const handleNewCaseClick = () => navigate('/patient/wounds');
-  const handleNotificationsClick = () => navigate('/patient/notifications');
 
   return (
     <WaveBackgroundLayout className="bg-[#F9FAFB]">
@@ -97,12 +96,10 @@ export default function Menu() {
       {/* Use the reusable mobile menu with custom click handlers */}
       <MenuMobile 
         onHomeClick={handleHomeClick}
-        onNotificationsClick={handleNotificationsClick}
         onNewCaseClick={handleNewCaseClick}
         plusButtonLabel="Nova atualização"
         plusButtonPath= "/patient/wounds"
         homePath="/patient/menu"
-        notificationsPath="/patient/notifications"
       />
     </WaveBackgroundLayout>
   )
