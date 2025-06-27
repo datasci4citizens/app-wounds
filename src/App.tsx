@@ -32,12 +32,10 @@ import PatientRegistered from './routes/defaultApp/patient/PatientRegistered.tsx
 import PatientSignUpToken from './routes/defaultApp/patient/PatientSignupToken.tsx';
 import PatientMenu from './routes/patientApp/Menu.tsx';
 import PatientWounds from './routes/patientApp/patient/PatientWounds.tsx';
-import PatientWoundCreate from './routes/patientApp/wound/WoundCreate.tsx';
 import PatientWoundDetail from './routes/patientApp/wound/WoundDetail.tsx';
 import PatientWoundRecordDetail from './routes/patientApp/wound/WoundRecordDetail.tsx';
 import PatientWoundAddUpdate from './routes/patientApp/wound/AddUpdate/WoundAddUpdate.tsx';
 import PatientWoundAddUpdateImage from './routes/patientApp/wound/AddUpdate/WoundAddUpdateImage.tsx';
-import PatientWoundAddUpdateConduct from './routes/patientApp/wound/AddUpdate/WoundAddUpdateConduct.tsx';
 import { WoundUpdateProvider as PatientWoundUpdateProvider } from './routes/patientApp/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx';
 import PatientNotifications from './routes/patientApp/notifications/Notifications.tsx';
 import PatientFastCare from './routes/patientApp/fast-care/FastCare.tsx';
@@ -167,10 +165,6 @@ const router = createBrowserRouter([
         element: <AppLayout><PatientWounds /></AppLayout>,
       },
       {
-        path: 'wound/create',
-        element: <AppLayout><PatientWoundCreate /></AppLayout>,
-      },
-      {
         path: 'wound/detail',
         element: <AppLayout><PatientWoundDetail /></AppLayout>,
       },
@@ -191,14 +185,6 @@ const router = createBrowserRouter([
         element: <AppLayout>
           <PatientWoundUpdateProvider>
             <PatientWoundAddUpdateImage />
-          </PatientWoundUpdateProvider>
-        </AppLayout>,
-      },
-      {
-        path: 'wound/add-update/conduct',
-        element: <AppLayout>
-          <PatientWoundUpdateProvider>
-            <PatientWoundAddUpdateConduct />
           </PatientWoundUpdateProvider>
         </AppLayout>,
       },
