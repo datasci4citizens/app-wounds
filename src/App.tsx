@@ -185,15 +185,7 @@ const router = createBrowserRouter([
             <PatientWoundAddUpdateImage />
           </PatientWoundUpdateProvider>
         </AppLayout>,
-      },
-      {
-        path: 'wound/add-update/conduct',
-        element: <AppLayout>
-          <PatientWoundUpdateProvider>
-            <PatientWoundAddUpdateConduct />
-          </PatientWoundUpdateProvider>
-        </AppLayout>,
-      },
+      }
     ],
   },
 ]);
