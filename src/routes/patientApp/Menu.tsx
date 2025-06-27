@@ -92,13 +92,6 @@ export default function Menu() {
           description="Acesse suas feridas"
           onClick={() => handleNavigate('/wounds')}
         />
-        
-        <CategoryCard 
-          title="Estou Preocupado"
-          description="Solicitar avaliação rápida"
-          onClick={() => handleNavigate('/fast-care')}
-          theme="pink"
-        />
       </div>
       
       {/* Use the reusable mobile menu with custom click handlers */}

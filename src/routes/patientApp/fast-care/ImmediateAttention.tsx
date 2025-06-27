@@ -7,6 +7,11 @@ import { useNavigate } from "react-router-dom";
 import { Checkbox } from "@/components/ui/new/general/Checkbox";
 import { Textarea } from "@/components/ui/textarea";
 
+// This was left unused since it needs refinement. Open points:
+// - What it should be called
+// - Communication model (messaging, push notification, whatsapp, email etc)
+// - Reponse time SLAs
+
 export default function ImmediateAttention() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
