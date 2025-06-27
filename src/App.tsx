@@ -40,9 +40,7 @@ import PatientWoundAddUpdateImage from './routes/patientApp/wound/AddUpdate/Woun
 import PatientWoundAddUpdateConduct from './routes/patientApp/wound/AddUpdate/WoundAddUpdateConduct.tsx';
 import { WoundUpdateProvider as PatientWoundUpdateProvider } from './routes/patientApp/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx';
 import PatientNotifications from './routes/patientApp/notifications/Notifications.tsx';
-import PatientFastCare from './routes/patientApp/fast-care/FastCare.tsx';
-import PatientImmediateAttention from './routes/patientApp/fast-care/ImmediateAttention.tsx';
-import PatientFastCareConfirmation from './routes/patientApp/fast-care/Confirmation.tsx';
+
 
 import axios from 'axios';
 
@@ -201,18 +199,6 @@ const router = createBrowserRouter([
             <PatientWoundAddUpdateConduct />
           </PatientWoundUpdateProvider>
         </AppLayout>,
-      },
-      {
-        path: 'fast-care',
-        element: <AppLayout><PatientFastCare /></AppLayout>,
-      },
-      {
-        path: 'fast-care/immediate-attention',
-        element: <AppLayout><PatientImmediateAttention /></AppLayout>,
-      },
-      {
-        path: 'fast-care/confirmation',
-        element: <AppLayout><PatientFastCareConfirmation /></AppLayout>,
       },
     ],
   },

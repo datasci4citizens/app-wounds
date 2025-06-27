@@ -6,6 +6,10 @@ import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
+// This was left unused since it needs refinement. Open points:
+// - What it should be called
+// - Communication model (messaging, push notification, whatsapp, email etc)
+// - Reponse time SLAs
 
 
 export default function FastCare() {

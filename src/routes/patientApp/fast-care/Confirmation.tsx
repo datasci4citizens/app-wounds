@@ -6,7 +6,10 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import CheckIcon from "@/components/ui/new/CheckIcon";
 
-
+// This was left unused since it needs refinement. Open points:
+// - What it should be called
+// - Communication model (messaging, push notification, whatsapp, email etc)
+// - Reponse time SLAs
 
 export default function FastCareConfirmation() {
   const navigate = useNavigate();
