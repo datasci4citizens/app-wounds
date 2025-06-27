@@ -203,12 +203,12 @@ const WoundCard = ({wound, index, onDelete}: {
                 const imageData = await response.json();
                 console.log('Metadados da imagem:', imageData);
                 
-                if (!imageData.image_url) {
+                if (!imageData.image) {
                     throw new Error('URL da imagem não encontrada na resposta');
                 }
                 
                 // 3. Carregar a imagem real da URL fornecida
-                const imageResponse = await fetch(imageData.image_url);
+                const imageResponse = await fetch(imageData.image);
                 if (!imageResponse.ok) {
                     throw new Error(`Erro ao carregar imagem da URL: ${imageResponse.status}`);
                 }

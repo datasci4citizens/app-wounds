@@ -66,6 +66,10 @@ export default function WoundAddUpdateConduct() {
                 wound_id: Number(wound_id), // Garantir que seja um número
                 extra_notes: data.extraNotes || "",
                 guidelines_to_patient: data.guidelines || "",
+                wound_edges: woundUpdate.wound_edges || null,
+                skin_around: woundUpdate.skin_around || null,
+                dressing_changes_per_day: woundUpdate.dressing_changes_per_day || null
+
             };
 
             // Verificação adicional para garantir que wound_id esteja presente

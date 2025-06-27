@@ -58,12 +58,12 @@ export default function WoundRecordDetail() {
                 
                 const imageData = await response.json();
                 
-                if (!imageData.image_url) {
+                if (!imageData.image) {
                     throw new Error('URL da imagem não encontrada na resposta');
                 }
                 
                 // Carregar a imagem
-                const imageResponse = await fetch(imageData.image_url);
+                const imageResponse = await fetch(imageData.image);
                 if (!imageResponse.ok) {
                     throw new Error(`Erro ao carregar imagem: ${imageResponse.status}`);
                 }

@@ -75,7 +75,7 @@ export interface WoundRecord {
     exudate_type: string;
     tissue_type: string;
     wound_edges: string;
-    skin_around_the_wound: string;
+    skin_around: string;
     had_a_fever: boolean;
     pain_level: string;
     dressing_changes_per_day: string;
