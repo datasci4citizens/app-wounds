@@ -1,6 +1,4 @@
-import tissueTypeData from '@/localdata/tissue-type.json';
 import exudateTypeData from '@/localdata/exudate-type.json';
-import exudateAmountData from '@/localdata/exudate-amount.json';
 import { Button } from "@/components/ui/button.tsx"
 import { ChevronsDownUp, ChevronsUpDown, PenLine } from "lucide-react"
 import { useEffect, useState, type Key } from "react";
@@ -123,32 +121,12 @@ const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundReco
         return exudateDescription || type;
     };
 
-    // Função para obter descrição da quantidade de exsudato atualizada para usar o JSON
-    const getExudateAmountDescription = (amount: string) => {
-        if (!amount) return '';
-        
-        // Acessa diretamente a quantidade de exsudato do JSON importado
-        const amountDescription = (exudateAmountData as Record<string, string>)[amount];
-        
-        // Retorna a descrição ou o código original se não encontrar
-        return amountDescription || amount;
-    };
-
     // Função para obter descrição do nível de dor
     const getPainLevelDescription = (level: string) => {
         return `${level}/10`;
     };
     
-    // Função para obter o tipo de tecido direto do JSON
-    const getTissueTypeDescription = (code: string) => {
-        if (!code) return '';
-        
-        // Acessa diretamente o tipo de tecido do JSON importado
-        const tissueInfo = (tissueTypeData as Record<string, {type: string, description: string}>)[code];
-        
-        // Retorna o tipo de tecido ou o código original se não encontrar
-        return tissueInfo?.type || code;
-    };
+
 
     return (
         <div className="mb-4">

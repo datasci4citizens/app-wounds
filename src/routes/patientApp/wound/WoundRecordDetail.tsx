@@ -5,9 +5,7 @@ import useSWRMutation from "swr/mutation";
 import { WaveBackgroundLayout } from "@/components/ui/new/wave/WaveBackground";
 import { PatientIcon } from "@/components/ui/new/PatientIcon";
 import PageTitleWithBackButton from "@/components/shared/PageTitleWithBackButton";
-import tissueTypeData from '@/localdata/tissue-type.json';
 import exudateTypeData from '@/localdata/exudate-type.json';
-import exudateAmountData from '@/localdata/exudate-amount.json';
 
 export default function WoundRecordDetail() {
     const navigate = useNavigate();
@@ -155,20 +153,12 @@ export default function WoundRecordDetail() {
 
     // Funções para mapear campos corretamente
     
-    const getTissueTypeDescription = (code: string) => {
-        if (!code) return '';
-        return (tissueTypeData as Record<string, {type: string}>)[code]?.type || code;
-    };
-    
+
     const getExudateTypeDescription = (type: string) => {
         if (!type) return '';
         return (exudateTypeData as Record<string, string>)[type] || type;
     };
     
-    const getExudateAmountDescription = (amount: string) => {
-        if (!amount) return '';
-        return (exudateAmountData as Record<string, string>)[amount] || amount;
-    };
 
     // Renderizar os detalhes do registro
     return (
