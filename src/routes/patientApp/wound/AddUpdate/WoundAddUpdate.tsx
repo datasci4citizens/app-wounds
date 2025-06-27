@@ -76,7 +76,7 @@ export default function WoundAddUpdate() {
                 exudate_type: data.exudateType ?? "",
                 tissue_type: data.tissueType ?? "",
                 wound_edges: data.woundEdges ?? "",
-                skin_around_the_wound: data.skinAround ?? "",
+                skin_around: data.skinAround ?? "",
                 had_a_fever: data.hadFever ?? false,
                 pain_level: data.painLevel.toString(),
                 dressing_changes_per_day: data.dressingChanges ?? "",

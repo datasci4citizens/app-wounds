@@ -115,6 +115,10 @@ export default function PatientCreateRedesign() {
         const payload = {
           specialist_id: Number(specialistId),
           ...data,
+          smoke_frequency: data.smoke_frequency || null,
+          drink_frequency: data.drink_frequency || null,
+          weight: data.weight || null, 
+          height: data.height || null
         };
 
         console.log("Dados do paciente enviados:", payload); 

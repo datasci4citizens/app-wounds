@@ -90,7 +90,7 @@ export default function WoundAddUpdate() {
                 exudate_type: data.exudateType ?? "",
                 tissue_type: data.tissueType ?? "",
                 wound_edges: data.woundEdges ?? "",
-                skin_around: data.skinAround ?? "", // Corrigido de skin_around_the_wound
+                skin_around: data.skinAround ?? "", // Corrigido de skin_around
                 had_fever: data.hadFever ?? false, // Corrigido de had_a_fever
                 pain_level: data.painLevel.toString(),
                 dressing_changes_per_day: data.dressingChanges ?? "", // Corrigido de dressing_changer_per_day

@@ -24,14 +24,14 @@ const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundReco
     
 
     const formattedDate = (() => {
-        const updatedAtStr = woundRecord.updated_at;
+        const trackDate = woundRecord.track_date;
     
-        const year = updatedAtStr.substring(0, 4);
-        const month = updatedAtStr.substring(5, 7);
-        const day = updatedAtStr.substring(8, 10);
-        const hour = updatedAtStr.substring(11, 13);
-        const minute = updatedAtStr.substring(14, 16);
-        const second = updatedAtStr.substring(17, 19);
+        const year = trackDate.substring(0, 4);
+        const month = trackDate.substring(5, 7);
+        const day = trackDate.substring(8, 10);
+        const hour = trackDate.substring(11, 13);
+        const minute = trackDate.substring(14, 16);
+        const second = trackDate.substring(17, 19);
         
         return `${day}/${month}/${year} - ${hour}:${minute}:${second}`;
     })();
@@ -68,12 +68,12 @@ const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundReco
                 // 2. Extrair a URL da imagem do JSON retornado
                 const imageData = await response.json();
                 
-                if (!imageData.image_url) {
+                if (!imageData.image) {
                     throw new Error('URL da imagem não encontrada na resposta');
                 }
                 
                 // 3. Carregar a imagem real da URL fornecida
-                const imageResponse = await fetch(imageData.image_url);
+                const imageResponse = await fetch(imageData.image);
                 if (!imageResponse.ok) {
                     throw new Error(`Erro ao carregar imagem da URL: ${imageResponse.status}`);
                 }
@@ -381,19 +381,19 @@ export default function WoundDetail() {
                                     <div className="space-y-5 mt-2">
                                         <div>
                                             <h3 className="text-base font-semibold text-blue-800 mb-0">Local da ferida</h3>
-                                            <p className="text-sm text-blue-800">{getRegionDescription(wound.region)}</p>
+                                                <p className="text-sm text-blue-800">{getRegionDescription(wound.region.split(" ")[0])}</p>
                                         </div>
                                         
-                                        {wound.subregion && (
+                                        {wound.region.split(" ")[1] && (
                                             <div>
                                                 <h3 className="text-base font-semibold text-blue-800 mb-0">Subregião</h3>
-                                                <p className="text-sm text-blue-800">{getSubregionDescription(wound.region, wound.subregion)}</p>
+                                                <p className="text-sm text-blue-800">{getSubregionDescription(wound.region.split(" ")[0], wound.region.split(" ")[1])}</p>
                                             </div>
                                         )}
                                         
                                         <div>
                                             <h3 className="text-base font-semibold text-blue-800 mb-0">Tipo de ferida</h3>
-                                            <p className="text-sm text-blue-800">{getWoundType(wound.type)}</p>
+                                            <p className="text-sm text-blue-800">{getWoundType(wound.wound_type)}</p>
                                         </div>
                                         
                                         <div>

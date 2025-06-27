@@ -116,7 +116,7 @@ export default function WoundRecordDetail() {
 
                         <div>
                             <p className="font-semibold">Pele ao redor da ferida</p>
-                            <p>{getSkinAround(woundRecord.skin_around_the_wound)}</p>
+                            <p>{getSkinAround(woundRecord.skin_around)}</p>
                         </div>
 
                         <div>

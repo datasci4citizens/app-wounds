@@ -1,13 +1,15 @@
 import React, { createContext, useContext, useState } from "react";
 
 interface WoundUpdatePayload {
+    specialist_id?: number;
+    patient_id?: number;
     wound_length: number;
     wound_width: number;
     exudate_amount: string;
     exudate_type: string;
     tissue_type: string;
     wound_edges: string;
-    skin_around_the_wound: string;
+    skin_around: string;
     had_a_fever: boolean;
     pain_level: string;
     dressing_changes_per_day: string;
@@ -34,7 +36,7 @@ export const WoundUpdateProvider: React.FC<{ children: React.ReactNode }> = ({ c
         exudate_type: "",
         tissue_type: "",
         wound_edges: "",
-        skin_around_the_wound: "",
+        skin_around: "",
         had_a_fever: false,
         pain_level: "",
         dressing_changes_per_day: "",

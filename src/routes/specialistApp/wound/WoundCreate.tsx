@@ -147,7 +147,7 @@ export default function WoundCreate() {
             const accessToken = localStorage.getItem('access_token');
             
             // Obter dados do especialista do localStorage
-            const specialistDataString = localStorage.getItem('specialist_data');
+            const specialistDataString = localStorage.getItem('specialist_info');
             let specialistId = null;
             
             if (specialistDataString) {
@@ -196,7 +196,7 @@ export default function WoundCreate() {
             const payload = {
                 patient_id: patient_id,
                 region: (data.region + " " + data.subregion).trim(),
-                type: data.type, // Corrigido para 'type' em vez de 'wound_type'
+                wound_type: data.type, // Corrigido para 'type' em vez de 'wound_type'
                 start_date: formattedStartDate,
                 end_date: null,
                 image_id: null,
