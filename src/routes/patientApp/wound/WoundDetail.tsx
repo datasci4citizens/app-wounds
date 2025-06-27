@@ -6,6 +6,7 @@ import { ChevronsDownUp, ChevronsUpDown, PenLine } from "lucide-react"
 import { useEffect, useState, type Key } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { WoundRecord } from "@/data/common/Mapper.ts";
+import useSWRMutation from "swr/mutation";
 import { format, parseISO } from "date-fns";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible.tsx";
 import { getRegionDescription, getSubregionDescription, getWoundType } from "@/data/common/LocalDataMapper.tsx";
@@ -232,22 +233,29 @@ const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundReco
                             </div>
                             
                             <div>
-                                <p className="text-xs font-medium">Tipo de tecido</p>
+                                <p className="text-xs font-medium">Cor do pus</p>
                                 <p className="text-xs">
-                                    {getTissueTypeDescription(woundRecord.tissue_type)}
+                                    {getExudateTypeDescription(woundRecord.exudate_type)}
                                 </p>
                             </div>
                             
                             <div>
-                                <p className="text-xs font-medium">Exsudato</p>
+                                <p className="text-xs font-medium">Trocas de curativo por dia</p>
                                 <p className="text-xs">
-                                    {getExudateTypeDescription(woundRecord.exudate_type)} - {getExudateAmountDescription(woundRecord.exudate_amount)}
+                                    {woundRecord.dressing_changes_per_day}
+                                </p>
+                            </div>
+                            
+                            <div>
+                                <p className="text-xs font-medium">Febre nas últimas 24h</p>
+                                <p className="text-xs">
+                                    {woundRecord.had_a_fever ? "Sim" : "Não"}
                                 </p>
                             </div>
                             
                             {woundRecord.extra_notes && (
                                 <div>
-                                    <p className="text-xs font-medium">Observações</p>
+                                    <p className="text-xs font-medium">Relato ao especialista</p>
                                     <p className="text-xs">
                                         {woundRecord.extra_notes}
                                     </p>
@@ -273,87 +281,99 @@ const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundReco
 export default function WoundDetail() {
     const navigate = useNavigate();
     const location = useLocation();
-    const woundId = location.state?.wound_id as number || 1; // Default to 1 if not provided
+    const woundId = location.state?.wound_id as number;
     
-    // Mock data for wound details
-    const mockWoundDetails = {
-        wound_id: woundId,
-        patient_id: 1,
-        region: "lower_limb",
-        subregion: "foot",
-        type: "diabetic_ulcer",
-        start_date: "2024-05-15",
-        end_date: "",
-        image_id: 1
-    };
+    const apiUrlTrackingRecords = `${import.meta.env.VITE_SERVER_URL}/tracking-records/?wound_id=${woundId}`;
+    const apiUrlWoundDetails = `${import.meta.env.VITE_SERVER_URL}/wounds/${woundId}/`;
     
-    // Mock data for tracking records
-    const mockTrackingRecords = [
-        {
-            tracking_record_id: 1,
-            wound_id: woundId,
-            specialist_id: 1,
-            width: "5", // Changed to string to match WoundRecord type
-            length: "3", // Changed to string to match WoundRecord type
-            wound_width: "5",
-            wound_length: "3",
-            exudate_amount: "2",
-            exudate_type: "1",
-            tissue_type: "tc",
-            wound_edges: "in",
-            skin_around_the_wound: "in",
-            had_a_fever: false,
-            pain_level: "3",
-            dressing_changes_per_day: "2",
-            guidelines_to_patient: "Manter o local limpo e seco",
-            extra_notes: "Paciente relatou melhora na dor",
-            image_id: 1,
-            track_date: "2024-05-20",
-            created_at: "2024-05-20T14:30:00Z",
-            updated_at: "2024-05-20T14:30:00Z"
-        },
-        {
-            tracking_record_id: 2,
-            wound_id: woundId,
-            specialist_id: 1,
-            width: "4", // Changed to string to match WoundRecord type
-            length: "2", // Changed to string to match WoundRecord type
-            wound_width: "4",
-            wound_length: "2",
-            exudate_amount: "1",
-            exudate_type: "2",
-            tissue_type: "tc",
-            wound_edges: "in",
-            skin_around_the_wound: "in",
-            had_a_fever: false,
-            pain_level: "2",
-            dressing_changes_per_day: "2",
-            guidelines_to_patient: "Continuar com os cuidados recomendados",
-            extra_notes: "Ferida apresenta sinais de cicatrização",
-            image_id: 2,
-            track_date: "2024-05-27",
-            created_at: "2024-05-27T10:15:00Z",
-            updated_at: "2024-05-27T10:15:00Z"
+    const {
+        data: trackingRecords,
+        error: trackingError,
+        trigger: triggerTrackingRecords, 
+        isMutating: isTrackingLoading
+    } = useSWRMutation(
+        apiUrlTrackingRecords, 
+        async (url) => {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                throw new Error('Token de acesso não encontrado');
+            }
+            
+            const response = await fetch(url, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!response.ok) throw new Error('Falha ao buscar registros de acompanhamento');
+            return response.json();
         }
-    ] as WoundRecord[];
-    
-    // Simulate loading state
-    const [isLoading, setIsLoading] = useState(true);
-    
+    );
+
+    const {
+        data: woundDetails,
+        error: woundError,
+        trigger: triggerWoundDetails,
+        isMutating: isWoundLoading
+    } = useSWRMutation(
+        apiUrlWoundDetails,
+        async (url) => {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                throw new Error('Token de acesso não encontrado');
+            }
+            
+            const response = await fetch(url, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!response.ok) throw new Error('Falha ao buscar detalhes da ferida');
+            return response.json();
+        }
+    );
+
     useEffect(() => {
-        // Simulate API loading delay
-        const timer = setTimeout(() => {
-            setIsLoading(false);
-        }, 1000);
-        
-        return () => clearTimeout(timer);
-    }, []);
+        if (woundId) {
+            triggerTrackingRecords();
+            triggerWoundDetails();
+        } else {
+            console.error('ID da ferida não fornecido');
+            navigate('/patient/wounds');
+        }
+    }, [woundId, triggerTrackingRecords, triggerWoundDetails, navigate]);
     
-    // Combine mock data
-    const wound = {
-        ...mockWoundDetails,
-        tracking_records: mockTrackingRecords
-    };
+    // Verificar erros
+    if (trackingError || woundError) {
+        return (
+            <WaveBackgroundLayout className="absolute inset-0 overflow-auto bg-blue-50">
+                <div className="flex flex-col w-full h-full items-center p-8">
+                    <div className="flex justify-center items-center mt-6 mb-6">
+                        <PatientIcon size={0.6} borderRadius="50%" />
+                    </div>
+                    <div className="flex flex-col items-center justify-center flex-1">
+                        <p className="text-red-500 font-medium">Erro ao carregar detalhes da ferida. Por favor, tente novamente.</p>
+                        <button
+                            onClick={() => navigate('/patient/wounds')}
+                            className="mt-4 bg-blue-800 text-white px-4 py-2 rounded-md"
+                        >
+                            Voltar para lista de feridas
+                        </button>
+                    </div>
+                </div>
+            </WaveBackgroundLayout>
+        );
+    }
+    
+    // Combinar dados para ter informações completas
+    const wound = woundDetails ? {
+        ...woundDetails,
+        tracking_records: trackingRecords || []
+    } : null;
+    
+    // Verificar se está carregando
+    const isLoading = isTrackingLoading || isWoundLoading || !wound;
 
     return (
         <WaveBackgroundLayout className="absolute inset-0 overflow-auto bg-blue-50">
@@ -366,7 +386,7 @@ export default function WoundDetail() {
                 {/* Título da página com botão voltar */}
                 <PageTitleWithBackButton 
                     title={"Ferida"} 
-                    onBackClick={() => wound && navigate('/patient/wounds', {state: {patient_id: wound.patient_id}})}
+                    onBackClick={() => navigate('/patient/wounds', {state: {patient_id: wound?.patient_id}})}
                     className="w-full mb-4"
                 />
 

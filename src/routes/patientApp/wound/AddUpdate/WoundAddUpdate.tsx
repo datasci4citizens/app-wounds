@@ -74,13 +74,13 @@ export default function WoundAddUpdate() {
             // Preparar o payload para a API
             const payload = {
                 // Dados do formulário
-                wound_length: parseInt(data.woundLength) || 0,
-                wound_width: parseInt(data.woundWidth) || 0,
+                length: parseInt(data.woundLength) || 0,
+                width: parseInt(data.woundWidth) || 0,
                 exudate_amount: data.dressingChanges || "0",
                 exudate_type: data.pusColor || "0",
                 tissue_type: "tc", 
                 wound_edges: "in",
-                skin_around_the_wound: "in", 
+                skin_around: "in", 
                 had_a_fever: data.hadFever || false,
                 pain_level: data.painLevel.toString(),
                 dressing_changes_per_day: data.dressingChanges || "",

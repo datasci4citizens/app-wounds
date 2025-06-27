@@ -11,23 +11,23 @@ import { PatientIcon } from "@/components/ui/new/PatientIcon";
 
 const fetchWoundsData = async (url: string): Promise<Wound[]> => {
   try {
-    // Simular delay de rede
-    await new Promise(resolve => setTimeout(resolve, 500));
+    const accessToken = localStorage.getItem('access_token');
+    if (!accessToken) {
+      throw new Error('Token de acesso não encontrado');
+    }
     
-    // Carregar dados das feridas de um JSON
-    return [
-      {
-        wound_id: 1,
-        patient_id: 1,
-        region: "lower_limb",
-        subregion: "foot",
-        type: "diabetic_ulcer",
-        start_date: "2024-02-05",
-        end_date: "",
-        image_id: 1,
-        tracking_records: []
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
       }
-    ];
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Erro na requisição: ${response.status}`);
+    }
+    
+    return await response.json();
   } catch (error) {
     console.error(`Erro ao buscar dados para ${url}:`, error);
     throw error;
@@ -216,8 +216,8 @@ export default function PatientsWounds() {
     const loadingRef = useRef<LoadingScreenHandle>(null);
     const [error, setError] = useState<string | null>(null);
     
-    // Handle missing patient_id - MOCKADO para desenvolvimento
-    const patient_id = location.state?.patient_id as number || 1; // Usar ID 1 como padrão
+    // Obter patient_id do localStorage ou do state
+    const patient_id = location.state?.patient_id as number || localStorage.getItem('patient_id') ? Number(localStorage.getItem('patient_id')) : undefined;
     
     useEffect(() => {
         // Show loading screen on mount

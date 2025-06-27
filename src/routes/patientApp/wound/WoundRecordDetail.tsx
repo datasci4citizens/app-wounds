@@ -1,38 +1,65 @@
 import { Image } from "lucide-react"
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import useSWRMutation from "swr/mutation";
 import { WaveBackgroundLayout } from "@/components/ui/new/wave/WaveBackground";
-import { ProfessionalIcon } from "@/components/ui/new/ProfessionalIcon";
+import { PatientIcon } from "@/components/ui/new/PatientIcon";
 import PageTitleWithBackButton from "@/components/shared/PageTitleWithBackButton";
 import tissueTypeData from '@/localdata/tissue-type.json';
 import exudateTypeData from '@/localdata/exudate-type.json';
 import exudateAmountData from '@/localdata/exudate-amount.json';
-import skinAroundData from '@/localdata/skin-around.json';
-import woundEdgesData from '@/localdata/wound-edges.json';
 
 export default function WoundRecordDetail() {
     const navigate = useNavigate();
     const location = useLocation();
     const woundId = location.state?.wound_id;
     const trackingRecordId = location.state?.tracking_record_id;
-    const woundRecord = location.state?.woundRecord;
     
     const [imageUrl, setImageUrl] = useState<string | null>(null);
     const [imageLoading, setImageLoading] = useState(false);
     const [imageError, setImageError] = useState(false);
+    
+    // Buscar detalhes do registro de acompanhamento da API
+    const apiUrl = `${import.meta.env.VITE_SERVER_URL}/tracking-records/${trackingRecordId}/`;
+    
+    const {
+        data: woundRecord,
+        error,
+        trigger,
+        isMutating: isLoading
+    } = useSWRMutation(
+        apiUrl,
+        async (url) => {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                throw new Error('Token de acesso não encontrado');
+            }
+            
+            const response = await fetch(url, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!response.ok) throw new Error('Falha ao buscar detalhes do registro');
+            return response.json();
+        }
+    );
 
-    // Verificação de parâmetros
+    // Verificação de parâmetros e carregamento inicial
     useEffect(() => {
-        if (!woundId || !trackingRecordId || !woundRecord) {
-            console.error('Parâmetros necessários não encontrados:', { woundId, trackingRecordId, woundRecord });
-            // navigate('/specialist/dashboard');
+        if (!woundId || !trackingRecordId) {
+            console.error('Parâmetros necessários não encontrados:', { woundId, trackingRecordId });
+            navigate('/patient/wounds');
             return;
         }
-    }, [woundId, trackingRecordId, woundRecord, navigate]);
+        
+        trigger();
+    }, [woundId, trackingRecordId, navigate, trigger]);
 
     // Função para buscar imagem da ferida
     useEffect(() => {
-        if (!woundRecord?.image_id) return;
+        if (!woundRecord || !woundRecord.image_id || isLoading) return;
 
         const fetchImage = async () => {
             setImageLoading(true);
@@ -89,18 +116,18 @@ export default function WoundRecordDetail() {
         };
     }, [woundRecord?.image_id]);
 
-    // Se não houver registro, mostrar mensagem de erro
-    if (!woundRecord) {
+    // Se houver erro ou estiver carregando
+    if (error) {
         return (
             <WaveBackgroundLayout className="absolute inset-0 overflow-auto bg-blue-50">
                 <div className="flex flex-col w-full h-full items-center p-8">
                     <div className="flex justify-center items-center mt-6 mb-6">
-                        <ProfessionalIcon size={0.6} borderRadius="50%" />
+                        <PatientIcon size={0.6} borderRadius="50%" />
                     </div>
                     <div className="flex flex-col items-center justify-center flex-1">
                         <p className="text-red-500 font-medium">Erro ao carregar os detalhes da atualização.</p>
                         <button
-                            onClick={() => navigate('/specialist/wound/detail', {state: {wound_id: woundId}})}
+                            onClick={() => navigate('/patient/wound/detail', {state: {wound_id: woundId}})}
                             className="mt-4 bg-blue-800 text-white px-4 py-2 rounded-md"
                         >
                             Voltar para a ferida
@@ -110,24 +137,23 @@ export default function WoundRecordDetail() {
             </WaveBackgroundLayout>
         );
     }
+    
+    if (isLoading || !woundRecord) {
+        return (
+            <WaveBackgroundLayout className="absolute inset-0 overflow-auto bg-blue-50">
+                <div className="flex flex-col w-full h-full items-center p-8">
+                    <div className="flex justify-center items-center mt-6 mb-6">
+                        <PatientIcon size={0.6} borderRadius="50%" />
+                    </div>
+                    <div className="flex flex-col items-center justify-center flex-1">
+                        <p className="text-gray-500">Carregando detalhes da atualização...</p>
+                    </div>
+                </div>
+            </WaveBackgroundLayout>
+        );
+    }
 
     // Funções para mapear campos corretamente
-    const getSkinAroundDescription = (code: string) => {
-        if (!code) return '';
-        
-        // Use o mapeamento correto do arquivo JSON para skin_around
-        return (skinAroundData as Record<string, string>)[code] || code;
-    };
-    
-    const getWoundEdgesDescription = (code: string) => {
-        if (!code) return '';
-        
-        // Use o mapeamento correto do arquivo JSON para wound_edges
-        // Se não existir o arquivo JSON específico, podemos usar o tissue_type como fallback
-        return (woundEdgesData as Record<string, string>)[code] || 
-               (tissueTypeData as Record<string, {type: string}>)[code]?.type || 
-               code;
-    };
     
     const getTissueTypeDescription = (code: string) => {
         if (!code) return '';
@@ -150,13 +176,13 @@ export default function WoundRecordDetail() {
             <div className="flex flex-col w-full min-h-full items-center px-4">
                 {/* Header com ícone do profissional */}
                 <div className="flex justify-center items-center mt-6 mb-6">
-                    <ProfessionalIcon size={0.6} borderRadius="50%" />
+                    <PatientIcon size={0.6} borderRadius="50%" />
                 </div>
                 
                 {/* Título da página com botão voltar */}
                 <PageTitleWithBackButton 
                     title={"Detalhes da Atualização"} 
-                    onBackClick={() => navigate('/specialist/wound/detail', {state: {wound_id: woundId}})}
+                    onBackClick={() => navigate('/patient/wound/detail', {state: {wound_id: woundId}})}
                     className="w-full mb-4"
                 />
 
@@ -230,16 +256,9 @@ export default function WoundRecordDetail() {
                             </div>
 
                             <div>
-                                <p className="font-medium text-sm">Exsudato</p>
+                                <p className="font-medium text-sm">Cor do pus</p>
                                 <p className="text-xs">
-                                    {getExudateTypeDescription(woundRecord.exudate_type)} - {getExudateAmountDescription(woundRecord.exudate_amount)}
-                                </p>
-                            </div>
-
-                            <div>
-                                <p className="font-medium text-sm">Tipo de tecido</p>
-                                <p className="text-xs">
-                                    {getTissueTypeDescription(woundRecord.tissue_type)}
+                                    {getExudateTypeDescription(woundRecord.exudate_type)}
                                 </p>
                             </div>
                         </div>
@@ -252,49 +271,29 @@ export default function WoundRecordDetail() {
                         <div className="space-y-4 text-blue-800 mb-6">
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <p className="font-medium text-sm">Febre nas 48h anteriores</p>
+                                    <p className="font-medium text-sm">Febre nas últimas 24h</p>
                                     <p className="text-xs">{woundRecord.had_a_fever ? "Sim" : "Não"}</p>
                                 </div>
 
-                                {woundRecord.dressing_changer_per_day !== null && (
+                                {woundRecord.dressing_changes_per_day && (
                                     <div>
-                                        <p className="font-medium text-sm">Trocas de curativo</p>
-                                        <p className="text-xs">{woundRecord.dressing_changer_per_day} por dia</p>
+                                        <p className="font-medium text-sm">Trocas de curativo por dia</p>
+                                        <p className="text-xs">{woundRecord.dressing_changes_per_day}</p>
                                     </div>
                                 )}
                             </div>
-
-                            <div>
-                                <p className="font-medium text-sm">Pele ao redor da ferida</p>
-                                <p className="text-xs">{getSkinAroundDescription(woundRecord.skin_around)}</p>
-                            </div>
-
-                            <div>
-                                <p className="font-medium text-sm">Bordas da ferida</p>
-                                <p className="text-xs">{getWoundEdgesDescription(woundRecord.wound_edges)}</p>
-                            </div>
                         </div>
 
-                        {/* Notas e orientações */}
-                        {(woundRecord.extra_notes || woundRecord.guidelines_to_patient) && (
+                        {/* Observações adicionais */}
+                        {woundRecord.extra_notes && (
                             <>
                                 <hr className="border-t border-gray-200 my-4" />
-                                <h2 className="text-lg font-bold text-blue-800 mb-4">Anotações</h2>
+                                <h2 className="text-lg font-bold text-blue-800 mb-4">Relato ao especialista</h2>
 
                                 <div className="space-y-4 text-blue-800">
-                                    {woundRecord.extra_notes && (
-                                        <div>
-                                            <p className="font-medium text-sm">Observações</p>
-                                            <p className="text-xs">{woundRecord.extra_notes}</p>
-                                        </div>
-                                    )}
-
-                                    {woundRecord.guidelines_to_patient && (
-                                        <div>
-                                            <p className="font-medium text-sm">Orientações ao paciente</p>
-                                            <p className="text-xs">{woundRecord.guidelines_to_patient}</p>
-                                        </div>
-                                    )}
+                                    <div>
+                                        <p className="text-xs">{woundRecord.extra_notes}</p>
+                                    </div>
                                 </div>
                             </>
                         )}
@@ -304,3 +303,4 @@ export default function WoundRecordDetail() {
         </WaveBackgroundLayout>
     );
 }
+
