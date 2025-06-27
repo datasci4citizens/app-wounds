@@ -9,7 +9,7 @@ export default function Notifications() {
   
   // Navigation handlers for the mobile menu
   const handleHomeClick = () => navigate('/specialist/menu');
-  const handleNewCaseClick = () => navigate('/specialist/case/new');
+  const handleNewCaseClick = () => navigate('/specialist/patient/create');
   const handleNotificationsClick = () => navigate('/specialist/notifications');
 
   // State for notifications (to be implemented)
