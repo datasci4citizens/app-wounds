@@ -19,10 +19,6 @@ export default function PatientCreateQrCode() {
   useEffect(() => {
     const fetchData = async () => {
       // Verificar se temos um código ou um patientId
-      const testCode = "12345678"
-      setCode(testCode)
-      return
-
       const stateData = location.state
       
       if (!stateData) {

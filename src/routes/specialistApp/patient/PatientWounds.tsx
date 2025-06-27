@@ -1,4 +1,4 @@
-import { Plus, FileDown, AlertTriangle } from "lucide-react"
+import { Plus, FileDown, AlertTriangle, QrCode } from "lucide-react"
 import { Button } from "@/components/ui/button.tsx"
 import { Card } from "@/components/ui/card.tsx"
 import {
@@ -747,6 +747,20 @@ export default function PatientsWounds() {
                                     label="Hábitos" 
                                     value={patientHabits}
                                 />
+                            </div>
+                            
+                            {/* QR Code button centered below patient info */}
+                            <div className="flex justify-center w-full mb-6">
+                                <button
+                                    onClick={() => {
+                                        navigate('/specialist/patient/create/qrcode', { state: { patientId: patient_id } });
+                                    }}
+                                    className="py-2 px-8 text-sm text-blue-800 font-medium rounded-full border border-blue-800 hover:bg-gray-50 flex items-center gap-2"
+                                    disabled={!patient_id}
+                                >
+                                    <QrCode className="h-4 w-4" />
+                                    Gerar QR Code
+                                </button>
                             </div>
                         </div>
                     )}
