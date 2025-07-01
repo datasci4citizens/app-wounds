@@ -121,8 +121,19 @@ export default function PatientCreateRedesign() {
         console.log("Dados do paciente enviados:", payload); 
 
         try {
-          await postRequest(getBaseURL("/patients/"), { arg: payload });
-          navigate("/specialist/patient/create/qrcode");
+          const response = await postRequest(getBaseURL("/patients/"), { arg: payload });
+
+          if (response && response.patient_id) {
+            navigate("/specialist/patient/create/qrcode", { 
+              state: { 
+                patient_id: response.patient_id 
+              } 
+            });
+            console.log("Navegando para QR code com patientId:", response.patient_id);
+          } else {
+            console.error("Resposta não contém patient_id:", response);
+            alert("Erro ao navegar para o QR code. Id do paciente não encontrado.");
+          }
         } catch (error) {
           console.error("Erro ao cadastrar paciente:", error);
         }
