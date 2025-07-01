@@ -86,7 +86,7 @@ export default function PatientsPage() {
             const specialistData = localStorage.getItem("specialist_data");
             if (specialistData) {
                 const parsedData = JSON.parse(specialistData);
-                setSpecialistId(parsedData.id);
+                setSpecialistId(parsedData.specialist_id);
             } else {
                 const userInfo = localStorage.getItem("user_info");
                 if (userInfo) {

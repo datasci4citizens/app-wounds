@@ -147,7 +147,7 @@ export default function WoundCreate() {
             const accessToken = localStorage.getItem('access_token');
             
             // Obter dados do especialista do localStorage
-            const specialistDataString = localStorage.getItem('specialist_info');
+            const specialistDataString = localStorage.getItem('specialist_data');
             let specialistId = null;
             
             if (specialistDataString) {
