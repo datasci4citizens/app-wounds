@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react'
 import { WaveBackgroundLayout } from '@/components/ui/new/wave/WaveBackground.tsx'
 import CategoryCard from '@/components/ui/new/card/CategoryCard.tsx'
 import { MenuMobile } from '@/components/ui/new/menu/MenuMobile.tsx'
-import axios from 'axios';
 import { PatientIcon } from '@/components/ui/new/PatientIcon.tsx'
 
 interface AuthMeResponse {
@@ -19,47 +18,13 @@ export default function Menu() {
 
   useEffect(() => {
     // Try to get user info from localStorage first (faster)
-    try {
-      const userInfoString = localStorage.getItem("user_info");
+      const patientName = localStorage.getItem("patient_name");
       
-      if (userInfoString) {
-        const userInfo: AuthMeResponse = JSON.parse(userInfoString);
-        if (userInfo.first_name) {
-          setPatientName(userInfo.first_name);
+      if (patientName) {
+          setPatientName(patientName);
         }
-      } else {
-        // Fetch user data from API if not available in localStorage
-        const fetchUserData = async () => {
-          try {
-            const token = localStorage.getItem("access_token");
-            
-            if (!token) {
-              console.error("No access token found");
-              return;
-            }
 
-            const response = await axios.get(
-              `${import.meta.env.VITE_SERVER_URL}/patient/`,
-              { headers: { Authorization: `Bearer ${token}` } }
-            );
-            
-            if (response.data) {
-              console.log("User data fetched successfully:", response.data);
-              // Store the complete user info object
-              localStorage.setItem("patient_data", JSON.stringify(response.data[0]));
-              setPatientName(response.data[0].patient_name);
-            }
-          } catch (error) {
-            console.error("Failed to fetch user data:", error);
-          }
-        };
-        
-        fetchUserData();
-      }
-    } catch (error) {
-      console.error("Error parsing user info from localStorage:", error);
-    }
-  }, []);
+      }, []);
 
   const handleNavigate = (path: string) => {
     navigate("/patient" + path)
