@@ -368,7 +368,9 @@ export default function WoundDetail() {
                                             navigate('/specialist/wound/add-update', {
                                                 state: {
                                                     wound_id: woundId,
+                                                    patient_id: wound.patient_id,
                                                     isEditing: true,
+                                                    fromWoundDetail: true,
                                                     woundData: wound,
                                                     accessToken: accessToken
                                                 }
@@ -432,6 +434,8 @@ export default function WoundDetail() {
                                         navigate('/specialist/wound/add-update', {
                                             state: {
                                                 wound_id: woundId,
+                                                patient_id: wound.patient_id,
+                                                fromWoundDetail: true,
                                                 accessToken: accessToken
                                             }
                                         });

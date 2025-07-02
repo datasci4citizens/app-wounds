@@ -242,7 +242,7 @@ const WoundCard = ({wound, index, onDelete}: {
     
     const handleEdit = (e: React.MouseEvent) => {
         e.stopPropagation();
-        navigate('/specialist/wound/edit', {state: {wound_id: wound.wound_id}});
+        navigate('/specialist/wound/detail', {state: {wound_id: wound.wound_id}});
     };
     
     const handleDelete = (e: React.MouseEvent) => {
