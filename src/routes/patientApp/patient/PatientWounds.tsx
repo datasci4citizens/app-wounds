@@ -9,29 +9,28 @@ import PageTitleWithBackButton from "@/components/shared/PageTitleWithBackButton
 import { getRegionDescription, getSubregionDescription, getWoundType } from "@/data/common/LocalDataMapper.tsx";
 import { PatientIcon } from "@/components/ui/new/PatientIcon";
 
-const fetchWoundsData = async (url: string): Promise<Wound[]> => {
-  try {
-    const accessToken = localStorage.getItem('access_token');
-    if (!accessToken) {
-      throw new Error('Token de acesso não encontrado');
+// Usar exatamente a mesma função que o especialista usa
+const customGetRequest = async (url: string) => {
+    const token = localStorage.getItem("access_token");
+    
+    if (!token) {
+        throw new Error("Authentication token not found");
     }
     
     const response = await fetch(url, {
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
-      }
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        mode: 'cors'
     });
     
     if (!response.ok) {
-      throw new Error(`Erro na requisição: ${response.status}`);
+        throw new Error(`HTTP error! Status: ${response.status}`);
     }
     
-    return await response.json();
-  } catch (error) {
-    console.error(`Erro ao buscar dados para ${url}:`, error);
-    throw error;
-  }
+    return response.json();
 };
 
 
@@ -44,11 +43,10 @@ const WoundCard = ({wound, index}: {
     const [imageLoading, setImageLoading] = useState(false);
     const [imageError, setImageError] = useState(false);
     
-    // Função para buscar a imagem da ferida
-    useEffect(() => {
+   useEffect(() => {
         const fetchWoundImage = async () => {
-            // Se a ferida não tiver image_id, não tente buscar
-            if (!wound.image_id) {
+            // Se a ferida não tiver image_url ou image_id, não tente buscar
+            if (!wound.image_url && !wound.image_id) {
                 return;
             }
             
@@ -61,7 +59,22 @@ const WoundCard = ({wound, index}: {
                     throw new Error('Token de acesso não encontrado');
                 }
                 
-                // 1. Primeiro buscar os metadados da imagem
+                // Se a ferida já tem a URL da imagem, use-a diretamente
+                if (wound.image_url) {
+                    console.log('Usando image_url diretamente:', wound.image_url);
+                    const imageResponse = await fetch(wound.image_url);
+                    if (!imageResponse.ok) {
+                        throw new Error(`Erro ao carregar imagem da URL: ${imageResponse.status}`);
+                    }
+                    
+                    // Criar um blob e URL para mostrar a imagem
+                    const imageBlob = await imageResponse.blob();
+                    const url = URL.createObjectURL(imageBlob);
+                    setImageUrl(url);
+                    return;
+                }
+                
+                // Caso contrário, buscar os metadados da imagem
                 const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/images/${wound.image_id}`, {
                     method: 'GET',
                     headers: {
@@ -73,20 +86,21 @@ const WoundCard = ({wound, index}: {
                     throw new Error(`Erro ao buscar metadados da imagem: ${response.status}`);
                 }
                 
-                // 2. Extrair a URL da imagem do JSON retornado
+                // Extrair a URL da imagem do JSON retornado
                 const imageData = await response.json();
+                console.log('Metadados da imagem:', imageData);
                 
-                if (!imageData.image_url) {
+                if (!imageData.image) {
                     throw new Error('URL da imagem não encontrada na resposta');
                 }
                 
-                // 3. Carregar a imagem real da URL fornecida
-                const imageResponse = await fetch(imageData.image_url);
+                // Carregar a imagem real da URL fornecida
+                const imageResponse = await fetch(imageData.image);
                 if (!imageResponse.ok) {
                     throw new Error(`Erro ao carregar imagem da URL: ${imageResponse.status}`);
                 }
                 
-                // 4. Criar um blob e URL para mostrar a imagem
+                // Criar um blob e URL para mostrar a imagem
                 const imageBlob = await imageResponse.blob();
                 const url = URL.createObjectURL(imageBlob);
                 setImageUrl(url);
@@ -107,7 +121,7 @@ const WoundCard = ({wound, index}: {
                 URL.revokeObjectURL(imageUrl);
             }
         };
-    }, [wound.image_id]);
+    }, [wound.image_id, wound.image_url]);
 
     const handleCardClick = () => {
         navigate('/patient/wound/detail', {state: {wound_id: wound.wound_id}});
@@ -130,13 +144,13 @@ const WoundCard = ({wound, index}: {
                     <div className="space-y-0.5">
                         <div className="flex items-start">
                             <span className="text-xs text-blue-800 font-medium mr-1">Tipo:</span>
-                            <span className="text-xs text-blue-600">{getWoundType(wound.type)}</span>
+                            <span className="text-xs text-blue-600">{getWoundType(wound.wound_type)}</span>
                         </div>
                         <div className="flex items-start">
                             <span className="text-xs text-blue-800 font-medium mr-1">Local:</span>
                             <span className="text-xs text-blue-600">{getRegionDescription(wound.region)}</span>
                         </div>
-                        {wound.subregion && (
+                        {(wound.subregion || (wound.region && wound.region.includes(' '))) && (
                             <div className="flex items-start">
                                 <span className="text-xs text-blue-800 font-medium mr-1">Subregião:</span>
                                 <span className="text-xs text-blue-600">{getSubregionDescription(wound.region, wound.subregion)}</span>
@@ -215,13 +229,13 @@ export default function PatientsWounds() {
     const loadingRef = useRef<LoadingScreenHandle>(null);
     const [error, setError] = useState<string | null>(null);
     
-    // Obter patient_id do localStorage ou do state
-    const patient_id = location.state?.patient_id as number || localStorage.getItem('patient_id') ? Number(localStorage.getItem('patient_id')) : undefined;
+    // Usar a mesma abordagem que o especialista para obter o patient_id
+    const patient_id = localStorage.getItem('patient_id') ? Number(localStorage.getItem('patient_id')) : undefined;
     
-    useEffect(() => {
+      useEffect(() => {
         // Show loading screen on mount
         loadingRef.current?.show();
-    }, [patient_id]);
+    }, []);
 
     const {
         data: _wounds, 
@@ -229,7 +243,7 @@ export default function PatientsWounds() {
         error: woundError,
     } = useSWR<Wound[]>(
         patient_id ? `${import.meta.env.VITE_SERVER_URL}/wounds?patient_id=${patient_id}` : null,
-        fetchWoundsData,
+        customGetRequest,
         {
             onSuccess: () => {
                 // Handle loading state in combined useEffect below
@@ -257,6 +271,7 @@ export default function PatientsWounds() {
     }, [woundError]);
 
     const wounds = _wounds || [];
+    console.log('Dados das feridas recebidos:', wounds);
 
     return (
         <>

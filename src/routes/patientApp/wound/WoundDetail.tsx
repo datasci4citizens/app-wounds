@@ -1,4 +1,5 @@
 import exudateTypeData from '@/localdata/exudate-type.json';
+import exudateAmountData from '@/localdata/exudate-amount.json';
 import { Button } from "@/components/ui/button.tsx"
 import { ChevronsDownUp, ChevronsUpDown, PenLine } from "lucide-react"
 import { useEffect, useState, type Key } from "react";
@@ -22,16 +23,36 @@ const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundReco
     
 
     const formattedDate = (() => {
-        const updatedAtStr = woundRecord.updated_at;
-    
-        const year = updatedAtStr.substring(0, 4);
-        const month = updatedAtStr.substring(5, 7);
-        const day = updatedAtStr.substring(8, 10);
-        const hour = updatedAtStr.substring(11, 13);
-        const minute = updatedAtStr.substring(14, 16);
-        const second = updatedAtStr.substring(17, 19);
+        // Usar track_date se updated_at não estiver disponível
+        const dateStr = woundRecord.updated_at || woundRecord.track_date;
         
-        return `${day}/${month}/${year} - ${hour}:${minute}:${second}`;
+        if (!dateStr) return "Data não disponível";
+        
+        try {
+            // Se a string tiver formato de data completo com hora
+            if (dateStr.length > 10) {
+                const year = dateStr.substring(0, 4);
+                const month = dateStr.substring(5, 7);
+                const day = dateStr.substring(8, 10);
+                
+                // Verificar se tem informação de hora
+                if (dateStr.length >= 19) {
+                    const hour = dateStr.substring(11, 13);
+                    const minute = dateStr.substring(14, 16);
+                    const second = dateStr.substring(17, 19);
+                    return `${day}/${month}/${year} - ${hour}:${minute}:${second}`;
+                } else {
+                    return `${day}/${month}/${year}`;
+                }
+            } else {
+                // Formato simples YYYY-MM-DD
+                const [year, month, day] = dateStr.split('-');
+                return `${day}/${month}/${year}`;
+            }
+        } catch (error) {
+            console.error('Erro ao formatar data:', error);
+            return dateStr; // Retorna a string original em caso de erro
+        }
     })();
 
     // Função para buscar a imagem da ferida
@@ -51,7 +72,21 @@ const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundReco
                     throw new Error('Token de acesso não encontrado');
                 }
                 
-                // 1. Primeiro buscar os metadados da imagem
+                // Se já temos a URL da imagem diretamente no registro, usar ela
+                if (woundRecord.image_url) {
+                    console.log('Usando image_url diretamente do registro:', woundRecord.image_url);
+                    const imageResponse = await fetch(woundRecord.image_url);
+                    if (!imageResponse.ok) {
+                        throw new Error(`Erro ao carregar imagem da URL: ${imageResponse.status}`);
+                    }
+                    
+                    const imageBlob = await imageResponse.blob();
+                    const url = URL.createObjectURL(imageBlob);
+                    setImageUrl(url);
+                    return;
+                }
+                
+                // Caso contrário, buscar os metadados da imagem
                 const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/images/${woundRecord.image_id}`, {
                     method: 'GET',
                     headers: {
@@ -63,20 +98,23 @@ const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundReco
                     throw new Error(`Erro ao buscar metadados da imagem: ${response.status}`);
                 }
                 
-                // 2. Extrair a URL da imagem do JSON retornado
+                // Extrair a URL da imagem do JSON retornado
                 const imageData = await response.json();
                 
-                if (!imageData.image_url) {
+                if (!imageData.image_url && !imageData.image) {
                     throw new Error('URL da imagem não encontrada na resposta');
                 }
                 
-                // 3. Carregar a imagem real da URL fornecida
-                const imageResponse = await fetch(imageData.image_url);
+                // Usar a URL da imagem que estiver disponível
+                const imageUrl = imageData.image_url || imageData.image;
+                
+                // Carregar a imagem real da URL fornecida
+                const imageResponse = await fetch(imageUrl);
                 if (!imageResponse.ok) {
                     throw new Error(`Erro ao carregar imagem da URL: ${imageResponse.status}`);
                 }
                 
-                // 4. Criar um blob e URL para mostrar a imagem
+                // Criar um blob e URL para mostrar a imagem
                 const imageBlob = await imageResponse.blob();
                 const url = URL.createObjectURL(imageBlob);
                 setImageUrl(url);
@@ -104,8 +142,9 @@ const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundReco
         navigate('/patient/wound/record-detail', {
             state: {
                 wound_id: woundId,
-                tracking_record_id: woundRecord.tracking_record_id,
-                woundRecord: woundRecord
+                tracking_record_id: woundRecord.tracking_id || woundRecord.tracking_record_id,
+                woundRecord: woundRecord,
+                imageUrl: imageUrl // Passar a URL da imagem já carregada
             }
         });
     };
@@ -119,6 +158,17 @@ const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundReco
         
         // Retorna a descrição ou o código original se não encontrar
         return exudateDescription || type;
+    };
+
+    // Função para obter descrição da quantidade de exsudato atualizada para usar o JSON
+    const getExudateAmountDescription = (amount: string) => {
+        if (!amount) return '';
+        
+        // Acessa diretamente a quantidade de exsudato do JSON importado
+        const amountDescription = (exudateAmountData as Record<string, string>)[amount];
+        
+        // Retorna a descrição ou o código original se não encontrar
+        return amountDescription || amount;
     };
 
     // Função para obter descrição do nível de dor
@@ -220,7 +270,7 @@ const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundReco
                             <div>
                                 <p className="text-xs font-medium">Trocas de curativo por dia</p>
                                 <p className="text-xs">
-                                    {woundRecord.dressing_changes_per_day}
+                                    {getExudateAmountDescription(woundRecord.dressing_changes_per_day)}
                                 </p>
                             </div>
                             
@@ -284,7 +334,9 @@ export default function WoundDetail() {
                 }
             });
             if (!response.ok) throw new Error('Falha ao buscar registros de acompanhamento');
-            return response.json();
+            const data = await response.json();
+            console.log('Tracking records data:', data);
+            return data;
         }
     );
 
@@ -378,20 +430,7 @@ export default function WoundDetail() {
                             {/* Div principal com os detalhes da ferida e atualizações */}
                             <div className="flex flex-col w-full max-w-xl bg-white rounded-2xl p-5 shadow-sm mb-6">
                                 {/* Informações da ferida */}
-                                <div className="relative mb-8">
-                                    <div 
-                                        className="absolute top-0 right-0 bg-white p-2 rounded-full shadow-sm cursor-pointer"
-                                        onClick={() => {
-                                            navigate('/patient/wound/add-update/image', {
-                                                state: {
-                                                    wound_id: woundId,
-                                                    patient_id: wound.patient_id
-                                                }
-                                            });
-                                        }}
-                                    >
-                                        <PenLine className="h-5 w-5 text-blue-800" />
-                                    </div>
+                                <div className="mb-8">
 
                                     <div className="space-y-5 mt-2">
                                         <div>
@@ -408,7 +447,7 @@ export default function WoundDetail() {
                                         
                                         <div>
                                             <h3 className="text-base font-semibold text-blue-800 mb-0">Tipo de ferida</h3>
-                                            <p className="text-sm text-blue-800">{getWoundType(wound.type)}</p>
+                                            <p className="text-sm text-blue-800">{getWoundType(wound.wound_type || wound.type || '')}</p>
                                         </div>
                                         
                                         <div>
