@@ -104,7 +104,6 @@ export function calculateAge(birthday: Date): number {
 }
 
 function formatBirthDate(birthday: string | undefined): string {
-    console.log(birthday)
     if (birthday === undefined) {
         return "";
     }

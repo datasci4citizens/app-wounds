@@ -44,7 +44,6 @@ export default function Menu() {
             );
             
             if (response.data) {
-              console.log("User data fetched successfully:", response.data);
               // Store the complete user info object
               localStorage.setItem("patient_data", JSON.stringify(response.data[0]));
               setPatientName(response.data[0].patient_name);

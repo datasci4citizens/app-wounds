@@ -186,7 +186,6 @@ export function App() {
     <main className="bg-primary">
       <SWRConfig value={{
         fetcher: async (url, args) => {
-          console.log(url, args);
           let Auth = {};
           let token = localStorage.getItem("access_token")
           if (!!token) {

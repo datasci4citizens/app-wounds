@@ -24,13 +24,11 @@ export const LoadingScreen = forwardRef<LoadingScreenHandle, LoadingScreenProps>
     // Expose methods via ref
     useImperativeHandle(ref, () => ({
       show: () => {
-        console.log("Show loading screen");
         setShouldRender(true);
         // Small delay to ensure DOM is ready for the transition
         setTimeout(() => setOpacity(1), 10);
       },
       hide: () => {
-        console.log("Hide loading screen");
         setOpacity(0);
         // Wait for fade out animation to complete before removing from DOM
         setTimeout(() => setShouldRender(false), fadeOutDuration);
