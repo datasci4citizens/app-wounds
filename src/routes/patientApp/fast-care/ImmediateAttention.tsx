@@ -72,9 +72,6 @@ export default function ImmediateAttention() {
         timestamp: new Date().toISOString()
       };
       
-      // Log the data (would be sent to API in production)
-      console.log("Sending data:", formData);
-      
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       

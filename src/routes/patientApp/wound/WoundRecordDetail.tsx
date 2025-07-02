@@ -65,14 +65,12 @@ export default function WoundRecordDetail() {
     useEffect(() => {
         // Se já temos a URL da imagem do state, não precisamos buscar novamente
         if (imageUrlFromState) {
-            console.log('Usando URL da imagem do state:', imageUrlFromState);
             setImageUrl(imageUrlFromState);
             return;
         }
         
         // Usar o registro da API ou do state
         const record = woundRecord || woundRecordFromState;
-        console.log('Tentando carregar imagem com:', { record, imageId: record?.image_id, imageUrl: record?.image_url });
         if (!record || (!record.image_id && !record.image_url) || isLoading) return;
 
         const fetchImage = async () => {
@@ -87,7 +85,6 @@ export default function WoundRecordDetail() {
                 
                 // Se já temos a URL da imagem diretamente no registro, usar ela
                 if (record.image_url) {
-                    console.log('Usando image_url diretamente do registro:', record.image_url);
                     const imageResponse = await fetch(record.image_url);
                     if (!imageResponse.ok) {
                         throw new Error(`Erro ao carregar imagem da URL: ${imageResponse.status}`);
@@ -211,7 +208,6 @@ export default function WoundRecordDetail() {
 
     // Usar o registro da API ou do state
     const record = woundRecord || woundRecordFromState;
-    console.log('Record usado:', record);
     
     // Se não tiver dados, mostrar mensagem de erro
     if (!record) {

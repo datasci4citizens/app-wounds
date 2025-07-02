@@ -74,7 +74,6 @@ const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundReco
                 
                 // Se já temos a URL da imagem diretamente no registro, usar ela
                 if (woundRecord.image_url) {
-                    console.log('Usando image_url diretamente do registro:', woundRecord.image_url);
                     const imageResponse = await fetch(woundRecord.image_url);
                     if (!imageResponse.ok) {
                         throw new Error(`Erro ao carregar imagem da URL: ${imageResponse.status}`);
@@ -335,7 +334,6 @@ export default function WoundDetail() {
             });
             if (!response.ok) throw new Error('Falha ao buscar registros de acompanhamento');
             const data = await response.json();
-            console.log('Tracking records data:', data);
             return data;
         }
     );

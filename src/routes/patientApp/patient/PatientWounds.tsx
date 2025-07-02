@@ -61,7 +61,6 @@ const WoundCard = ({wound, index}: {
                 
                 // Se a ferida já tem a URL da imagem, use-a diretamente
                 if (wound.image_url) {
-                    console.log('Usando image_url diretamente:', wound.image_url);
                     const imageResponse = await fetch(wound.image_url);
                     if (!imageResponse.ok) {
                         throw new Error(`Erro ao carregar imagem da URL: ${imageResponse.status}`);
@@ -88,7 +87,6 @@ const WoundCard = ({wound, index}: {
                 
                 // Extrair a URL da imagem do JSON retornado
                 const imageData = await response.json();
-                console.log('Metadados da imagem:', imageData);
                 
                 if (!imageData.image) {
                     throw new Error('URL da imagem não encontrada na resposta');
@@ -271,7 +269,6 @@ export default function PatientsWounds() {
     }, [woundError]);
 
     const wounds = _wounds || [];
-    console.log('Dados das feridas recebidos:', wounds);
 
     return (
         <>
