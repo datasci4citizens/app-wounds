@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card.tsx"
 import type { Wound } from "@/data/common/Mapper.ts";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useSWR from "swr";
 import { useRef, useEffect, useState} from "react";
 import { LoadingScreen, type LoadingScreenHandle } from '@/components/ui/new/loading/LoadingScreen';
@@ -151,7 +151,7 @@ const WoundCard = ({wound, index}: {
                         {(wound.subregion || (wound.region && wound.region.includes(' '))) && (
                             <div className="flex items-start">
                                 <span className="text-xs text-blue-800 font-medium mr-1">Subregião:</span>
-                                <span className="text-xs text-blue-600">{getSubregionDescription(wound.region, wound.subregion)}</span>
+                                <span className="text-xs text-blue-600">{getSubregionDescription(wound.region || '', wound.subregion || '')}</span>
                             </div>
                         )}
                     </div>
@@ -223,7 +223,8 @@ const WoundCard = ({wound, index}: {
 };
 
 export default function PatientsWounds() {
-    const location = useLocation();
+    // Removendo a variável não utilizada
+    // const location = useLocation();
     const loadingRef = useRef<LoadingScreenHandle>(null);
     const [error, setError] = useState<string | null>(null);
     

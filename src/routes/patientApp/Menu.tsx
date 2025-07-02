@@ -5,13 +5,6 @@ import CategoryCard from '@/components/ui/new/card/CategoryCard.tsx'
 import { MenuMobile } from '@/components/ui/new/menu/MenuMobile.tsx'
 import { PatientIcon } from '@/components/ui/new/PatientIcon.tsx'
 
-interface AuthMeResponse {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-}
-
 export default function Menu() {
   const navigate = useNavigate()
   const [patientName, setPatientName] = useState('')

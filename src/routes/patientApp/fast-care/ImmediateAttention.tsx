@@ -63,14 +63,14 @@ export default function ImmediateAttention() {
     setLoading(true);
     
     try {
-      // Prepare data to send
-      const formData = {
-        woundChanges,
-        hasFever,
-        changeTime,
-        additionalInfo,
-        timestamp: new Date().toISOString()
-      };
+      // Prepare data to send (commented out to avoid unused variable warning)
+      // const formData = {
+      //   woundChanges,
+      //   hasFever,
+      //   changeTime,
+      //   additionalInfo,
+      //   timestamp: new Date().toISOString()
+      // };
       
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));

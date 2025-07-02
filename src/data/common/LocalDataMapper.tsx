@@ -40,9 +40,13 @@ export function getWoundType(key: string): string {
 }
 
 export function getRegionDescription(key: string): string {
+    if (!key) return "";
+    
     // Se a chave contiver espaço, pode ser um formato combinado "região subregião"
-    if (key && key.includes(' ')) {
-        const [regionKey] = key.split(' ');
+    if (key.includes(' ')) {
+        const parts = key.split(' ');
+        const regionKey = parts[0];
+        if (!regionKey) return "";
         return woundRegion[regionKey]?.description || "";
     }
     return woundRegion[key]?.description || "";
@@ -50,21 +54,23 @@ export function getRegionDescription(key: string): string {
 
 export function getSubregionDescription(regionKey: string, subregionKey: string): string {
     // Se a região contiver espaço, pode ser um formato combinado "região subregião"
-    let region = regionKey;
-    let subregion = subregionKey;
+    let region: string = regionKey || '';
+    let subregion: string = subregionKey || '';
     
     // Se a região contiver espaço, extrair apenas a parte da região
-    if (regionKey && regionKey.includes(' ')) {
-        const parts = regionKey.split(' ');
-        region = parts[0];
+    if (region && region.includes(' ')) {
+        const parts = region.split(' ');
+        region = parts[0] || '';
         // Se não foi fornecida uma subregião separada, usar a segunda parte da região
-        if (!subregionKey && parts.length > 1) {
-            subregion = parts[1];
+        if (!subregion && parts.length > 1) {
+            subregion = parts[1] || '';
         }
     }
     
+    if (!region) return "";
     const subregions = woundRegion[region]?.subregions;
-    return subregions?.[subregion] || "";
+    if (!subregions || !subregion) return "";
+    return subregions[subregion] || "";
 }
 
 export function getSkinAround(key: string): string {

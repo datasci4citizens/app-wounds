@@ -1,7 +1,7 @@
 import exudateTypeData from '@/localdata/exudate-type.json';
 import exudateAmountData from '@/localdata/exudate-amount.json';
 import { Button } from "@/components/ui/button.tsx"
-import { ChevronsDownUp, ChevronsUpDown, PenLine } from "lucide-react"
+import { ChevronsDownUp, ChevronsUpDown } from "lucide-react"
 import { useEffect, useState, type Key } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { WoundRecord } from "@/data/common/Mapper.ts";
@@ -149,29 +149,35 @@ const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundReco
     };
 
     // Função para obter descrição do tipo de exsudato atualizada para usar o JSON
-    const getExudateTypeDescription = (type: string) => {
-        if (!type) return '';
+    const getExudateTypeDescription = (type: string | number) => {
+        if (type === undefined || type === null) return '';
+        
+        // Converter para string para garantir que funcione com números
+        const typeKey = String(type);
         
         // Acessa diretamente o tipo de exsudato do JSON importado
-        const exudateDescription = (exudateTypeData as Record<string, string>)[type];
+        const exudateDescription = (exudateTypeData as Record<string, string>)[typeKey];
         
         // Retorna a descrição ou o código original se não encontrar
-        return exudateDescription || type;
+        return exudateDescription || typeKey;
     };
 
     // Função para obter descrição da quantidade de exsudato atualizada para usar o JSON
-    const getExudateAmountDescription = (amount: string) => {
-        if (!amount) return '';
+    const getExudateAmountDescription = (amount: string | number) => {
+        if (amount === undefined || amount === null) return '';
+        
+        // Converter para string para garantir que funcione com números
+        const amountKey = String(amount);
         
         // Acessa diretamente a quantidade de exsudato do JSON importado
-        const amountDescription = (exudateAmountData as Record<string, string>)[amount];
+        const amountDescription = (exudateAmountData as Record<string, string>)[amountKey];
         
         // Retorna a descrição ou o código original se não encontrar
-        return amountDescription || amount;
+        return amountDescription || amountKey;
     };
 
     // Função para obter descrição do nível de dor
-    const getPainLevelDescription = (level: string) => {
+    const getPainLevelDescription = (level: string | number) => {
         return `${level}/10`;
     };
     
@@ -439,7 +445,7 @@ export default function WoundDetail() {
                                         {wound.subregion && (
                                             <div>
                                                 <h3 className="text-base font-semibold text-blue-800 mb-0">Subregião</h3>
-                                                <p className="text-sm text-blue-800">{getSubregionDescription(wound.region, wound.subregion)}</p>
+                                                <p className="text-sm text-blue-800">{getSubregionDescription(wound.region || '', wound.subregion || '')}</p>
                                             </div>
                                         )}
                                         
