@@ -118,8 +118,6 @@ export default function PatientCreateRedesign() {
           height: data.height || null
         };
 
-        console.log("Dados do paciente enviados:", payload); 
-
         try {
           const response = await postRequest(getBaseURL("/patients/"), { arg: payload });
 
@@ -129,7 +127,6 @@ export default function PatientCreateRedesign() {
                 patient_id: response.patient_id 
               } 
             });
-            console.log("Navegando para QR code com patientId:", response.patient_id);
           } else {
             console.error("Resposta não contém patient_id:", response);
             alert("Erro ao navegar para o QR code. Id do paciente não encontrado.");

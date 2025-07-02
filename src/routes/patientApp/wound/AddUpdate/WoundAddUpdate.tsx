@@ -53,8 +53,6 @@ export default function WoundAddUpdate() {
 
     const onSubmit = async (data: WoundFormValues) => {
         try {
-            console.log("woundId recebido:", woundId);
-            console.log("image_id recebido:", image_id);
             
             const accessToken = localStorage.getItem('access_token');
             if (!accessToken) {
@@ -93,7 +91,6 @@ export default function WoundAddUpdate() {
                 image_id: image_id || 0 
             };
             
-            console.log("Payload final para a API:", payload);
             
             // Fazer a chamada à API diretamente
             const apiUrl = `${import.meta.env.VITE_SERVER_URL}/tracking-records/`;
@@ -113,7 +110,6 @@ export default function WoundAddUpdate() {
             }
             
             const result = await response.json();
-            console.log("Resposta da API:", result);
             
             // Se temos um image_id no tracking record, atualizar a ferida principal
             if (result.image_id) {

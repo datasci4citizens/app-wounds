@@ -20,7 +20,6 @@ export default function PatientCreateQrCode() {
     const fetchData = async () => {
       // Verificar se temos um código ou um patientId
       const stateData = location.state
-      console.log('State data:', stateData)
       
       if (!stateData) {
         setError(true)
@@ -29,7 +28,6 @@ export default function PatientCreateQrCode() {
       
       // Se temos um código diretamente
       if (typeof stateData === 'string') {
-        console.log('Código recebido:', stateData)
         setCode(stateData)
         return
       }
@@ -42,7 +40,6 @@ export default function PatientCreateQrCode() {
             getBaseURL(`/auth/patient-bind/${stateData.patient_id}/new/`),
             { arg: {} }
           )
-          console.log('Response from API:', response)
           if (response) {
             setCode(response.toString())
           } else {

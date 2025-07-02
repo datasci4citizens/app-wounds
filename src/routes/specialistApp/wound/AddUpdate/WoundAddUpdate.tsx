@@ -77,11 +77,6 @@ export default function WoundAddUpdate() {
 
     const onSubmit = async (data: WoundFormValues) => {
         try {
-            console.log("woundId recebido:", woundId);
-            console.log("Payload após atualização:", {
-                ...form.getValues(),
-                wound_id: woundId
-            });
 
             await setWoundUpdate((prev) => ({
                 ...prev,

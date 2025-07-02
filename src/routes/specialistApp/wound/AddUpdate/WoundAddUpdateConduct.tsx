@@ -23,16 +23,10 @@ export default function WoundAddUpdateConduct() {
     const location = useLocation();
     const { patient_id, wound_id: locationWoundId } = location.state || {};
     const { woundUpdate, setWoundUpdate } = useWoundUpdate();
-    
-    // Log para debug
-    console.log("WoundAddUpdateConduct recebeu state:", location.state);
-    console.log("WoundAddUpdateConduct - location wound_id:", locationWoundId);
-    console.log("WoundAddUpdateConduct - context wound_id:", woundUpdate?.wound_id);
+
     
     // Use o wound_id do location state ou fallback para o do contexto
     const wound_id = locationWoundId || woundUpdate?.wound_id;
-    
-    console.log("WoundAddUpdateConduct - wound_id final:", wound_id);
 
     const apiUrl = `${import.meta.env.VITE_SERVER_URL}/tracking-records/`;
 
@@ -73,7 +67,6 @@ export default function WoundAddUpdateConduct() {
             };
 
             // Verificação adicional para garantir que wound_id esteja presente
-            console.log("Payload final:", updatedWoundUpdate);
             if (!updatedWoundUpdate.wound_id) {
                 console.error("wound_id ainda está ausente após atualização");
                 updatedWoundUpdate.wound_id = Number(wound_id);
