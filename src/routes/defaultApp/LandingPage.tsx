@@ -75,7 +75,7 @@ const LandingPage = () => {
       const { 
         access, 
         refresh, 
-        provider_data, 
+        specialist_data, 
         patient_data,
         profile_completion_required,
         role,
@@ -93,10 +93,13 @@ const LandingPage = () => {
           break;
         case "specialist":
           // Store provider name if available
-          if (provider_data?.provider_name) {
-            localStorage.setItem("provider_name", provider_data.provider_name);
+          if (specialist_data?.specialist_name) {
+            localStorage.setItem("provider_name", specialist_data.specialist_name);
           }
           
+          if (specialist_data) {
+            localStorage.setItem("specialist_data", JSON.stringify(specialist_data));
+          }
           // Check if profile completion is required
           if (profile_completion_required) {
             navigate("/specialist-signup");

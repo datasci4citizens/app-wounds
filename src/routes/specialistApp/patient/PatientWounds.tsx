@@ -22,6 +22,8 @@ import { ProfessionalIcon } from "@/components/ui/new/ProfessionalIcon";
 import PageTitleWithBackButton from "@/components/shared/PageTitleWithBackButton";
 import jsPDF from 'jspdf';
 import { getRegionDescription, getSubregionDescription, getWoundType } from "@/data/common/LocalDataMapper.tsx";
+import { commonComorbidities } from "@/data/common/LocalDataMapper";
+
 
 
 const customGetRequest = async (url: string) => {
@@ -492,31 +494,8 @@ export default function PatientsWounds() {
     const patientName = patient?.name || "Carregando...";
     const patientAge = patient?.birthday ? calculateAge(new Date(patient.birthday)) : "N/A";
     
-    // Add state for comorbidities lookup table
-    const [comorbidities, setComorbidities] = useState<Record<number, string>>({});
     
     // Fetch comorbidities data on component initialization
-    const fetchComorbidities = useCallback(async () => {
-        try {
-            const response = await customGetRequest(`${import.meta.env.VITE_SERVER_URL}/comorbidities`);
-            
-            // Create a lookup object mapping comorbididade_id to name
-            const comorbiditiesMap: Record<number, string> = {};
-            response.forEach((item: { comorbidity_id: number; name: string }) => {
-                comorbiditiesMap[item.comorbidity_id] = item.name;
-            });
-            
-            setComorbidities(comorbiditiesMap);
-        } catch (error) {
-            console.error("Error fetching comorbidities:", error);
-        }
-    }, []);
-    
-    // Call the fetch function on component mount
-    useEffect(() => {
-        fetchComorbidities();
-    }, [fetchComorbidities]);
-    
     // Format comorbidities properly by mapping IDs to names
     const formatComorbidities = useCallback(() => {
         if (!patient?.comorbidities || !Array.isArray(patient.comorbidities) || patient.comorbidities.length === 0) {
@@ -525,15 +504,17 @@ export default function PatientsWounds() {
         
         // Map each comorbididade ID to its name using the lookup table
         const comorbidityNames = patient.comorbidities
-            .map(id => comorbidities[id] || `Comorbidade ${id}`)
-            .filter(Boolean);
+            .map(
+                id =>
+                Object.entries(commonComorbidities).filter(([k, c]) => c.cid11_code == id)[0]?.[1].name || `Comorbidade ${id}`)
+            .filter(Boolean)
         
         if (comorbidityNames.length === 0) {
             return "Sem comorbidades";
         }
         
         return comorbidityNames.join(", ");
-    }, [patient?.comorbidities, comorbidities]);
+    }, [patient?.comorbidities]);
     
     // Replace the existing patientComorbidity declaration with this:
     const patientComorbidity = formatComorbidities();
