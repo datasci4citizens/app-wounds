@@ -272,7 +272,7 @@ const WoundCard = ({wound, index, onDelete}: {
                     <div className="space-y-0.5">
                         <div className="flex items-start">
                             <span className="text-xs text-blue-800 font-medium mr-1">Tipo:</span>
-                            <span className="text-xs text-blue-600">{getWoundType(wound.type)}</span>
+                            <span className="text-xs text-blue-600">{getWoundType(wound.type || '')}</span>
                         </div>
                         <div className="flex items-start">
                             <span className="text-xs text-blue-800 font-medium mr-1">Local:</span>
@@ -281,7 +281,7 @@ const WoundCard = ({wound, index, onDelete}: {
                         {wound.subregion && (
                             <div className="flex items-start">
                                 <span className="text-xs text-blue-800 font-medium mr-1">Subregião:</span>
-                                <span className="text-xs text-blue-600">{getSubregionDescription(wound.region, wound.subregion)}</span>
+                                <span className="text-xs text-blue-600">{getSubregionDescription(wound.region || '', wound.subregion || '')}</span>
                             </div>
                         )}
                     </div>
@@ -621,14 +621,14 @@ export default function PatientsWounds() {
                     yPosition += 10;
                     
                     pdf.setFontSize(12);
-                    pdf.text(`Tipo: ${getWoundType(wound.type)}`, 25, yPosition);
+                    pdf.text(`Tipo: ${getWoundType(wound.type || '')}`, 25, yPosition);
                     yPosition += 8;
                     
                     pdf.text(`Local: ${getRegionDescription(wound.region)}`, 25, yPosition);
                     yPosition += 8;
                     
                     if (wound.subregion) {
-                        pdf.text(`Subregião: ${getSubregionDescription(wound.region, wound.subregion)}`, 25, yPosition);
+                        pdf.text(`Subregião: ${getSubregionDescription(wound.region || '', wound.subregion || '')}`, 25, yPosition);
                         yPosition += 15;
                     }
                 });

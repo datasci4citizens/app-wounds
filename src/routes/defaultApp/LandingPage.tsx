@@ -25,6 +25,10 @@ interface LoginResponse {
   provider_id: number | null;
   specialist_data: any | null;
   provider_data: ProviderData | null;
+  patient_data: {
+    patient_id: number;
+    patient_name: string;
+  } | null;
   profile_completion_required: boolean;
 }
 
@@ -72,8 +76,9 @@ const LandingPage = () => {
         access, 
         refresh, 
         provider_data, 
+        patient_data,
         profile_completion_required,
-        role
+        role,
       } = response.data;
       
       // Store tokens in localStorage
@@ -100,8 +105,12 @@ const LandingPage = () => {
           }
           break;
         case "patient":
-          // Handle patient role (no effect for now)
-          console.log("User is a patient, no specific action taken");
+          // Store patient data in localStorage
+          if (patient_data) {
+            localStorage.setItem("patient_id", String(patient_data.patient_id));
+            localStorage.setItem("patient_name", patient_data.patient_name);
+          }
+          navigate("/patient/menu");
           break;
         default:
           navigate("/role-selection")
