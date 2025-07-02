@@ -173,8 +173,6 @@ export default function SpecialistSignUpDetails() {
                                 specialist_character: detailsData.specialistCode || null
                               };
                               
-                              console.log("Sending payload to /specialist:", payload);
-                              
                               try {
                                 // Set button to loading state
                                 setIsSubmitting(true);
@@ -198,8 +196,6 @@ export default function SpecialistSignUpDetails() {
                                     }
                                   }
                                 );
-                                
-                                console.log("API response:", response.data);
                                 
                                 // Update storage with combined data including API response
                                 const combinedData = { ...payload, ...response.data };

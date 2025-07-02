@@ -24,7 +24,6 @@ const skinAround: Record<string, string> = skinAroundData;
 const woundEdges: Record<string, string> = woundEdgesData;
 
 export function getTissueType(key: string): string {
-    console.log(key)
     return tissueTypes[key]?.type || "";
 }
 

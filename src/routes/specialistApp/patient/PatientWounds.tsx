@@ -201,7 +201,6 @@ const WoundCard = ({wound, index, onDelete}: {
                 
                 // 2. Extrair a URL da imagem do JSON retornado
                 const imageData = await response.json();
-                console.log('Metadados da imagem:', imageData);
                 
                 if (!imageData.image) {
                     throw new Error('URL da imagem não encontrada na resposta');
@@ -242,7 +241,7 @@ const WoundCard = ({wound, index, onDelete}: {
     
     const handleEdit = (e: React.MouseEvent) => {
         e.stopPropagation();
-        navigate('/specialist/wound/edit', {state: {wound_id: wound.wound_id}});
+        navigate('/specialist/wound/detail', {state: {wound_id: wound.wound_id}});
     };
     
     const handleDelete = (e: React.MouseEvent) => {
@@ -753,7 +752,7 @@ export default function PatientsWounds() {
                             <div className="flex justify-center w-full mb-6">
                                 <button
                                     onClick={() => {
-                                        navigate('/specialist/patient/create/qrcode', { state: { patientId: patient_id } });
+                                        navigate('/specialist/patient/create/qrcode', { state: { patient_id: patient_id } });
                                     }}
                                     className="py-2 px-8 text-sm text-blue-800 font-medium rounded-full border border-blue-800 hover:bg-gray-50 flex items-center gap-2"
                                     disabled={!patient_id}

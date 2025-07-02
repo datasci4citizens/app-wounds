@@ -46,6 +46,8 @@ export default function WoundAddUpdate() {
     const location = useLocation();
     const woundId = location.state?.wound_id as number;
     const patient_id = location.state?.patient_id as number;
+    const isEditing = location.state?.isEditing || false; // Flag para identificar atualização
+    const fromWoundDetail = location.state?.fromWoundDetail || false; // Flag para identificar navegação a partir do WoundDetail
     const {setWoundUpdate} = useWoundUpdate();
 
     const form = useForm<WoundFormValues>({
@@ -75,11 +77,6 @@ export default function WoundAddUpdate() {
 
     const onSubmit = async (data: WoundFormValues) => {
         try {
-            console.log("woundId recebido:", woundId);
-            console.log("Payload após atualização:", {
-                ...form.getValues(),
-                wound_id: woundId
-            });
 
             await setWoundUpdate((prev) => ({
                 ...prev,
@@ -122,18 +119,32 @@ export default function WoundAddUpdate() {
         }
     };
 
+    // Função para manipular o clique no botão voltar
+    const handleBackClick = () => {
+        if (fromWoundDetail && woundId) {
+            // Se veio do WoundDetail, voltar para o detalhe da ferida
+            navigate('/specialist/wound/detail', { 
+                state: { wound_id: woundId }
+            });
+        } else {
+            // Caso contrário, voltar para a lista de feridas do paciente
+            navigate('/specialist/patient/wounds', { 
+                state: { patient_id } 
+            });
+        }
+    };
+
     return (
         <>
         <WaveBackgroundLayout className="absolute inset-0 overflow-auto">
-                <div className="flex flex-col w-full min-h-full items-center px-6">
+            <div className="flex flex-col w-full min-h-full items-center px-6">
                 {/* Header with Professional Icon */}
                 <div className="flex justify-center items-center mt-6 mb-6">
                     <ProfessionalIcon size={0.6} borderRadius="50%" />
                 </div>
                 <PageTitleWithBackButton 
-                    title="Atualização de ferida"
-                    backPath="/specialist/patient/list"
-                    onBackClick={() => navigate('/specialist/patient/wounds', { state: { patient_id } })}
+                    title={isEditing ? "Editar ferida" : "Atualização de ferida"}
+                    onBackClick={handleBackClick}
                     className="mb-6 [&>h1]:text-lg [&>h1]:font-medium"
                 />
                 <Form {...form}>

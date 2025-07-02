@@ -90,7 +90,6 @@ export default function WoundCreate() {
     const [alertMessage, setAlertMessage] = useState<{type: 'error' | 'success', message: string} | null>(null);
     
     const patient_id = location.state?.patient_id as number;
-    console.log("Patient ID:", patient_id);
 
     // Verificar se o patient_id existe
     if (!patient_id) {
@@ -130,7 +129,6 @@ export default function WoundCreate() {
     });
 
     const apiUrl = `${import.meta.env.VITE_SERVER_URL}/wounds/`;
-    console.log("API URL:", apiUrl);
 
     // Modificação no onSubmit para pegar o specialist_id corretamente
     const onSubmit = async (data: WoundFormValues) => {
@@ -154,7 +152,6 @@ export default function WoundCreate() {
                 try {
                     const specialistData = JSON.parse(specialistDataString);
                     specialistId = specialistData.specialist_id;
-                    console.log("Specialist ID from localStorage:", specialistId);
                 } catch (e) {
                     console.error("Erro ao analisar specialist_data:", e);
                 }
@@ -203,8 +200,6 @@ export default function WoundCreate() {
                 is_active: true,
                 specialist_id: specialistId
             };
-
-            console.log("Enviando payload:", payload);
 
             const response = await fetch(apiUrl, {
                 method: 'POST',
@@ -256,7 +251,6 @@ export default function WoundCreate() {
             }
 
             const result = await response.json();
-            console.log('Wound created successfully:', result);
             
             // CORREÇÃO: Verificar o campo wound_id em vez de id
             if (!result.wound_id) {
@@ -269,7 +263,6 @@ export default function WoundCreate() {
 
             // CORREÇÃO: Usar o nome correto do campo na resposta
             const createdWoundId = result.wound_id;
-            console.log('Created wound ID:', createdWoundId);
 
             const elapsedTime = Date.now() - startTime;
             const remainingTime = Math.max(0, minimumLoadingTime - elapsedTime);
@@ -291,8 +284,6 @@ export default function WoundCreate() {
                         setIsSubmitting(false);
                         return;
                     }
-
-                    console.log("Navegando com wound_id:", createdWoundId);
                     
                     navigate('/specialist/wound/add-update', { 
                         state: { 

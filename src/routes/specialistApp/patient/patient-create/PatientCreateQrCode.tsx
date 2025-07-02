@@ -33,16 +33,15 @@ export default function PatientCreateQrCode() {
       }
       
       // Se temos um patientId
-      if (stateData.patientId) {
+      if (stateData.patient_id) {
         setLoading(true)
         try {
           const response = await postRequest(
-            getBaseURL(`/auth/patient-bind/${stateData.patientId}/new/`),
+            getBaseURL(`/auth/patient-bind/${stateData.patient_id}/new/`),
             { arg: {} }
           )
-          
-          if (response && response.code) {
-            setCode(response.code)
+          if (response) {
+            setCode(response.toString())
           } else {
             setError(true)
           }

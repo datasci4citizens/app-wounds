@@ -75,7 +75,6 @@ const WoundCard = ({wound, index}: {
                 
                 // 2. Extrair a URL da imagem do JSON retornado
                 const imageData = await response.json();
-                console.log('Metadados da imagem:', imageData);
                 
                 if (!imageData.image_url) {
                     throw new Error('URL da imagem não encontrada na resposta');
