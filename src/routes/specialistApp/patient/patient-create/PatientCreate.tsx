@@ -13,12 +13,11 @@ import { Input } from "@/components/ui/input";
 import DatePicker from "@/components/common/DatePicker";
 import { useNavigate } from "react-router-dom";
 import { isBefore, isAfter, startOfDay } from "date-fns";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { WaveBackgroundLayout } from "@/components/ui/new/wave/WaveBackground";
 import { ProfessionalIcon } from "@/components/ui/new/ProfessionalIcon";
 import { Button } from "@/components/ui/new/Button";
-import useSWRMutation from "swr/mutation";
-import { getBaseURL, getRequest, postRequest } from "@/data/common/HttpExtensions";
+import { getBaseURL, postRequest } from "@/data/common/HttpExtensions";
 import { Checkbox } from "@/components/ui/new/general/Checkbox";
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -72,7 +71,7 @@ export default function PatientCreateRedesign() {
   const [loading] = useState(false);
   const [showOptional, setShowOptional] = useState(false);
 
-  const comorbiditiesData = Object.entries(commonComorbidities).map(([key, value]) => ({
+  const comorbiditiesData : Comorbidity[] = Object.entries(commonComorbidities).map(([key, value]) => ({
     comorbidity_id: parseInt(key, 10),
     ...value,
   }));
