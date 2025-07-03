@@ -286,6 +286,8 @@ export default function PatientsPage() {
                               key={index}
                               icon={<div className="text-[#3357E6] font-semibold text-base">{getInitials(patient.name)}</div>}
                               onClick={() => {
+                                // Salvar o nome do paciente no localStorage
+                                localStorage.setItem('currentPatientName', patient.name);
                                 // Use React Router navigation with state to pass patient_id
                                 navigate('/specialist/patient/wounds', { 
                                   state: { patient_id: patient.patient_id } 

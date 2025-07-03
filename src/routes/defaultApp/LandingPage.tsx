@@ -35,17 +35,12 @@ interface LoginResponse {
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  console.log("Arrived at landing page")
-  console.log("Platform: ", navigator.userAgent);
   
   const isNative = Capacitor.isNativePlatform();
-  console.log("Is native platform:", isNative);
 
   // Handle OAuth success response
   const handleAuthSuccess = async (code: string, isToken: boolean) => {
-    console.log("Received code:", code);
     try {
-      console.log(import.meta.env.VITE_SERVER_URL);
       // Send the code to the backend with CORS headers
       let requestBody;
       if(isToken) {
@@ -70,7 +65,6 @@ const LandingPage = () => {
           withCredentials: true
         }
       );
-      console.log("Login successful:", response.data);
       
       const { 
         access, 
@@ -127,24 +121,19 @@ const LandingPage = () => {
 
   // Native platform authentication handler
   const handleNativeAuth = async () => {
-    console.log("Starting native auth flow");
     try {
       // Wrap GoogleAuth operations in try/catch blocks individually
       try {
-        console.log("Signing Out");
         await GoogleAuth.signOut();
       } catch (signOutErr) {
-        console.log("Sign out error (can be ignored if not signed in):", signOutErr);
         // Continue with sign in even if sign out fails
       }
       
-      console.log("Signing in");
       // Add a small delay before signing in to prevent app crashes
       await new Promise(resolve => setTimeout(resolve, 500));
       
       const googleUser = await GoogleAuth.signIn();
       const idToken = googleUser.authentication.idToken;
-      console.log("Signed in:", idToken);
       localStorage.removeItem("accessToken");
 
       await handleAuthSuccess(idToken, true);
@@ -172,7 +161,6 @@ const LandingPage = () => {
 
   useEffect(() => {
     const handleAppUrlOpen = async (data: { url: string }) => {
-      console.log("App opened with URL:", data.url);
       
       if (data.url.includes('oauth2redirect')) {
         try {
@@ -190,7 +178,6 @@ const LandingPage = () => {
             try {
               await Browser.close();
             } catch (browserErr) {
-              console.log("Browser close error:", browserErr);
             }
             await handleAuthSuccess(code, true);
           }
@@ -214,7 +201,6 @@ const LandingPage = () => {
   // Web platform authentication
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
-      console.log("OAuth success:", tokenResponse);
       const code = tokenResponse.code;
       await handleAuthSuccess(code, false);
     },
