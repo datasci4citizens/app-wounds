@@ -7,6 +7,7 @@ import { QrCodeIcon } from "@/components/ui/new/QrCodeIcon";
 import { postRequest, getBaseURL } from "@/data/common/HttpExtensions";
 import { UserContextProvider, useUser } from "@/lib/hooks/use-user";
 import "./qrcode-scanner.css";
+import axios from "axios";
 
 // Componente wrapper para fornecer o contexto do usuário
 export default function PatientSignUpQrCodeWrapper() {
@@ -42,21 +43,30 @@ function PatientSignUpQrCode() {
         return;
       }
       
-      const response = await postRequest(
+      const patient_id = await postRequest(
         getBaseURL(`/auth/patient-bind/`), 
         { arg: { code, email: userEmail } }
       );
+      const tokenjwt = localStorage.getItem("access_token");
+      const response = await axios.get(
+        `${import.meta.env.VITE_SERVER_URL}/patients/${patient_id}/`,
+        { headers: { Authorization: `Bearer ${tokenjwt}` } }
+      );
       
-      if (response.status === 200) {
-        // Sucesso - redirecionar para próxima página
-        navigate('/patient-registered');
+      localStorage.setItem('patient_id', patient_id.toString());
+      localStorage.setItem('patient_name', response.data.name);
+      localStorage.setItem('user_role', "patient");
+      navigate('/patient-registered');
+    } catch (err : any) {
+      console.log(err.message)
+      if (err.message == 'Request failed with status 404: "Codigo invalido"') {
+        console.error("Erro ao validar código")
+        setError('Erro ao validar o código. Tente novamente.')
       } else {
-        console.error("Erro ao validar código:", response);
-        setError('Código inválido ou expirado. Tente novamente.');
+        console.error('Erro na requisição:', err)
+        setError('Erro ao processar o código. Verifique sua conexão.');
       }
-    } catch (err) {
-      console.error('Erro na requisição:', err);
-      setError('Erro ao processar o código. Verifique sua conexão.');
+      
     } finally {
       setLoading(false);
     }

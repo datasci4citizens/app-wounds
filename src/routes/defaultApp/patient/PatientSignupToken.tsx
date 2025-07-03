@@ -5,6 +5,7 @@ import AppHeader from "@/components/ui/common/AppHeader";
 import { IconTypcnKeyboard } from "@/components/ui/new/KeyBoardIcon";
 import { getBaseURL, postRequest } from "@/data/common/HttpExtensions";
 import { UserContextProvider, useUser } from "@/lib/hooks/use-user";
+import axios from "axios";
 
 // Componente wrapper para fornecer o contexto do usuário
 export default function PatientSignUpTokenWrapper() {
@@ -37,20 +38,33 @@ function PatientSignUpToken() {
         return;
       }
       
-      const response = await postRequest(
+      const patient_id = await postRequest(
         getBaseURL(`/auth/patient-bind/`), 
         { arg: { code: token, email: userEmail } }
       )
       
-      if (response.status === 200) {
-        navigate('/patient-registered')
-      } else {
-        console.error("Erro ao validar código:", response)
+      const tokenjwt = localStorage.getItem("access_token");
+      const response = await axios.get(
+        `${import.meta.env.VITE_SERVER_URL}/patients/${patient_id}/`,
+        { headers: { Authorization: `Bearer ${tokenjwt}` } }
+      );
+      
+      localStorage.setItem('patient_id', patient_id.toString());
+      localStorage.setItem('patient_name', response.data.name);
+      localStorage.setItem('user_role', "patient");
+      
+      navigate('/patient-registered')
+      
+    } catch (err: any) {
+      console.log(err.message)
+      if (err.message == 'Request failed with status 404: "Codigo invalido"') {
+        console.error("Erro ao validar código")
         setError('Erro ao validar o código. Tente novamente.')
+      } else {
+        console.error('Erro na requisição:', err)
+        setError('Erro ao processar o código')  
       }
-    } catch (err) {
-      console.error('Erro na requisição:', err)
-      setError('Erro ao processar o código')
+      
     } finally {
       setLoading(false)
     }

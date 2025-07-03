@@ -5,6 +5,7 @@ import exudateTypesData from "@/localdata/exudate-type.json";
 import exudateAmountData from "@/localdata/exudate-amount.json";
 import skinAroundData from "@/localdata/skin-around.json";
 import woundEdgesData from "@/localdata/wound-edges.json";
+import _commonComorbidities from "@/localdata/common-comorbidities.json";
 
 type WoundRegion = {
     description: string;
@@ -22,7 +23,10 @@ const exudateTypes: Record<string, string> = exudateTypesData;
 const exudateAmount: Record<string, string> = exudateAmountData;
 const skinAround: Record<string, string> = skinAroundData;
 const woundEdges: Record<string, string> = woundEdgesData;
-
+export const commonComorbidities: Record<string, {
+    cid11_code: string;
+    name: string;
+}> = _commonComorbidities;
 export function getTissueType(key: string): string {
     return tissueTypes[key]?.type || "";
 }

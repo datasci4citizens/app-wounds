@@ -5,7 +5,7 @@
       "name": "wounds",
       "dependencies": {
         "@capacitor/android": "^6.1.2",
-        "@capacitor/app": "^7.0.1",
+        "@capacitor/app": "^6.0.1",
         "@capacitor/browser": "^6.0.0",
         "@capacitor/core": "^6.1.2",
         "@capacitor/ios": "^6.1.2",
@@ -97,7 +97,7 @@
 
     "@capacitor/android": ["@capacitor/android@6.1.2", "", { "peerDependencies": { "@capacitor/core": "^6.1.0" } }, "sha512-Yh0gQDY1bgRrL25J6ecIlvvs2kF8iNSwIPXjyw6Yz9mnwYxBazF5KZbjpKtGPnJgicJhFkYGsqOkEtxrve0EoQ=="],
 
-    "@capacitor/app": ["@capacitor/app@7.0.1", "", { "peerDependencies": { "@capacitor/core": ">=7.0.0" } }, "sha512-ArlVZAAla4MwQoKh26x2AaTDOBh5Vhp1VhMKR3RwqZSsZnazKTFGNrPbr9Ez5r1knnEDfApyjwp1uZnXK1WTYQ=="],
+    "@capacitor/app": ["@capacitor/app@6.0.2", "", { "peerDependencies": { "@capacitor/core": "^6.0.0" } }, "sha512-SiGTGgslK4TbWJVImCUL1odul7/YFkVfkYtAYS9AAEzQpxBECBeRnuN3FFBcfZ9eiN1XxFBFchhiwpxtx/c7yQ=="],
 
     "@capacitor/browser": ["@capacitor/browser@6.0.0", "", { "peerDependencies": { "@capacitor/core": "^6.0.0" } }, "sha512-mtZq8qNwN/lqBDMYSF5h0oa4Kru6UWp4OyUXG4Rw13GKXkX6QoxlSy3k2MEBS3BGvK6OG7FAMTMAjh1QyynDxQ=="],
 
