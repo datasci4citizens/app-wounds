@@ -506,7 +506,7 @@ export default function PatientsWounds() {
         const comorbidityNames = patient.comorbidities
             .map(
                 id =>
-                Object.entries(commonComorbidities).filter(([k, c]) => c.cid11_code == id)[0]?.[1].name || `Comorbidade ${id}`)
+                Object.entries(commonComorbidities).filter(([_, c]) => c.cid11_code == id)[0]?.[1].name || `Comorbidade ${id}`)
             .filter(Boolean)
         
         if (comorbidityNames.length === 0) {
