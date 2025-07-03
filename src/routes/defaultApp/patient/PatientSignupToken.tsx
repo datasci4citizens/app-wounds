@@ -42,7 +42,6 @@ function PatientSignUpToken() {
         getBaseURL(`/auth/patient-bind/`), 
         { arg: { code: token, email: userEmail } }
       )
-      console.log("Resposta da validação do código:", patient_id)
       
       const tokenjwt = localStorage.getItem("access_token");
       const response = await axios.get(
