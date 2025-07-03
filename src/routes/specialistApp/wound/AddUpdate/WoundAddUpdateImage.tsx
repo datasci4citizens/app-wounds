@@ -27,19 +27,6 @@ export default function WoundAddUpdateImage() {
     const { patient_id, wound_id } = location.state || {};
     const { woundUpdate, setWoundUpdate } = useWoundUpdate(); // Obtenha woundUpdate do contexto
     const loadingRef = useRef<LoadingScreenHandle>(null);
-
-    // Log do estado no início
-    console.log("WoundAddUpdateImage recebeu state:", location.state);
-    console.log("WoundAddUpdateImage - context wound_id:", woundUpdate?.wound_id);
-    console.log("WoundAddUpdateImage - location wound_id:", wound_id);
-    
-    // Logs detalhados para diagnóstico
-    console.log("================ DIAGNÓSTICO DE PATIENT_ID ================");
-    console.log("Location object completo:", location);
-    console.log("Location.state completo:", location.state);
-    console.log("patient_id extraído:", patient_id);
-    console.log("wound_id extraído:", wound_id);
-    console.log("==========================================================");
     
     // Estado para mensagens de alerta
     const [alertMessage, setAlertMessage] = useState<{type: 'error' | 'success', message: string} | null>(null);
@@ -218,8 +205,6 @@ export default function WoundAddUpdateImage() {
                 setTimeout(() => {
                     // Use o wound_id do contexto se o da URL não estiver disponível
                     const finalWoundId = wound_id || woundUpdate?.wound_id;
-                    
-                    console.log("Navegando para Conduta com wound_id:", finalWoundId);
                     
                     // Navegando para a próxima página
                     navigate('/specialist/wound/add-update/conduct', { 

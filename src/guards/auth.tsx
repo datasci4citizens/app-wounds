@@ -13,11 +13,9 @@ export function AuthGuard() {
         if (!isLoading && !isDev) {
             if (error || !credentials?.token || !id) {
                 if (location.pathname !== "/login") {
-                    console.log("Redirecting to /login...");
                     navigate("/login");
                 }
             } else if (location.pathname === "/") {
-                console.log("Redirecting authenticated user to /patient/list...");
                 navigate("/patient/list");
             }
         }

@@ -86,7 +86,7 @@ export default function PatientsPage() {
             const specialistData = localStorage.getItem("specialist_data");
             if (specialistData) {
                 const parsedData = JSON.parse(specialistData);
-                setSpecialistId(parsedData.id);
+                setSpecialistId(parsedData.specialist_id);
             } else {
                 const userInfo = localStorage.getItem("user_info");
                 if (userInfo) {
@@ -269,7 +269,7 @@ export default function PatientsPage() {
                             <CategoryCard 
                               title={patient.name}
                               description={<>
-                                {patient.gender}<br />
+                                {patient.gender == "male" ? "Masculino" : "Feminino"}<br />
                                 {patient.birthday}
                                 {sortOption !== 'name' && (
                                     <>
@@ -338,13 +338,13 @@ export default function PatientsPage() {
                                         </Label>
                                     </div>
                                     <div className="flex items-center">
-                                        <RadioGroupItem value="Masculino" id="gender-male" className="mr-2" />
+                                        <RadioGroupItem value="male" id="gender-male" className="mr-2" />
                                         <Label htmlFor="gender-male" className="text-sm font-normal cursor-pointer">
                                             Masculino
                                         </Label>
                                     </div>
                                     <div className="flex items-center">
-                                        <RadioGroupItem value="Feminino" id="gender-female" className="mr-2" />
+                                        <RadioGroupItem value="female" id="gender-female" className="mr-2" />
                                         <Label htmlFor="gender-female" className="text-sm font-normal cursor-pointer">
                                             Feminino
                                         </Label>

@@ -24,7 +24,6 @@ const skinAround: Record<string, string> = skinAroundData;
 const woundEdges: Record<string, string> = woundEdgesData;
 
 export function getTissueType(key: string): string {
-    console.log(key)
     return tissueTypes[key]?.type || "";
 }
 
@@ -41,12 +40,37 @@ export function getWoundType(key: string): string {
 }
 
 export function getRegionDescription(key: string): string {
+    if (!key) return "";
+    
+    // Se a chave contiver espaço, pode ser um formato combinado "região subregião"
+    if (key.includes(' ')) {
+        const parts = key.split(' ');
+        const regionKey = parts[0];
+        if (!regionKey) return "";
+        return woundRegion[regionKey]?.description || "";
+    }
     return woundRegion[key]?.description || "";
 }
 
 export function getSubregionDescription(regionKey: string, subregionKey: string): string {
-    const subregions = woundRegion[regionKey]?.subregions;
-    return subregions?.[subregionKey] || "";
+    // Se a região contiver espaço, pode ser um formato combinado "região subregião"
+    let region: string = regionKey || '';
+    let subregion: string = subregionKey || '';
+    
+    // Se a região contiver espaço, extrair apenas a parte da região
+    if (region && region.includes(' ')) {
+        const parts = region.split(' ');
+        region = parts[0] || '';
+        // Se não foi fornecida uma subregião separada, usar a segunda parte da região
+        if (!subregion && parts.length > 1) {
+            subregion = parts[1] || '';
+        }
+    }
+    
+    if (!region) return "";
+    const subregions = woundRegion[region]?.subregions;
+    if (!subregions || !subregion) return "";
+    return subregions[subregion] || "";
 }
 
 export function getSkinAround(key: string): string {

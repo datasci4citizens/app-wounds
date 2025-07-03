@@ -3,15 +3,7 @@ import { useState, useEffect } from 'react'
 import { WaveBackgroundLayout } from '@/components/ui/new/wave/WaveBackground.tsx'
 import CategoryCard from '@/components/ui/new/card/CategoryCard.tsx'
 import { MenuMobile } from '@/components/ui/new/menu/MenuMobile.tsx'
-import axios from 'axios';
 import { PatientIcon } from '@/components/ui/new/PatientIcon.tsx'
-
-interface AuthMeResponse {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-}
 
 export default function Menu() {
   const navigate = useNavigate()
@@ -19,47 +11,13 @@ export default function Menu() {
 
   useEffect(() => {
     // Try to get user info from localStorage first (faster)
-    try {
-      const userInfoString = localStorage.getItem("user_info");
+      const patientName = localStorage.getItem("patient_name");
       
-      if (userInfoString) {
-        const userInfo: AuthMeResponse = JSON.parse(userInfoString);
-        if (userInfo.first_name) {
-          setPatientName(userInfo.first_name);
+      if (patientName) {
+          setPatientName(patientName);
         }
-      } else {
-        // Fetch user data from API if not available in localStorage
-        const fetchUserData = async () => {
-          try {
-            const token = localStorage.getItem("access_token");
-            
-            if (!token) {
-              console.error("No access token found");
-              return;
-            }
 
-            const response = await axios.get(
-              `${import.meta.env.VITE_SERVER_URL}/patient/`,
-              { headers: { Authorization: `Bearer ${token}` } }
-            );
-            
-            if (response.data) {
-              console.log("User data fetched successfully:", response.data);
-              // Store the complete user info object
-              localStorage.setItem("patient_data", JSON.stringify(response.data[0]));
-              setPatientName(response.data[0].patient_name);
-            }
-          } catch (error) {
-            console.error("Failed to fetch user data:", error);
-          }
-        };
-        
-        fetchUserData();
-      }
-    } catch (error) {
-      console.error("Error parsing user info from localStorage:", error);
-    }
-  }, []);
+      }, []);
 
   const handleNavigate = (path: string) => {
     navigate("/patient" + path)
@@ -68,7 +26,6 @@ export default function Menu() {
   // Navigation handlers for the mobile menu
   const handleHomeClick = () => navigate('/patient/menu');
   const handleNewCaseClick = () => navigate('/patient/wounds');
-  const handleNotificationsClick = () => navigate('/patient/notifications');
 
   return (
     <WaveBackgroundLayout className="bg-[#F9FAFB]">
@@ -92,24 +49,15 @@ export default function Menu() {
           description="Acesse suas feridas"
           onClick={() => handleNavigate('/wounds')}
         />
-        
-        <CategoryCard 
-          title="Estou Preocupado"
-          description="Solicitar avaliação rápida"
-          onClick={() => handleNavigate('/fast-care')}
-          theme="pink"
-        />
       </div>
       
       {/* Use the reusable mobile menu with custom click handlers */}
       <MenuMobile 
         onHomeClick={handleHomeClick}
-        onNotificationsClick={handleNotificationsClick}
         onNewCaseClick={handleNewCaseClick}
         plusButtonLabel="Nova atualização"
         plusButtonPath= "/patient/wounds"
         homePath="/patient/menu"
-        notificationsPath="/patient/notifications"
       />
     </WaveBackgroundLayout>
   )

@@ -24,12 +24,7 @@ function PatientSignUpToken() {
   // Obter o email do usuário do contexto
   const { email, isLoading: userLoading } = useUser();
 
-  const handleSearch = async () => {
-    if (token.length !== 8) {
-      setError('O código deve ter 8 caracteres.')
-      return
-    }
-    
+  const handleSearch = async () => {    
     setError('')
     setLoading(true)
     

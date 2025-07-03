@@ -1,4 +1,4 @@
-import { Plus, FileDown, AlertTriangle } from "lucide-react"
+import { Plus, FileDown, AlertTriangle, QrCode } from "lucide-react"
 import { Button } from "@/components/ui/button.tsx"
 import { Card } from "@/components/ui/card.tsx"
 import {
@@ -201,14 +201,13 @@ const WoundCard = ({wound, index, onDelete}: {
                 
                 // 2. Extrair a URL da imagem do JSON retornado
                 const imageData = await response.json();
-                console.log('Metadados da imagem:', imageData);
                 
-                if (!imageData.image_url) {
+                if (!imageData.image) {
                     throw new Error('URL da imagem não encontrada na resposta');
                 }
                 
                 // 3. Carregar a imagem real da URL fornecida
-                const imageResponse = await fetch(imageData.image_url);
+                const imageResponse = await fetch(imageData.image);
                 if (!imageResponse.ok) {
                     throw new Error(`Erro ao carregar imagem da URL: ${imageResponse.status}`);
                 }
@@ -242,7 +241,7 @@ const WoundCard = ({wound, index, onDelete}: {
     
     const handleEdit = (e: React.MouseEvent) => {
         e.stopPropagation();
-        navigate('/specialist/wound/edit', {state: {wound_id: wound.wound_id}});
+        navigate('/specialist/wound/detail', {state: {wound_id: wound.wound_id}});
     };
     
     const handleDelete = (e: React.MouseEvent) => {
@@ -273,7 +272,7 @@ const WoundCard = ({wound, index, onDelete}: {
                     <div className="space-y-0.5">
                         <div className="flex items-start">
                             <span className="text-xs text-blue-800 font-medium mr-1">Tipo:</span>
-                            <span className="text-xs text-blue-600">{getWoundType(wound.type)}</span>
+                            <span className="text-xs text-blue-600">{getWoundType(wound.type || '')}</span>
                         </div>
                         <div className="flex items-start">
                             <span className="text-xs text-blue-800 font-medium mr-1">Local:</span>
@@ -282,7 +281,7 @@ const WoundCard = ({wound, index, onDelete}: {
                         {wound.subregion && (
                             <div className="flex items-start">
                                 <span className="text-xs text-blue-800 font-medium mr-1">Subregião:</span>
-                                <span className="text-xs text-blue-600">{getSubregionDescription(wound.region, wound.subregion)}</span>
+                                <span className="text-xs text-blue-600">{getSubregionDescription(wound.region || '', wound.subregion || '')}</span>
                             </div>
                         )}
                     </div>
@@ -622,14 +621,14 @@ export default function PatientsWounds() {
                     yPosition += 10;
                     
                     pdf.setFontSize(12);
-                    pdf.text(`Tipo: ${getWoundType(wound.type)}`, 25, yPosition);
+                    pdf.text(`Tipo: ${getWoundType(wound.type || '')}`, 25, yPosition);
                     yPosition += 8;
                     
                     pdf.text(`Local: ${getRegionDescription(wound.region)}`, 25, yPosition);
                     yPosition += 8;
                     
                     if (wound.subregion) {
-                        pdf.text(`Subregião: ${getSubregionDescription(wound.region, wound.subregion)}`, 25, yPosition);
+                        pdf.text(`Subregião: ${getSubregionDescription(wound.region || '', wound.subregion || '')}`, 25, yPosition);
                         yPosition += 15;
                     }
                 });
@@ -747,6 +746,20 @@ export default function PatientsWounds() {
                                     label="Hábitos" 
                                     value={patientHabits}
                                 />
+                            </div>
+                            
+                            {/* QR Code button centered below patient info */}
+                            <div className="flex justify-center w-full mb-6">
+                                <button
+                                    onClick={() => {
+                                        navigate('/specialist/patient/create/qrcode', { state: { patient_id: patient_id } });
+                                    }}
+                                    className="py-2 px-8 text-sm text-blue-800 font-medium rounded-full border border-blue-800 hover:bg-gray-50 flex items-center gap-2"
+                                    disabled={!patient_id}
+                                >
+                                    <QrCode className="h-4 w-4" />
+                                    Gerar QR Code
+                                </button>
                             </div>
                         </div>
                     )}

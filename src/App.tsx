@@ -23,7 +23,6 @@ import SpecialistWoundAddUpdate from './routes/specialistApp/wound/AddUpdate/Wou
 import SpecialistWoundAddUpdateImage from './routes/specialistApp/wound/AddUpdate/WoundAddUpdateImage.tsx';
 import SpecialistWoundAddUpdateConduct from './routes/specialistApp/wound/AddUpdate/WoundAddUpdateConduct.tsx';
 import { WoundUpdateProvider as SpecialistWoundUpdateProvider } from './routes/specialistApp/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx';
-import SpecialistNotifications from './routes/specialistApp/notifications/Notifications.tsx';
 import SpecialistSignUpDetails from './routes/defaultApp/specialist/SpecialistSignUpDetails.tsx';
 
 // Patient routes
@@ -32,17 +31,13 @@ import PatientRegistered from './routes/defaultApp/patient/PatientRegistered.tsx
 import PatientSignUpToken from './routes/defaultApp/patient/PatientSignupToken.tsx';
 import PatientMenu from './routes/patientApp/Menu.tsx';
 import PatientWounds from './routes/patientApp/patient/PatientWounds.tsx';
-import PatientWoundCreate from './routes/patientApp/wound/WoundCreate.tsx';
 import PatientWoundDetail from './routes/patientApp/wound/WoundDetail.tsx';
 import PatientWoundRecordDetail from './routes/patientApp/wound/WoundRecordDetail.tsx';
 import PatientWoundAddUpdate from './routes/patientApp/wound/AddUpdate/WoundAddUpdate.tsx';
 import PatientWoundAddUpdateImage from './routes/patientApp/wound/AddUpdate/WoundAddUpdateImage.tsx';
-import PatientWoundAddUpdateConduct from './routes/patientApp/wound/AddUpdate/WoundAddUpdateConduct.tsx';
 import { WoundUpdateProvider as PatientWoundUpdateProvider } from './routes/patientApp/wound/AddUpdate/context-provider/WoundUpdateProvider.tsx';
-import PatientNotifications from './routes/patientApp/notifications/Notifications.tsx';
-import PatientFastCare from './routes/patientApp/fast-care/FastCare.tsx';
-import PatientImmediateAttention from './routes/patientApp/fast-care/ImmediateAttention.tsx';
-import PatientFastCareConfirmation from './routes/patientApp/fast-care/Confirmation.tsx';
+
+
 
 import axios from 'axios';
 
@@ -89,10 +84,6 @@ const router = createBrowserRouter([
       {
         path: 'menu',
         element: <AppLayout><SpecialistMenu /></AppLayout>,
-      },
-      {
-        path: 'notifications',
-        element: <AppLayout><SpecialistNotifications /></AppLayout>,
       },
       {
         path: 'patient/create',
@@ -159,16 +150,8 @@ const router = createBrowserRouter([
         element: <AppLayout><PatientMenu /></AppLayout>,
       },
       {
-        path: 'notifications',
-        element: <AppLayout><PatientNotifications /></AppLayout>,
-      },
-      {
         path: 'wounds',
         element: <AppLayout><PatientWounds /></AppLayout>,
-      },
-      {
-        path: 'wound/create',
-        element: <AppLayout><PatientWoundCreate /></AppLayout>,
       },
       {
         path: 'wound/detail',
@@ -193,27 +176,7 @@ const router = createBrowserRouter([
             <PatientWoundAddUpdateImage />
           </PatientWoundUpdateProvider>
         </AppLayout>,
-      },
-      {
-        path: 'wound/add-update/conduct',
-        element: <AppLayout>
-          <PatientWoundUpdateProvider>
-            <PatientWoundAddUpdateConduct />
-          </PatientWoundUpdateProvider>
-        </AppLayout>,
-      },
-      {
-        path: 'fast-care',
-        element: <AppLayout><PatientFastCare /></AppLayout>,
-      },
-      {
-        path: 'fast-care/immediate-attention',
-        element: <AppLayout><PatientImmediateAttention /></AppLayout>,
-      },
-      {
-        path: 'fast-care/confirmation',
-        element: <AppLayout><PatientFastCareConfirmation /></AppLayout>,
-      },
+      }
     ],
   },
 ]);
@@ -223,7 +186,6 @@ export function App() {
     <main className="bg-primary">
       <SWRConfig value={{
         fetcher: async (url, args) => {
-          console.log(url, args);
           let Auth = {};
           let token = localStorage.getItem("access_token")
           if (!!token) {

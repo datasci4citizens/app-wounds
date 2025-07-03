@@ -12,6 +12,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import exudateAmounts from '@/localdata/exudate-amount.json'
 import exudateTypes from '@/localdata/exudate-type.json'
+import woundEdges from '@/localdata/wound-edges.json'
+import skinAround from '@/localdata/skin-around.json'
 import tissueTypes from '@/localdata/tissue-type.json'
 import { useState } from "react";
 import { Switch } from "@/components/ui/switch.tsx";
@@ -44,6 +46,8 @@ export default function WoundAddUpdate() {
     const location = useLocation();
     const woundId = location.state?.wound_id as number;
     const patient_id = location.state?.patient_id as number;
+    const isEditing = location.state?.isEditing || false; // Flag para identificar atualização
+    const fromWoundDetail = location.state?.fromWoundDetail || false; // Flag para identificar navegação a partir do WoundDetail
     const {setWoundUpdate} = useWoundUpdate();
 
     const form = useForm<WoundFormValues>({
@@ -73,11 +77,6 @@ export default function WoundAddUpdate() {
 
     const onSubmit = async (data: WoundFormValues) => {
         try {
-            console.log("woundId recebido:", woundId);
-            console.log("Payload após atualização:", {
-                ...form.getValues(),
-                wound_id: woundId
-            });
 
             await setWoundUpdate((prev) => ({
                 ...prev,
@@ -88,7 +87,7 @@ export default function WoundAddUpdate() {
                 exudate_type: data.exudateType ?? "",
                 tissue_type: data.tissueType ?? "",
                 wound_edges: data.woundEdges ?? "",
-                skin_around: data.skinAround ?? "", // Corrigido de skin_around_the_wound
+                skin_around: data.skinAround ?? "", // Corrigido de skin_around
                 had_fever: data.hadFever ?? false, // Corrigido de had_a_fever
                 pain_level: data.painLevel.toString(),
                 dressing_changes_per_day: data.dressingChanges ?? "", // Corrigido de dressing_changer_per_day
@@ -120,18 +119,32 @@ export default function WoundAddUpdate() {
         }
     };
 
+    // Função para manipular o clique no botão voltar
+    const handleBackClick = () => {
+        if (fromWoundDetail && woundId) {
+            // Se veio do WoundDetail, voltar para o detalhe da ferida
+            navigate('/specialist/wound/detail', { 
+                state: { wound_id: woundId }
+            });
+        } else {
+            // Caso contrário, voltar para a lista de feridas do paciente
+            navigate('/specialist/patient/wounds', { 
+                state: { patient_id } 
+            });
+        }
+    };
+
     return (
         <>
         <WaveBackgroundLayout className="absolute inset-0 overflow-auto">
-                <div className="flex flex-col w-full min-h-full items-center px-6">
+            <div className="flex flex-col w-full min-h-full items-center px-6">
                 {/* Header with Professional Icon */}
                 <div className="flex justify-center items-center mt-6 mb-6">
                     <ProfessionalIcon size={0.6} borderRadius="50%" />
                 </div>
                 <PageTitleWithBackButton 
-                    title="Atualização de ferida"
-                    backPath="/specialist/patient/list"
-                    onBackClick={() => navigate('/specialist/patient/wounds', { state: { patient_id } })}
+                    title={isEditing ? "Editar ferida" : "Atualização de ferida"}
+                    onBackClick={handleBackClick}
                     className="mb-6 [&>h1]:text-lg [&>h1]:font-medium"
                 />
                 <Form {...form}>
@@ -429,7 +442,7 @@ function WoundsOptionalFields({form}: { form: UseFormReturn<z.infer<typeof FormS
                                 </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                                {Object.entries(exudateTypes).map(([key, value]) => (
+                                {Object.entries(skinAround).map(([key, value]) => (
                                     <SelectItem key={key} value={key}>
                                         {value}
                                     </SelectItem>
@@ -451,15 +464,34 @@ function WoundsOptionalFields({form}: { form: UseFormReturn<z.infer<typeof FormS
                             <FormControl>
                                 <SelectTrigger className="bg-white border-[#0120AC] rounded-lg text-[#0120AC]">
                                     <SelectValue 
-                                        placeholder="Selecione o estado da pele"
+                                        placeholder="Selecione o estado das bordas"
                                         style={{color: field.value ? 'inherit' : '#A6BBFF'}}
                                     />
                                 </SelectTrigger>
                             </FormControl>
-                            <SelectContent>
-                                {Object.entries(tissueTypes).map(([key, value]) => (
-                                    <SelectItem key={key} value={key}>
-                                        {value.type}
+                            <SelectContent 
+                                className="max-h-[50vh] overflow-y-auto w-[95vw] max-w-[400px]" 
+                                position="popper"
+                                sideOffset={5}
+                                align="start"
+                            >
+                                {Object.entries(woundEdges).map(([key, value]) => (
+                                    <SelectItem 
+                                        key={key} 
+                                        value={key}
+                                        className="py-3"
+                                    >
+                                        <div 
+                                            style={{
+                                                whiteSpace: "break-spaces",
+                                                overflowWrap: "break-word",
+                                                wordBreak: "break-word",
+                                                hyphens: "auto",
+                                                lineHeight: "1.5" 
+                                            }}
+                                        >
+                                            {value}
+                                        </div>
                                     </SelectItem>
                                 ))}
                             </SelectContent>

@@ -56,36 +56,45 @@ export interface WoundRegion {
 
 export interface Wound {
     region: string;
-    subregion: string;
-    type: string;
+    subregion?: string;
+    wound_type: string;
+    type?: string;
     start_date: string;
-    end_date: string;
+    end_date: string | null;
     patient_id: number;
+    specialist_id?: number;
     wound_id: number;
     image_id: number | null;
+    image_url?: string;
+    is_active?: boolean;
+    updated_at?: string;
     tracking_records?: WoundRecord[];
 }
 
 export interface WoundRecord {
-    wound_width: string;
-    wound_length: string;
+    width: string | number;
+    length: string | number;
+    wound_width?: string;
+    wound_length?: string;
     exudate_amount: string;
     exudate_type: string;
     tissue_type: string;
     wound_edges: string;
-    skin_around_the_wound: string;
+    skin_around: string | null;
     had_a_fever: boolean;
-    pain_level: string;
-    dressing_changes_per_day: string;
+    pain_level: string | number;
+    dressing_changes_per_day: string | number;
     guidelines_to_patient: string;
     extra_notes: string;
     image_id: number;
-    created_at: string;
-    updated_at: string;
+    created_at?: string;
+    updated_at?: string;
     track_date: string;
     wound_id: number;
     specialist_id: number;
-    tracking_record_id: number;
+    tracking_record_id?: number;
+    tracking_id?: number;
+    image_url?: string;
 }
 
 export function calculateAge(birthday: Date): number {
@@ -102,7 +111,6 @@ export function calculateAge(birthday: Date): number {
 }
 
 function formatBirthDate(birthday: string | undefined): string {
-    console.log(birthday)
     if (birthday === undefined) {
         return "";
     }

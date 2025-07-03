@@ -1,129 +1,325 @@
-import { Button } from "@/components/ui/button.tsx"
-import { Card, CardContent } from "@/components/ui/card.tsx"
-import { ArrowLeft, Edit, FileText, Plus } from "lucide-react"
-import { useEffect } from "react";
-import useSWRMutation from "swr/mutation";
-import { getBaseURL, getRequest } from "@/data/common/HttpExtensions.ts";
-import type { Wound, WoundPatient } from "@/data/common/Mapper.ts";
-import { calculateAge } from "@/data/common/Mapper.ts";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Card } from "@/components/ui/card.tsx"
+import type { Wound } from "@/data/common/Mapper.ts";
+import { useNavigate } from "react-router-dom";
+import useSWR from "swr";
+import { useRef, useEffect, useState} from "react";
+import { LoadingScreen, type LoadingScreenHandle } from '@/components/ui/new/loading/LoadingScreen';
+import { WaveBackgroundLayout } from "@/components/ui/new/wave/WaveBackground.tsx";
+import PageTitleWithBackButton from "@/components/shared/PageTitleWithBackButton";
 import { getRegionDescription, getSubregionDescription, getWoundType } from "@/data/common/LocalDataMapper.tsx";
+import { PatientIcon } from "@/components/ui/new/PatientIcon";
 
-const WoundCard = ({wound, index}: { wound: Wound, index: number }) => {
+// Usar exatamente a mesma função que o especialista usa
+const customGetRequest = async (url: string) => {
+    const token = localStorage.getItem("access_token");
+    
+    if (!token) {
+        throw new Error("Authentication token not found");
+    }
+    
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        mode: 'cors'
+    });
+    
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    
+    return response.json();
+};
+
+
+const WoundCard = ({wound, index}: { 
+    wound: Wound; 
+    index: number;
+}) => {
     const navigate = useNavigate();
+    const [imageUrl, setImageUrl] = useState<string | null>(null);
+    const [imageLoading, setImageLoading] = useState(false);
+    const [imageError, setImageError] = useState(false);
+    
+   useEffect(() => {
+        const fetchWoundImage = async () => {
+            // Se a ferida não tiver image_url ou image_id, não tente buscar
+            if (!wound.image_url && !wound.image_id) {
+                return;
+            }
+            
+            setImageLoading(true);
+            setImageError(false);
+            
+            try {
+                const accessToken = localStorage.getItem('access_token');
+                if (!accessToken) {
+                    throw new Error('Token de acesso não encontrado');
+                }
+                
+                // Se a ferida já tem a URL da imagem, use-a diretamente
+                if (wound.image_url) {
+                    const imageResponse = await fetch(wound.image_url);
+                    if (!imageResponse.ok) {
+                        throw new Error(`Erro ao carregar imagem da URL: ${imageResponse.status}`);
+                    }
+                    
+                    // Criar um blob e URL para mostrar a imagem
+                    const imageBlob = await imageResponse.blob();
+                    const url = URL.createObjectURL(imageBlob);
+                    setImageUrl(url);
+                    return;
+                }
+                
+                // Caso contrário, buscar os metadados da imagem
+                const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/images/${wound.image_id}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    },
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Erro ao buscar metadados da imagem: ${response.status}`);
+                }
+                
+                // Extrair a URL da imagem do JSON retornado
+                const imageData = await response.json();
+                
+                if (!imageData.image) {
+                    throw new Error('URL da imagem não encontrada na resposta');
+                }
+                
+                // Carregar a imagem real da URL fornecida
+                const imageResponse = await fetch(imageData.image);
+                if (!imageResponse.ok) {
+                    throw new Error(`Erro ao carregar imagem da URL: ${imageResponse.status}`);
+                }
+                
+                // Criar um blob e URL para mostrar a imagem
+                const imageBlob = await imageResponse.blob();
+                const url = URL.createObjectURL(imageBlob);
+                setImageUrl(url);
+                
+            } catch (error) {
+                console.error('Erro ao carregar imagem da ferida:', error);
+                setImageError(true);
+            } finally {
+                setImageLoading(false);
+            }
+        };
+        
+        fetchWoundImage();
+        
+        // Limpar URL criado quando o componente for desmontado
+        return () => {
+            if (imageUrl) {
+                URL.revokeObjectURL(imageUrl);
+            }
+        };
+    }, [wound.image_id, wound.image_url]);
 
     const handleCardClick = () => {
-        navigate('/wound/detail', {state: {wound_id: wound.wound_id}});
+        navigate('/patient/wound/detail', {state: {wound_id: wound.wound_id}});
+    };
+    
+    const handleEdit = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        navigate('/patient/wound/add-update/image', {state: {wound_id: wound.wound_id, patient_id: wound.patient_id}});
     };
 
     return (
-        <Card className="mb-4 w-full shadow-sm border-b border-gray-200 cursor-pointer" onClick={handleCardClick}>
-            <CardContent className="p-4 flex justify-between items-center">
-                <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">{`Ferida ${index + 1}`}</h3>
-                    <div className="space-y-1 text-sm text-gray-500 leading-tight">
-                        <p>Tipo de ferida: {getWoundType(wound.type)}</p>
-                        <p>Local: {getRegionDescription(wound.region)}</p>
-                        <p>Subregião: {getSubregionDescription(wound.region, wound.subregion)}</p>
+        <>
+            <Card 
+                onClick={handleCardClick} 
+                className="mb-6 w-full rounded-2xl overflow-hidden border border-blue-100 bg-white cursor-pointer"
+            >
+                {/* Header section com nome e tipo da ferida */}
+                <div className="p-4 bg-white">
+                    <h3 className="text-sm text-blue-800 mb-1.5 font-semibold">{`Ferida ${index + 1}`}</h3>
+                    <div className="space-y-0.5">
+                        <div className="flex items-start">
+                            <span className="text-xs text-blue-800 font-medium mr-1">Tipo:</span>
+                            <span className="text-xs text-blue-600">{getWoundType(wound.wound_type)}</span>
+                        </div>
+                        <div className="flex items-start">
+                            <span className="text-xs text-blue-800 font-medium mr-1">Local:</span>
+                            <span className="text-xs text-blue-600">{getRegionDescription(wound.region)}</span>
+                        </div>
+                        {(wound.subregion || (wound.region && wound.region.includes(' '))) && (
+                            <div className="flex items-start">
+                                <span className="text-xs text-blue-800 font-medium mr-1">Subregião:</span>
+                                <span className="text-xs text-blue-600">{getSubregionDescription(wound.region || '', wound.subregion || '')}</span>
+                            </div>
+                        )}
                     </div>
                 </div>
-            </CardContent>
-        </Card>
+                
+                {/* Seção de imagem - modificada para mostrar a imagem real quando disponível */}
+                <div className="bg-gray-200 h-48 flex items-center justify-center overflow-hidden">
+                    {imageLoading ? (
+                        // Indicador de carregamento
+                        <div className="flex flex-col items-center">
+                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-500"></div>
+                            <p className="text-xs text-gray-500 mt-2">Carregando imagem...</p>
+                        </div>
+                    ) : imageUrl && !imageError ? (
+                        // Imagem carregada com sucesso
+                        <img
+                            src={imageUrl}
+                            alt={`Imagem da ferida ${index + 1}`}
+                            className="w-full h-full object-cover"
+                            onError={() => setImageError(true)}
+                        />
+                    ) : (
+                        // Placeholder para quando não há imagem ou ocorreu erro
+                        <div className="flex flex-col items-center">
+                            {/* Triangle on top */}
+                            <div className="w-10 h-10 mb-2"> 
+                                <div className="w-0 h-0 mx-auto
+                                    border-l-[18px] border-l-transparent
+                                    border-b-[30px] border-b-gray-400
+                                    border-r-[18px] border-r-transparent">
+                                </div>
+                            </div>
+                            
+                            {/* Square and circle side */}
+                            <div className="flex items-center justify-center space-x-8">
+                                <div className="w-9 h-9 bg-gray-400"></div>
+                                <div className="w-9 h-9 bg-gray-400 rounded-full"></div>
+                            </div>
+                            
+                            {/* Mensagem de erro, se aplicável */}
+                            {imageError && wound.image_id && (
+                                <p className="text-xs text-red-500 mt-2">Erro ao carregar imagem</p>
+                            )}
+                        </div>
+                    )}
+                </div>
+                
+                {/* Care instructions section */}
+                <div className="p-4 pt-2 border-t border-blue-50">
+                    <h4 className="text-xs text-blue-800 font-medium mb-1.5">Instruções para o cuidado</h4>
+                    <p className="text-xs text-blue-600">
+                        {/* {wound.notes || "Sem instruções específicas registradas."} */}
+                        {"Sem instruções específicas registradas."}
+                    </p>
+                </div>
+                
+                {/* Action buttons */}
+                <div className="flex justify-end p-4 gap-2">
+                    <button 
+                        onClick={handleEdit}
+                        className="py-1 px-6 text-xs bg-blue-800 text-white font-normal rounded-full"
+                    >
+                        Atualizar
+                    </button>
+                </div>
+            </Card>
+        </>
     );
 };
 
 export default function PatientsWounds() {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const patient_id = location.state?.patient_id as number;
+    // Removendo a variável não utilizada
+    // const location = useLocation();
+    const loadingRef = useRef<LoadingScreenHandle>(null);
+    const [error, setError] = useState<string | null>(null);
+    
+    // Usar a mesma abordagem que o especialista para obter o patient_id
+    const patient_id = localStorage.getItem('patient_id') ? Number(localStorage.getItem('patient_id')) : undefined;
+    
+      useEffect(() => {
+        // Show loading screen on mount
+        loadingRef.current?.show();
+    }, []);
 
     const {
-        data: woundPatient, trigger, isMutating
-    } = useSWRMutation<WoundPatient>(getBaseURL(`/patients/${patient_id}/wounds`), getRequest);
+        data: _wounds, 
+        isLoading: isLoadingWounds, 
+        error: woundError,
+    } = useSWR<Wound[]>(
+        patient_id ? `${import.meta.env.VITE_SERVER_URL}/wounds?patient_id=${patient_id}` : null,
+        customGetRequest,
+        {
+            onSuccess: () => {
+                // Handle loading state in combined useEffect below
+            },
+            onError: (error) => {
+                console.error("Error fetching wound data:", error);
+                setError("Erro ao carregar feridas");
+            }
+        }
+    );
 
     useEffect(() => {
-        trigger();
-    }, [trigger]);
+        if (!isLoadingWounds) {
+            const timer = setTimeout(() => {
+                loadingRef.current?.hide();
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [isLoadingWounds]);
 
-    const wounds = woundPatient?.wounds || []
-    console.log(wounds)
+    useEffect(() => {
+        if (woundError) {
+            loadingRef.current?.hide();
+        }
+    }, [woundError]);
+
+    const wounds = _wounds || [];
 
     return (
-        <div className="h-full overflow-hidden">
-            {isMutating ? (
-                <p>Carregando dados de paciente...</p>
-            ) : (
-                woundPatient && (
-                    <div className="flex flex-col h-full w-full items-center px-8">
-                        <div className="flex flex-col items-center w-full">
-                            <div className="flex w-full justify-between">
-                                <div
-                                    className={`border border-gray-300 rounded flex items-center justify-center cursor-pointer`}
-                                    onClick={() => {
-                                        navigate("/patient/list")
-                                    }}>
-                                    <ArrowLeft className="text-black p-2" size={32}/>
-                                </div>
-                                <div
-                                    className={`border border-gray-300 rounded flex items-center justify-center cursor-pointer`}
-                                    onClick={() => {
-                                    }}>
-                                    <Edit className="text-black p-2" size={32}/>
-                                </div>
-                            </div>
-                            <h1 className="text-2xl font-bold mb-4 mt-4">{woundPatient.name}</h1>
-                        </div>
-
-                        <div className="flex flex-col text-sm leading-relaxed space-y-2 self-start">
-                            <p>
-                                <span
-                                    className="font-bold text-base">Idade: </span> {calculateAge(new Date(woundPatient.birthday))} anos
-                            </p>
-                            <p>
-                                <span className="font-bold text-base">Comorbidades: </span>
-                                {woundPatient.comorbidities.length > 0 ? (
-                                    woundPatient.comorbidities.map((item) => item.name).join(", ")
-                                ) : (
-                                    'Nenhuma comorbidade registrada.'
-                                )}
-                            </p>
-                            <p>
-                                <span className="font-bold text-base">Hábitos: </span> {woundPatient.drink_frequency}
-                            </p>
-                            <h1 className="text-2xl font-semibold mb-4 !mt-6">Feridas:</h1>
-                        </div>
-
-                        <div className="flex flex-col max-h-screen w-full overflow-y-auto mt-6 pb-6">
-                            {wounds.length > 0 ? (
-                                wounds.map((wound, index) => (
-                                    <WoundCard key={index} wound={wound} index={index}/>
-                                ))
-                            ) : (
-                                <div className="flex justify-center">
-                                    <p>Sem feridas cadastradas.</p>
-                                </div>
-                            )}
-                        </div>
-
-                        <Button type="button" className="bg-sky-900 mt-6" onClick={() => {
-                            navigate('/wound/create', {state: {patient_id: patient_id}});
-                        }}>
-                            <Plus className="mr-2 h-5 w-5"/>
-                            Adicionar Ferida
-                        </Button>
-                        <Button type="button" className="bg-sky-900 mt-6" onClick={() => {
-                        }}>
-                            <FileText className="mr-2 h-5 w-5"/>
-                            Gerar PDF
-                        </Button>
-                        <Button type="button" className="bg-sky-900 mt-6 mb-6" onClick={() => {
-                        }}>
-                            <FileText className="mr-2 h-5 w-5"/>
-                            Gerar planilha
-                        </Button>
+        <>
+            {/* Change the WaveBackgroundLayout styling */}
+            <WaveBackgroundLayout className="absolute inset-0 overflow-auto">
+                <div className="flex flex-col w-full min-h-full items-center px-4">
+                    {/* Header with Professional Icon */}
+                    <div className="flex justify-center items-center mt-6 mb-6">
+                        <PatientIcon size={0.6} borderRadius="50%" />
                     </div>
-                )
-            )}
-        </div>
+
+                    {/* PageHeader component */}
+                    <div className="flex w-full items-center justify-between mb-4">
+                        <PageTitleWithBackButton 
+                            title="Feridas Cadastradas" 
+                            backPath="/patient/menu"
+                            className="mb-0 mt-0 flex-1"
+                        />
+                    </div>
+
+                    {/* Error display */}
+                    {error && (
+                        <div className="w-full bg-red-50 border border-red-200 rounded-md p-4 mb-6">
+                            <p className="text-red-600">{error}</p>
+                        </div>
+                    )}
+                    
+                    <div className="w-full">
+                        {isLoadingWounds ? (
+                            <p className="text-center py-8">Carregando feridas...</p>
+                        ) : wounds.length === 0 ? (
+                            <div className="text-center py-8 text-gray-500">
+                                Nenhuma ferida cadastrada para este paciente.
+                            </div>
+                        ) : (
+                            wounds.map((wound, index) => (
+                                <WoundCard 
+                                    wound={wound} 
+                                    index={index} 
+                                    key={wound.wound_id}
+                                />
+                            ))
+                        )}
+                    </div>
+                    
+
+                </div>
+            </WaveBackgroundLayout>
+            
+            <LoadingScreen ref={loadingRef} />
+        </>
     );
-};
+}

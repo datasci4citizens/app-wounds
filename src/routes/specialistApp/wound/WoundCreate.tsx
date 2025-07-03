@@ -81,6 +81,8 @@ export default function WoundCreate() {
     const location = useLocation();
     const user = useUser();
 
+    console.log("User data:", user);
+
     const loadingRef = useRef<LoadingScreenHandle>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     
@@ -88,7 +90,6 @@ export default function WoundCreate() {
     const [alertMessage, setAlertMessage] = useState<{type: 'error' | 'success', message: string} | null>(null);
     
     const patient_id = location.state?.patient_id as number;
-    console.log("Patient ID:", patient_id);
 
     // Verificar se o patient_id existe
     if (!patient_id) {
@@ -128,8 +129,8 @@ export default function WoundCreate() {
     });
 
     const apiUrl = `${import.meta.env.VITE_SERVER_URL}/wounds/`;
-    console.log("API URL:", apiUrl);
 
+    // Modificação no onSubmit para pegar o specialist_id corretamente
     const onSubmit = async (data: WoundFormValues) => {
         // Evitar múltiplos envios
         if (isSubmitting) return;
@@ -142,18 +143,22 @@ export default function WoundCreate() {
         
         try {
             const accessToken = localStorage.getItem('access_token');
-
-            if (!accessToken) {
-                loadingRef.current?.hide();
-                setAlertMessage({
-                    type: 'error',
-                    message: "Sua sessão expirou. Por favor, faça login novamente."
-                });
-                
-                setTimeout(() => {
-                    navigate('/login');
-                }, 2000);
-                return;
+            
+            // Obter dados do especialista do localStorage
+            const specialistDataString = localStorage.getItem('specialist_data');
+            let specialistId = null;
+            
+            if (specialistDataString) {
+                try {
+                    const specialistData = JSON.parse(specialistDataString);
+                    specialistId = specialistData.specialist_id;
+                } catch (e) {
+                    console.error("Erro ao analisar specialist_data:", e);
+                }
+            }
+            
+            if (!specialistId) {
+                console.warn("specialist_id não encontrado no localStorage, continuando sem ele");
             }
 
             // Validação adicional da data antes de formatar
@@ -188,15 +193,13 @@ export default function WoundCreate() {
             const payload = {
                 patient_id: patient_id,
                 region: (data.region + " " + data.subregion).trim(),
-                specialist_id: user.id,
-                wound_type: data.type,
-                start_date: formattedStartDate, // Data formatada corretamente
+                wound_type: data.type, // Corrigido para 'type' em vez de 'wound_type'
+                start_date: formattedStartDate,
                 end_date: null,
                 image_id: null,
-                is_active: true, // Valor fixo para criação de uma nova ferida
+                is_active: true,
+                specialist_id: specialistId
             };
-
-            console.log("Enviando payload:", payload);
 
             const response = await fetch(apiUrl, {
                 method: 'POST',
@@ -248,7 +251,6 @@ export default function WoundCreate() {
             }
 
             const result = await response.json();
-            console.log('Wound created successfully:', result);
             
             // CORREÇÃO: Verificar o campo wound_id em vez de id
             if (!result.wound_id) {
@@ -261,7 +263,6 @@ export default function WoundCreate() {
 
             // CORREÇÃO: Usar o nome correto do campo na resposta
             const createdWoundId = result.wound_id;
-            console.log('Created wound ID:', createdWoundId);
 
             const elapsedTime = Date.now() - startTime;
             const remainingTime = Math.max(0, minimumLoadingTime - elapsedTime);
@@ -283,8 +284,6 @@ export default function WoundCreate() {
                         setIsSubmitting(false);
                         return;
                     }
-
-                    console.log("Navegando com wound_id:", createdWoundId);
                     
                     navigate('/specialist/wound/add-update', { 
                         state: { 

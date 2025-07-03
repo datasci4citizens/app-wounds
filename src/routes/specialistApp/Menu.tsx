@@ -70,7 +70,6 @@ export default function Menu() {
   // Navigation handlers for the mobile menu
   const handleHomeClick = () => navigate('/specialist/menu');
   const handleNewCaseClick = () => navigate('/specialist/patient/create');
-  const handleNotificationsClick = () => navigate('/specialist/notifications');
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
@@ -120,11 +119,9 @@ export default function Menu() {
       <MenuMobile 
         onHomeClick={handleHomeClick}
         onNewCaseClick={handleNewCaseClick}
-        onNotificationsClick={handleNotificationsClick}
         plusButtonLabel="Novo Paciente"
         plusButtonPath="/specialist/patient/create"
         homePath="/specialist/menu"
-        notificationsPath="/specialist/notifications"
       />
     </WaveBackgroundLayout>
   )

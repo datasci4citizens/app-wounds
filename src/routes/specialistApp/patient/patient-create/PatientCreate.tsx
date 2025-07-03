@@ -71,7 +71,6 @@ export default function PatientCreateRedesign() {
 
   const [loading] = useState(false);
   const [showOptional, setShowOptional] = useState(false);
-  const [specialistId, setSpecialistId] = useState<string | null>(null);
 
 
   const { data: comorbiditiesData, trigger: fetchComorbidities } = useSWRMutation<Comorbidity[]>(
@@ -93,38 +92,47 @@ export default function PatientCreateRedesign() {
     const isValid = await form.trigger();
     if (isValid) {
       const data = form.getValues();
-
+      let localSpecialistId;
        try {
             const specialistData = localStorage.getItem("specialist_data");
             if (specialistData) {
                 const parsedData = JSON.parse(specialistData);
-                setSpecialistId(parsedData.id);
+                localSpecialistId = parsedData.specialist_id;
             } else {
                 const userInfo = localStorage.getItem("user_info");
                 if (userInfo) {
                     const parsedInfo = JSON.parse(userInfo);
-                    setSpecialistId(parsedInfo.id);
+                    localSpecialistId = parsedInfo.id;
                 }
             }
         } catch (error) {
             console.error("Error getting specialist info:", error);
         }
-
-
-      if (specialistId) {
+      if (localSpecialistId) {
         const payload = {
-          specialist_id: Number(specialistId),
+          specialist_id: Number(localSpecialistId),
           ...data,
+          smoke_frequency: data.smoke_frequency || null,
+          drink_frequency: data.drink_frequency || null,
+          weight: data.weight || null, 
+          height: data.height || null
         };
 
-        console.log("Dados do paciente enviados:", payload); 
+        try {
+          const response = await postRequest(getBaseURL("/patients/"), { arg: payload });
 
-        const response = await postRequest(getBaseURL("/patients/"), { arg: payload });
-
-        if (response.status === 200) {
-          navigate("/specialist/patient/create/qrcode");
-        } else {
-          console.error("Erro ao cadastrar paciente:", response);
+          if (response && response.patient_id) {
+            navigate("/specialist/patient/create/qrcode", { 
+              state: { 
+                patient_id: response.patient_id 
+              } 
+            });
+          } else {
+            console.error("Resposta não contém patient_id:", response);
+            alert("Erro ao navegar para o QR code. Id do paciente não encontrado.");
+          }
+        } catch (error) {
+          console.error("Erro ao cadastrar paciente:", error);
         }
       }
     }
