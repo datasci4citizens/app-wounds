@@ -363,10 +363,10 @@ export default function WoundRecordDetail() {
                                     </div>
                                 )}
 
-                                {record && record.dressing_changes_per_day && (
+                                {record && record.exudate_amount && (
                                     <div>
                                         <p className="font-medium text-sm">Trocas de curativo por dia</p>
-                                        <p className="text-xs">{getExudateAmountDescription(record.dressing_changes_per_day)}</p>
+                                        <p className="text-xs">{getExudateAmountDescription(record.exudate_amount)}</p>
                                     </div>
                                 )}
                             </div>
@@ -385,6 +385,7 @@ export default function WoundRecordDetail() {
                                         </div>
                                 </div>
                             </div>
+
                         )}
 
                     </div>

@@ -275,7 +275,7 @@ const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundReco
                             <div>
                                 <p className="text-xs font-medium">Trocas de curativo por dia</p>
                                 <p className="text-xs">
-                                    {getExudateAmountDescription(woundRecord.dressing_changes_per_day)}
+                                    {getExudateAmountDescription(woundRecord.exudate_amount)}
                                 </p>
                             </div>
                             
