@@ -106,12 +106,13 @@ export default function Menu() {
           onClick={() => handleNavigate('/patient/list')}
         />
         
-        <CategoryCard 
+        
+        {/* <CategoryCard 
           title="Histórico de avaliações"
           description="Casos já analisados"
           onClick={() => handleNavigate('/appointments')}
           theme="light_blue"
-        />
+        /> */}
       </div>
       
       {/* Use the reusable mobile menu with custom click handlers */}
