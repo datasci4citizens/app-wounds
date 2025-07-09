@@ -30,9 +30,9 @@ const FormSchema = z.object({
     woundLength: z.string().min(1, "Campo obrigatório"),
     date: z.date().nullable().refine(date => date !== null, {message: "Data de começo é obrigatória"}),
     painLevel: z.number().min(0).max(10),
-    exudateAmount: z.string().optional(),
-    exudateType: z.string().optional(),
-    tissueType: z.string().optional(),
+    exudateAmount: z.string().min(1, "Campo obrigatório"),
+    exudateType: z.string().min(1, "Campo obrigatório"),
+    tissueType: z.string().min(1, "Campo obrigatório"),
     skinAround: z.string().optional(),
     woundEdges: z.string().optional(),
     hadFever: z.boolean().optional(),
@@ -313,7 +313,7 @@ function WoundsRequiredFields({form}: { form: UseFormReturn<z.infer<typeof FormS
                 name="exudateAmount"
                 render={({field}) => (
                     <FormItem>
-                        <FormLabel className="text-[#0120AC] font-medium">Quantidade exsudato</FormLabel>
+                        <FormLabel className="text-[#0120AC] font-medium">Quantidade exsudato*</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                                 <SelectTrigger className="bg-white border-[#0120AC] rounded-lg text-[#0120AC]">
@@ -341,7 +341,7 @@ function WoundsRequiredFields({form}: { form: UseFormReturn<z.infer<typeof FormS
                 name="exudateType"
                 render={({field}) => (
                     <FormItem>
-                        <FormLabel className="text-[#0120AC] font-medium">Tipo de exsudato</FormLabel>
+                        <FormLabel className="text-[#0120AC] font-medium">Tipo de exsudato*</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                                 <SelectTrigger className="bg-white border-[#0120AC] rounded-lg text-[#0120AC]">
@@ -369,7 +369,7 @@ function WoundsRequiredFields({form}: { form: UseFormReturn<z.infer<typeof FormS
                 name="tissueType"
                 render={({field}) => (
                     <FormItem>
-                        <FormLabel className="text-[#0120AC] font-medium">Tipo de tecido</FormLabel>
+                        <FormLabel className="text-[#0120AC] font-medium">Tipo de tecido*</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                                 <SelectTrigger className="bg-white border-[#0120AC] rounded-lg text-[#0120AC]">
