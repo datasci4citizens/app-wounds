@@ -1,5 +1,5 @@
 import { Image } from "lucide-react"
-import exudateAmountData from '@/localdata/exudate-amount.json';
+import exudateAmountData from '@/localdata/patient-exsudate-amount.json';
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import useSWRMutation from "swr/mutation";
