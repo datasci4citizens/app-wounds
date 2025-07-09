@@ -13,6 +13,7 @@ import { GoogleAuth } from "@codetrix-studio/capacitor-google-auth";
 // Define interfaces for API responses
 interface ProviderData {
   provider_name: string;
+  provider_id: number;
   // Add other provider fields if needed
 }
 
@@ -90,10 +91,29 @@ const LandingPage = () => {
           if (specialist_data?.specialist_name) {
             localStorage.setItem("provider_name", specialist_data.specialist_name);
           }
+          const fetchUserData = async () => {
+            try {
+              const response = await axios.get(
+                `${import.meta.env.VITE_SERVER_URL}/specialists/${provider_data?.provider_id}`,
+                { headers: { Authorization: `Bearer ${access}` } }
+              );
+              
+              if (response.data) {
+                console.log("User data fetched successfully:", response.data);
+                localStorage.setItem("specialist_data", JSON.stringify(response.data));
+              }
+            } catch (error) {
+              console.error("Failed to fetch user data:", error);
+            }
+          };
           
+<<<<<<< HEAD
           if (specialist_data) {
             localStorage.setItem("specialist_data", JSON.stringify(specialist_data));
           }
+=======
+          fetchUserData();
+>>>>>>> origin
           // Check if profile completion is required
           if (profile_completion_required) {
             navigate("/specialist-signup");
