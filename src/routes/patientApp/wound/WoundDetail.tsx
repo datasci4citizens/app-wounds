@@ -1,4 +1,4 @@
-import exudateTypeData from '@/localdata/exudate-type.json';
+import exudateTypeData from '@/localdata/patient-exudate-type.json';
 import exudateAmountData from '@/localdata/exudate-amount.json';
 import { Button } from "@/components/ui/button.tsx"
 import { ChevronsDownUp, ChevronsUpDown } from "lucide-react"

@@ -10,7 +10,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import exudateAmounts from '@/localdata/exudate-amount.json'
-import exudateTypes from '@/localdata/exudate-type.json'
+import exudateTypes from '@/localdata/patient-exudate-type.json'
 import { Switch } from "@/components/ui/switch.tsx";
 import { useLocation, useNavigate } from "react-router-dom";
 import { WaveBackgroundLayout } from "@/components/ui/new/wave/WaveBackground";

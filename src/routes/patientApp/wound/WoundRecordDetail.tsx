@@ -6,7 +6,7 @@ import useSWRMutation from "swr/mutation";
 import { WaveBackgroundLayout } from "@/components/ui/new/wave/WaveBackground";
 import { PatientIcon } from "@/components/ui/new/PatientIcon";
 import PageTitleWithBackButton from "@/components/shared/PageTitleWithBackButton";
-import exudateTypeData from '@/localdata/exudate-type.json';
+import exudateTypeData from '@/localdata/patient-exudate-type.json';
 
 export default function WoundRecordDetail() {
     const navigate = useNavigate();
