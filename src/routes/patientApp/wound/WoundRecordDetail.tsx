@@ -372,29 +372,21 @@ export default function WoundRecordDetail() {
                             </div>
                         </div>
 
-                        {/* Notas e orientações */}
-                        {(record.extra_notes || record.guidelines_to_patient) && (
-                            <>
+                        {record.guidelines_to_patient && (
+                            <div>
                                 <hr className="border-t border-gray-200 my-4" />
                                 <h2 className="text-lg font-bold text-blue-800 mb-4">Anotações</h2>
 
                                 <div className="space-y-4 text-blue-800">
-                                    {record.extra_notes && (
+                                
                                         <div>
-                                            <p className="font-medium text-sm">Observações</p>
-                                            <p className="text-xs">{record.extra_notes}</p>
-                                        </div>
-                                    )}
-
-                                    {record.guidelines_to_patient && (
-                                        <div>
-                                            <p className="font-medium text-sm">Orientações ao paciente</p>
+                                            <p className="font-medium text-sm">Orientações</p>
                                             <p className="text-xs">{record.guidelines_to_patient}</p>
                                         </div>
-                                    )}
                                 </div>
-                            </>
-                        )}              
+                            </div>
+                        )}
+
                     </div>
                 </div>
             </div>

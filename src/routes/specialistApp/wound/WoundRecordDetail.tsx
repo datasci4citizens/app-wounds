@@ -308,14 +308,14 @@ export default function WoundRecordDetail() {
                                 <div className="space-y-4 text-blue-800">
                                     {woundRecord.extra_notes && (
                                         <div>
-                                            <p className="font-medium text-sm">Observações</p>
+                                            <p className="font-medium text-sm">Suas observações</p>
                                             <p className="text-xs">{woundRecord.extra_notes}</p>
                                         </div>
                                     )}
 
                                     {woundRecord.guidelines_to_patient && (
                                         <div>
-                                            <p className="font-medium text-sm">Orientações ao paciente</p>
+                                            <p className="font-medium text-sm">Orientações</p>
                                             <p className="text-xs">{woundRecord.guidelines_to_patient}</p>
                                         </div>
                                     )}
