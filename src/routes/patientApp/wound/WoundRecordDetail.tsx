@@ -1,12 +1,12 @@
 import { Image } from "lucide-react"
-import exudateAmountData from '@/localdata/exudate-amount.json';
+import exudateAmountData from '@/localdata/patient-exsudate-amount.json';
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import useSWRMutation from "swr/mutation";
 import { WaveBackgroundLayout } from "@/components/ui/new/wave/WaveBackground";
 import { PatientIcon } from "@/components/ui/new/PatientIcon";
 import PageTitleWithBackButton from "@/components/shared/PageTitleWithBackButton";
-import exudateTypeData from '@/localdata/exudate-type.json';
+import exudateTypeData from '@/localdata/patient-exudate-type.json';
 
 export default function WoundRecordDetail() {
     const navigate = useNavigate();
@@ -372,19 +372,21 @@ export default function WoundRecordDetail() {
                             </div>
                         </div>
 
-                        {/* Observações adicionais */}
-                        {record.extra_notes && (
-                            <>
+                        {record.guidelines_to_patient && (
+                            <div>
                                 <hr className="border-t border-gray-200 my-4" />
-                                <h2 className="text-lg font-bold text-blue-800 mb-4">Relato ao especialista</h2>
+                                <h2 className="text-lg font-bold text-blue-800 mb-4">Anotações</h2>
 
                                 <div className="space-y-4 text-blue-800">
-                                    <div>
-                                        <p className="text-xs">{record.extra_notes}</p>
-                                    </div>
+                                
+                                        <div>
+                                            <p className="font-medium text-sm">Orientações</p>
+                                            <p className="text-xs">{record.guidelines_to_patient}</p>
+                                        </div>
                                 </div>
-                            </>
+                            </div>
                         )}
+
                     </div>
                 </div>
             </div>

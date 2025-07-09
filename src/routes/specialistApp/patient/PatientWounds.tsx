@@ -22,6 +22,8 @@ import { ProfessionalIcon } from "@/components/ui/new/ProfessionalIcon";
 import PageTitleWithBackButton from "@/components/shared/PageTitleWithBackButton";
 import jsPDF from 'jspdf';
 import { getRegionDescription, getSubregionDescription, getWoundType } from "@/data/common/LocalDataMapper.tsx";
+import { commonComorbidities } from "@/data/common/LocalDataMapper";
+
 
 
 const customGetRequest = async (url: string) => {
@@ -72,6 +74,8 @@ const customDeleteRequest = async (url: string) => {
 };
 
 
+// Componente comentado pois não está sendo utilizado
+/*
 const PatientInfoCard = ({ title, content, onEdit, onSave }: { 
     title: string; 
     content: string; 
@@ -147,6 +151,7 @@ const PatientInfoCard = ({ title, content, onEdit, onSave }: {
         </div>
     );
 };
+*/
 
 // Info Item component for the details section
 const InfoItem = ({ label, value }: { label: string; value: string | number }) => {
@@ -272,13 +277,13 @@ const WoundCard = ({wound, index, onDelete}: {
                     <div className="space-y-0.5">
                         <div className="flex items-start">
                             <span className="text-xs text-blue-800 font-medium mr-1">Tipo:</span>
-                            <span className="text-xs text-blue-600">{getWoundType(wound.type || '')}</span>
+                            <span className="text-xs text-blue-600">{getWoundType(wound.wound_type || wound.type || '')}</span>
                         </div>
                         <div className="flex items-start">
                             <span className="text-xs text-blue-800 font-medium mr-1">Local:</span>
                             <span className="text-xs text-blue-600">{getRegionDescription(wound.region)}</span>
                         </div>
-                        {wound.subregion && (
+                        {(wound.subregion || (wound.region && wound.region.includes(' '))) && (
                             <div className="flex items-start">
                                 <span className="text-xs text-blue-800 font-medium mr-1">Subregião:</span>
                                 <span className="text-xs text-blue-600">{getSubregionDescription(wound.region || '', wound.subregion || '')}</span>
@@ -456,10 +461,16 @@ export default function PatientsWounds() {
     const wounds = _wounds || [];
     
 
+        // TODO: Implementação futura - A descrição do paciente será integrada com a API
+    // Comentado temporariamente - será implementado em uma versão futura
+    /*
     const [patientDescription, setPatientDescription] = useState(
         "Lorem ipsum odor amet, consectetuer adipiscing elit. Mattis penatibus consectetur justo porta diam molestie. Diam tristique ante aenean maximus nisi."
     );
+    */
     
+        // TODO: Implementação futura - Salvar descrição do paciente na API
+    /*
     const savePatientDescription = (newDescription: string) => {
         setPatientDescription(newDescription);
         // If you have an API endpoint to save this data, make the request here:
@@ -487,36 +498,14 @@ export default function PatientsWounds() {
         //   loadingRef.current?.hide();
         // }
     };
+    */
 
     // Extract patient information safely
     const patientName = patient?.name || "Carregando...";
     const patientAge = patient?.birthday ? calculateAge(new Date(patient.birthday)) : "N/A";
     
-    // Add state for comorbidities lookup table
-    const [comorbidities, setComorbidities] = useState<Record<number, string>>({});
     
     // Fetch comorbidities data on component initialization
-    const fetchComorbidities = useCallback(async () => {
-        try {
-            const response = await customGetRequest(`${import.meta.env.VITE_SERVER_URL}/comorbidities`);
-            
-            // Create a lookup object mapping comorbididade_id to name
-            const comorbiditiesMap: Record<number, string> = {};
-            response.forEach((item: { comorbidity_id: number; name: string }) => {
-                comorbiditiesMap[item.comorbidity_id] = item.name;
-            });
-            
-            setComorbidities(comorbiditiesMap);
-        } catch (error) {
-            console.error("Error fetching comorbidities:", error);
-        }
-    }, []);
-    
-    // Call the fetch function on component mount
-    useEffect(() => {
-        fetchComorbidities();
-    }, [fetchComorbidities]);
-    
     // Format comorbidities properly by mapping IDs to names
     const formatComorbidities = useCallback(() => {
         if (!patient?.comorbidities || !Array.isArray(patient.comorbidities) || patient.comorbidities.length === 0) {
@@ -525,15 +514,17 @@ export default function PatientsWounds() {
         
         // Map each comorbididade ID to its name using the lookup table
         const comorbidityNames = patient.comorbidities
-            .map(id => comorbidities[id] || `Comorbidade ${id}`)
-            .filter(Boolean);
+            .map(
+                id =>
+                Object.entries(commonComorbidities).filter(([_, c]) => c.cid11_code == id)[0]?.[1].name || `Comorbidade ${id}`)
+            .filter(Boolean)
         
         if (comorbidityNames.length === 0) {
             return "Sem comorbidades";
         }
         
         return comorbidityNames.join(", ");
-    }, [patient?.comorbidities, comorbidities]);
+    }, [patient?.comorbidities]);
     
     // Replace the existing patientComorbidity declaration with this:
     const patientComorbidity = formatComorbidities();
@@ -571,9 +562,9 @@ export default function PatientsWounds() {
             pdf.setFontSize(12);
             pdf.setTextColor(80, 80, 80); // Dark gray for regular text
             
-            const description = patientDescription;
-            const splitDescription = pdf.splitTextToSize(description, pageWidth - 40);
-            pdf.text(splitDescription, 20, 50);
+            // const description = patientDescription;
+            // const splitDescription = pdf.splitTextToSize(description, pageWidth - 40);
+            // pdf.text(splitDescription, 20, 50);
             
             // Add a line separator
             pdf.setDrawColor(200, 200, 200); // Light gray line
@@ -722,13 +713,16 @@ export default function PatientsWounds() {
 
                     {/* Patient Info section based on the image */}
                     {!isLoadingPatient && patient && (
-                        <div id="patient-info-section">
+                        <div id="patient-info-section" className="w-full">
                             {/* "Sobre o paciente" card as shown in the image */}
+                            {/* TODO: Implementação futura - Card de informações do paciente */}
+                            {/* 
                             <PatientInfoCard 
                                 title="Sobre o paciente" 
                                 content={patientDescription} 
                                 onSave={savePatientDescription}
                             />
+                            */}
                             
                             {/* Patient details section - UPDATED with lighter divider */}
                             <div className="w-full border-t border-gray-200 pt-6 mb-6">

@@ -30,10 +30,9 @@ const FormSchema = z.object({
     woundLength: z.string().min(1, "Campo obrigatório"),
     date: z.date().nullable().refine(date => date !== null, {message: "Data de começo é obrigatória"}),
     painLevel: z.number().min(0).max(10),
-    exudateAmount: z.string().optional(),
-    exudateType: z.string().optional(),
-    tissueType: z.string().optional(),
-    dressingChanges: z.string().optional(),
+    exudateAmount: z.string().min(1, "Campo obrigatório"),
+    exudateType: z.string().min(1, "Campo obrigatório"),
+    tissueType: z.string().min(1, "Campo obrigatório"),
     skinAround: z.string().optional(),
     woundEdges: z.string().optional(),
     hadFever: z.boolean().optional(),
@@ -53,12 +52,13 @@ export default function WoundAddUpdate() {
     const form = useForm<WoundFormValues>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
+            woundWidth: "",
+            woundLength: "",
             date: new Date(),
             painLevel: 0,
             exudateAmount: "",
             exudateType: "",
             tissueType: "",
-            dressingChanges: "",
             skinAround: "",
             woundEdges: "",
             hadFever: false,
@@ -90,7 +90,7 @@ export default function WoundAddUpdate() {
                 skin_around: data.skinAround ?? "", // Corrigido de skin_around
                 had_fever: data.hadFever ?? false, // Corrigido de had_a_fever
                 pain_level: data.painLevel.toString(),
-                dressing_changes_per_day: data.dressingChanges ?? "", // Corrigido de dressing_changer_per_day
+                dressing_changes_per_day: "", // Enviando vazio conforme solicitado
                 guidelines_to_patient: "",
                 extra_notes: "",
                 track_date: data.date ? data.date.toISOString().split('T')[0] : "",
@@ -224,7 +224,7 @@ function WoundsRequiredFields({form}: { form: UseFormReturn<z.infer<typeof FormS
                                         type="number"
                                         placeholder="20"
                                         {...field}
-                                        value={field.value}
+                                        value={field.value || ""}
                                         className="bg-white border-[#0120AC] rounded-lg placeholder:text-[#A6BBFF]"
                                         style={{color: field.value ? 'inherit' : '#A6BBFF'}}
                                     />
@@ -248,7 +248,7 @@ function WoundsRequiredFields({form}: { form: UseFormReturn<z.infer<typeof FormS
                                         type="number"
                                         placeholder="20"
                                         {...field}
-                                        value={field.value}
+                                        value={field.value || ""}
                                         className="bg-white border-[#0120AC] rounded-lg placeholder:text-[#A6BBFF]"
                                         style={{color: field.value ? 'inherit' : '#A6BBFF'}}
                                     />
@@ -313,7 +313,7 @@ function WoundsRequiredFields({form}: { form: UseFormReturn<z.infer<typeof FormS
                 name="exudateAmount"
                 render={({field}) => (
                     <FormItem>
-                        <FormLabel className="text-[#0120AC] font-medium">Quantidade exsudato</FormLabel>
+                        <FormLabel className="text-[#0120AC] font-medium">Quantidade exsudato*</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                                 <SelectTrigger className="bg-white border-[#0120AC] rounded-lg text-[#0120AC]">
@@ -341,7 +341,7 @@ function WoundsRequiredFields({form}: { form: UseFormReturn<z.infer<typeof FormS
                 name="exudateType"
                 render={({field}) => (
                     <FormItem>
-                        <FormLabel className="text-[#0120AC] font-medium">Tipo de exsudato</FormLabel>
+                        <FormLabel className="text-[#0120AC] font-medium">Tipo de exsudato*</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                                 <SelectTrigger className="bg-white border-[#0120AC] rounded-lg text-[#0120AC]">
@@ -369,7 +369,7 @@ function WoundsRequiredFields({form}: { form: UseFormReturn<z.infer<typeof FormS
                 name="tissueType"
                 render={({field}) => (
                     <FormItem>
-                        <FormLabel className="text-[#0120AC] font-medium">Tipo de tecido</FormLabel>
+                        <FormLabel className="text-[#0120AC] font-medium">Tipo de tecido*</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                                 <SelectTrigger className="bg-white border-[#0120AC] rounded-lg text-[#0120AC]">
@@ -398,33 +398,6 @@ function WoundsRequiredFields({form}: { form: UseFormReturn<z.infer<typeof FormS
 function WoundsOptionalFields({form}: { form: UseFormReturn<z.infer<typeof FormSchema>> }) {
     return (
         <div className="space-y-6">
-            <FormField
-                control={form.control}
-                name="dressingChanges"
-                render={({field}) => (
-                    <FormItem>
-                        <FormLabel className="text-[#0120AC] font-medium">Quantidade de trocas de curativo no dia</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                                <SelectTrigger className="bg-white border-[#0120AC] rounded-lg text-[#0120AC]">
-                                    <SelectValue 
-                                        placeholder="Selecione a quantidade"
-                                        style={{color: field.value ? 'inherit' : '#A6BBFF'}}
-                                    />
-                                </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                                {Object.entries(exudateAmounts).map(([key, value]) => (
-                                    <SelectItem key={key} value={key}>
-                                        {value}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        <FormMessage/>
-                    </FormItem>
-                )}
-            />
 
             <FormField
                 control={form.control}
@@ -513,7 +486,7 @@ function WoundsOptionalFields({form}: { form: UseFormReturn<z.infer<typeof FormS
                                     onCheckedChange={field.onChange}
                                 />
                             </FormControl>
-                            <FormLabel className="text-sm text-[#0120AC] font-medium">Teve febre nas últimas 48 horas</FormLabel>
+                            <FormLabel className="text-sm text-[#0120AC] font-medium">Teve febre nas últimas 24 horas</FormLabel>
                         </div>
                     </FormItem>
                 )}

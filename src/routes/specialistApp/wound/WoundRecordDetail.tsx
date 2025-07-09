@@ -14,7 +14,7 @@ export default function WoundRecordDetail() {
     const navigate = useNavigate();
     const location = useLocation();
     const woundId = location.state?.wound_id;
-    const trackingRecordId = location.state?.tracking_record_id;
+    // const trackingRecordId = location.state?.tracking_record_id; // Não utilizado
     const woundRecord = location.state?.woundRecord;
     
     const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -23,12 +23,12 @@ export default function WoundRecordDetail() {
 
     // Verificação de parâmetros
     useEffect(() => {
-        if (!woundId || !trackingRecordId || !woundRecord) {
-            console.error('Parâmetros necessários não encontrados:', { woundId, trackingRecordId, woundRecord });
+        if (!woundId || !woundRecord) {
+            console.error('Parâmetros necessários não encontrados:', { woundId, woundRecord });
             // navigate('/specialist/dashboard');
             return;
         }
-    }, [woundId, trackingRecordId, woundRecord, navigate]);
+    }, [woundId, woundRecord, navigate]);
 
     // Função para buscar imagem da ferida
     useEffect(() => {
@@ -113,14 +113,14 @@ export default function WoundRecordDetail() {
 
     // Funções para mapear campos corretamente
     const getSkinAroundDescription = (code: string) => {
-        if (!code) return '';
+        if (!code) return '-';
         
         // Use o mapeamento correto do arquivo JSON para skin_around
         return (skinAroundData as Record<string, string>)[code] || code;
     };
     
     const getWoundEdgesDescription = (code: string) => {
-        if (!code) return '';
+        if (!code) return '-';
         
         // Use o mapeamento correto do arquivo JSON para wound_edges
         // Se não existir o arquivo JSON específico, podemos usar o tissue_type como fallback
@@ -130,17 +130,17 @@ export default function WoundRecordDetail() {
     };
     
     const getTissueTypeDescription = (code: string) => {
-        if (!code) return '';
+        if (!code) return '-';
         return (tissueTypeData as Record<string, {type: string}>)[code]?.type || code;
     };
     
     const getExudateTypeDescription = (type: string) => {
-        if (!type) return '';
+        if (!type) return '-';
         return (exudateTypeData as Record<string, string>)[type] || type;
     };
     
     const getExudateAmountDescription = (amount: string) => {
-        if (!amount) return '';
+        if (!amount) return '-';
         return (exudateAmountData as Record<string, string>)[amount] || amount;
     };
 
@@ -159,27 +159,54 @@ export default function WoundRecordDetail() {
                     onBackClick={() => navigate('/specialist/wound/detail', {state: {wound_id: woundId}})}
                     className="w-full mb-4"
                 />
-
+                
                 <div className="flex flex-col w-full max-w-xl mb-6">
                     {/* Data da atualização */}
                     <p className="text-sm text-blue-800 font-medium text-center mb-4">
-                        {woundRecord.updated_at ? 
-                            (() => {
-                                const updatedAtStr = woundRecord.updated_at;
-                                const year = updatedAtStr.substring(0, 4);
-                                const month = updatedAtStr.substring(5, 7);
-                                const day = updatedAtStr.substring(8, 10);
-                                const hour = updatedAtStr.substring(11, 13);
-                                const minute = updatedAtStr.substring(14, 16);
-                                const second = updatedAtStr.substring(17, 19);
-                                
-                                return `${day}/${month}/${year} - ${hour}:${minute}:${second}`;
-                            })() 
-                            : "Data não disponível"
+                        {(() => {
+                            // Usar track_date se updated_at não estiver disponível
+                            const dateStr = woundRecord.updated_at || woundRecord.track_date;
+                            
+                            if (!dateStr) return "Data não disponível";
+                            
+                            try {
+                                // Se a string tiver formato de data completo com hora
+                                if (dateStr.length > 10) {
+                                    const year = dateStr.substring(0, 4);
+                                    const month = dateStr.substring(5, 7);
+                                    const day = dateStr.substring(8, 10);
+                                    
+                                    // Verificar se tem informação de hora
+                                    if (dateStr.length >= 19) {
+                                        const hour = dateStr.substring(11, 13);
+                                        const minute = dateStr.substring(14, 16);
+                                        const second = dateStr.substring(17, 19);
+                                        return `${day}/${month}/${year} - ${hour}:${minute}:${second}`;
+                                    } else {
+                                        return `${day}/${month}/${year}`;
+                                    }
+                                } else {
+                                    // Formato simples YYYY-MM-DD
+                                    const [year, month, day] = dateStr.split('-');
+                                    return `${day}/${month}/${year}`;
+                                }
+                            } catch (error) {
+                                console.error('Erro ao formatar data:', error);
+                                return dateStr; // Retorna a string original em caso de erro
+                            }
+                        })()
                         }
                     </p>
                     
                     <div className="bg-white rounded-2xl p-5 shadow-sm">
+
+                        <div>
+                            <h3 className="text-base font-semibold text-blue-800 mb-0">Paciente</h3>
+                            <p className="text-sm text-blue-800">{localStorage.getItem('currentPatientName') || ""}</p>
+                        </div>
+
+                        <hr className="border-t border-gray-200 my-4" />
+
                         {/* Seção da imagem */}
                         {woundRecord.image_id && (
                             <div className="mb-6">
@@ -211,28 +238,34 @@ export default function WoundRecordDetail() {
                         <div className="space-y-4 text-blue-800 mb-6">
                             <div>
                                 <p className="font-medium text-sm">Tamanho</p>
-                                <div className="flex items-center mt-1">
-                                    <div className="flex flex-row items-center bg-blue-50 rounded-md px-2 py-1">
-                                        <span className="text-xs text-blue-800 font-medium">{woundRecord.length}</span>
-                                        <span className="text-xs text-blue-500 mx-1">×</span>
-                                        <span className="text-xs text-blue-800 font-medium">{woundRecord.width}</span>
-                                        <span className="text-xs text-blue-500 ml-1">cm</span>
+                                {woundRecord.length && woundRecord.width ? (
+                                    <div className="flex items-center mt-1">
+                                        <div className="flex flex-row items-center bg-blue-50 rounded-md px-2 py-1">
+                                            <span className="text-xs text-blue-800 font-medium">{woundRecord.length}</span>
+                                            <span className="text-xs text-blue-500 mx-1">×</span>
+                                            <span className="text-xs text-blue-800 font-medium">{woundRecord.width}</span>
+                                            <span className="text-xs text-blue-500 ml-1">cm</span>
+                                        </div>
+                                        <span className="text-xs text-blue-400 ml-2">
+                                            (Área: {(Number(woundRecord.length) * Number(woundRecord.width)).toFixed(2)} cm²)
+                                        </span>
                                     </div>
-                                    <span className="text-xs text-blue-400 ml-2">
-                                        (Área: {(Number(woundRecord.length) * Number(woundRecord.width)).toFixed(2)} cm²)
-                                    </span>
-                                </div>
+                                ) : (
+                                    <p className="text-xs">-</p>
+                                )}
                             </div>
 
                             <div>
                                 <p className="font-medium text-sm">Nível da dor</p>
-                                <p className="text-xs">{woundRecord.pain_level}/10</p>
+                                <p className="text-xs">{woundRecord.pain_level ? `${woundRecord.pain_level}/10` : "-"}</p>
                             </div>
 
                             <div>
                                 <p className="font-medium text-sm">Exsudato</p>
                                 <p className="text-xs">
-                                    {getExudateTypeDescription(woundRecord.exudate_type)} - {getExudateAmountDescription(woundRecord.exudate_amount)}
+                                    {woundRecord.exudate_type || woundRecord.exudate_amount ? 
+                                        `${getExudateTypeDescription(woundRecord.exudate_type)} - ${getExudateAmountDescription(woundRecord.exudate_amount)}` : 
+                                        "-"}
                                 </p>
                             </div>
 
@@ -250,28 +283,19 @@ export default function WoundRecordDetail() {
                         <h2 className="text-lg font-bold text-blue-800 mb-4">Informações complementares</h2>
 
                         <div className="space-y-4 text-blue-800 mb-6">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <p className="font-medium text-sm">Febre nas 48h anteriores</p>
-                                    <p className="text-xs">{woundRecord.had_a_fever ? "Sim" : "Não"}</p>
-                                </div>
-
-                                {woundRecord.dressing_changer_per_day !== null && (
-                                    <div>
-                                        <p className="font-medium text-sm">Trocas de curativo</p>
-                                        <p className="text-xs">{woundRecord.dressing_changer_per_day} por dia</p>
-                                    </div>
-                                )}
+                            <div>
+                                <p className="font-medium text-sm">Febre nas 24h anteriores</p>
+                                <p className="text-xs">{woundRecord.had_a_fever ? "Sim" : "Não"}</p>
                             </div>
 
                             <div>
                                 <p className="font-medium text-sm">Pele ao redor da ferida</p>
-                                <p className="text-xs">{getSkinAroundDescription(woundRecord.skin_around)}</p>
+                                <p className="text-xs">{woundRecord.skin_around ? getSkinAroundDescription(woundRecord.skin_around) : "-"}</p>
                             </div>
 
                             <div>
                                 <p className="font-medium text-sm">Bordas da ferida</p>
-                                <p className="text-xs">{getWoundEdgesDescription(woundRecord.wound_edges)}</p>
+                                <p className="text-xs">{woundRecord.wound_edges ? getWoundEdgesDescription(woundRecord.wound_edges) : "-"}</p>
                             </div>
                         </div>
 
@@ -284,14 +308,14 @@ export default function WoundRecordDetail() {
                                 <div className="space-y-4 text-blue-800">
                                     {woundRecord.extra_notes && (
                                         <div>
-                                            <p className="font-medium text-sm">Observações</p>
+                                            <p className="font-medium text-sm">Suas observações</p>
                                             <p className="text-xs">{woundRecord.extra_notes}</p>
                                         </div>
                                     )}
 
                                     {woundRecord.guidelines_to_patient && (
                                         <div>
-                                            <p className="font-medium text-sm">Orientações ao paciente</p>
+                                            <p className="font-medium text-sm">Orientações</p>
                                             <p className="text-xs">{woundRecord.guidelines_to_patient}</p>
                                         </div>
                                     )}

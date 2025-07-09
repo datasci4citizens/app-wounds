@@ -24,16 +24,22 @@ const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundReco
     
 
     const formattedDate = (() => {
-        const trackDate = woundRecord.track_date;
-    
-        const year = trackDate.substring(0, 4);
-        const month = trackDate.substring(5, 7);
-        const day = trackDate.substring(8, 10);
-        const hour = trackDate.substring(11, 13);
-        const minute = trackDate.substring(14, 16);
-        const second = trackDate.substring(17, 19);
+        // Usar track_date se disponível
+        const dateStr = woundRecord.track_date;
         
-        return `${day}/${month}/${year} - ${hour}:${minute}:${second}`;
+        if (!dateStr) return "Data não disponível";
+        
+        try {
+            // Extrair apenas a data (dia/mês/ano) sem a hora
+            const year = dateStr.substring(0, 4);
+            const month = dateStr.substring(5, 7);
+            const day = dateStr.substring(8, 10);
+            
+            return `${day}/${month}/${year}`;
+        } catch (error) {
+            console.error('Erro ao formatar data:', error);
+            return dateStr; // Retorna a string original em caso de erro
+        }
     })();
 
     // Função para buscar a imagem da ferida
@@ -103,10 +109,13 @@ const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundReco
     }, [isOpen, woundRecord.image_id]);
 
     const handleSeeMoreButtonClick = () => {
+        // Usar tracking_id ou tracking_record_id, o que estiver disponível
+        const trackingRecordId = woundRecord.tracking_id || woundRecord.tracking_record_id;
+        
         navigate('/specialist/wound/record-detail', {
             state: {
                 wound_id: woundId,
-                tracking_record_id: woundRecord.tracking_record_id,
+                tracking_record_id: trackingRecordId,
                 woundRecord: woundRecord
             }
         });
@@ -257,7 +266,7 @@ const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundReco
                             
                             {woundRecord.extra_notes && (
                                 <div>
-                                    <p className="text-xs font-medium">Observações</p>
+                                    <p className="text-xs font-medium">Suas Observações</p>
                                     <p className="text-xs">
                                         {woundRecord.extra_notes}
                                     </p>
@@ -353,11 +362,13 @@ export default function WoundDetail() {
                 </div>
         
                 {/* Título da página com botão voltar */}
-                <PageTitleWithBackButton 
-                    title={"Ferida"} 
-                    onBackClick={() => wound && navigate('/specialist/patient/wounds', {state: {patient_id: wound.patient_id}})}
-                    className="w-full mb-4"
-                />
+                <div className="w-full">
+                    <PageTitleWithBackButton 
+                        title={"Ferida"} 
+                        onBackClick={() => wound && navigate('/specialist/patient/wounds', {state: {patient_id: wound.patient_id}})}
+                        className="w-full mb-4"
+                    />
+                </div>
 
                 {(isMutating || isWoundLoading) ? (
                     <div className="flex justify-center items-center p-8">
@@ -366,6 +377,14 @@ export default function WoundDetail() {
                 ) : (
                     wound && (
                         <>
+                            {/* Card com nome do paciente */}
+                            <div className="flex flex-col w-full max-w-xl bg-white rounded-2xl p-5 shadow-sm mb-2">
+                                <div>
+                                    <h3 className="text-base font-semibold text-blue-800 mb-0">Paciente</h3>
+                                    <p className="text-sm text-blue-800">{localStorage.getItem('currentPatientName') || ""}</p>
+                                </div>
+                            </div>
+                            
                             {/* Div principal com os detalhes da ferida e atualizações */}
                             <div className="flex flex-col w-full max-w-xl bg-white rounded-2xl p-5 shadow-sm mb-6">
                                 {/* Informações da ferida */}
@@ -390,6 +409,7 @@ export default function WoundDetail() {
                                     </div>
 
                                     <div className="space-y-5 mt-2">
+                                        
                                         <div>
                                             <h3 className="text-base font-semibold text-blue-800 mb-0">Local da ferida</h3>
                                                 <p className="text-sm text-blue-800">{getRegionDescription(wound.region.split(" ")[0])}</p>
@@ -419,11 +439,12 @@ export default function WoundDetail() {
 
                                 {/* Título "Atualizações" com tamanho reduzido */}
                                 <h2 className="text-lg font-bold text-blue-800 mb-4">Atualizações</h2>
+                                <h3 className="text-sm  text-blue-800 mb-4">Ordenadas pela mais recente</h3>
 
                                 {/* Lista de atualizações */}
                                 <div className="w-full">
                                     {wound.tracking_records && wound.tracking_records.length > 0 ? (
-                                        wound.tracking_records.map((woundRecord: WoundRecord, index: Key | null | undefined) => (
+                                        [...wound.tracking_records].reverse().map((woundRecord: WoundRecord, index: Key | null | undefined) => (
                                             <WoundRecordCollapsable key={index} woundRecord={woundRecord} woundId={woundId}/>
                                         ))
                                     ) : (

@@ -1,5 +1,5 @@
-import exudateTypeData from '@/localdata/exudate-type.json';
-import exudateAmountData from '@/localdata/exudate-amount.json';
+import exudateTypeData from '@/localdata/patient-exudate-type.json';
+import exudateAmountData from '@/localdata/patient-exsudate-amount.json';
 import { Button } from "@/components/ui/button.tsx"
 import { ChevronsDownUp, ChevronsUpDown } from "lucide-react"
 import { useEffect, useState, type Key } from "react";
@@ -275,7 +275,7 @@ const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundReco
                             <div>
                                 <p className="text-xs font-medium">Trocas de curativo por dia</p>
                                 <p className="text-xs">
-                                    {getExudateAmountDescription(woundRecord.dressing_changes_per_day)}
+                                    {getExudateAmountDescription(woundRecord.exudate_amount)}
                                 </p>
                             </div>
                             
@@ -286,11 +286,11 @@ const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundReco
                                 </p>
                             </div>
                             
-                            {woundRecord.extra_notes && (
+                            {woundRecord.guidelines_to_patient && (
                                 <div>
-                                    <p className="text-xs font-medium">Relato ao especialista</p>
+                                    <p className="text-xs font-medium">Observações</p>
                                     <p className="text-xs">
-                                        {woundRecord.extra_notes}
+                                        {woundRecord.guidelines_to_patient}
                                     </p>
                                 </div>
                             )}
@@ -466,11 +466,13 @@ export default function WoundDetail() {
 
                                 {/* Título "Atualizações" com tamanho reduzido */}
                                 <h2 className="text-lg font-bold text-blue-800 mb-4">Atualizações</h2>
+                                <h3 className="text-sm  text-blue-800 mb-4">Ordenadas pela mais recente</h3>
+
 
                                 {/* Lista de atualizações */}
                                 <div className="w-full">
                                     {wound.tracking_records && wound.tracking_records.length > 0 ? (
-                                        wound.tracking_records.map((woundRecord: WoundRecord, index: Key | null | undefined) => (
+                                        [...wound.tracking_records].reverse().map((woundRecord: WoundRecord, index: Key | null | undefined) => (
                                             <WoundRecordCollapsable key={index} woundRecord={woundRecord} woundId={woundId}/>
                                         ))
                                     ) : (

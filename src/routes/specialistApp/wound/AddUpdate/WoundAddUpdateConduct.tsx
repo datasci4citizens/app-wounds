@@ -59,7 +59,7 @@ export default function WoundAddUpdateConduct() {
                 ...woundUpdate,
                 wound_id: Number(wound_id), // Garantir que seja um número
                 extra_notes: data.extraNotes || "",
-                guidelines_to_patient: data.guidelines || "",
+                guidelines_to_patient: data.guidelines ? `Orientacoes do especialista: ${data.guidelines}` : "",
                 wound_edges: woundUpdate.wound_edges || null,
                 skin_around: woundUpdate.skin_around || null,
                 dressing_changes_per_day: woundUpdate.dressing_changes_per_day || null
@@ -145,7 +145,7 @@ export default function WoundAddUpdateConduct() {
                                 name="extraNotes"
                                 render={({field}) => (
                                     <FormItem>
-                                        <FormLabel className="text-[#0120AC] font-medium">Anotações extras</FormLabel>
+                                        <FormLabel className="text-[#0120AC] font-medium">Suas observações</FormLabel>
                                         <FormControl>
                                             <Textarea
                                                 placeholder="Anotações extras"
