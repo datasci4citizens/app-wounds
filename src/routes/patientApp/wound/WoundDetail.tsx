@@ -1,5 +1,5 @@
-import exudateTypeData from '@/localdata/exudate-type.json';
-import exudateAmountData from '@/localdata/exudate-amount.json';
+import exudateTypeData from '@/localdata/patient-exudate-type.json';
+import exudateAmountData from '@/localdata/patient-exsudate-amount.json';
 import { Button } from "@/components/ui/button.tsx"
 import { ChevronsDownUp, ChevronsUpDown } from "lucide-react"
 import { useEffect, useState, type Key } from "react";
@@ -275,7 +275,7 @@ const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundReco
                             <div>
                                 <p className="text-xs font-medium">Trocas de curativo por dia</p>
                                 <p className="text-xs">
-                                    {getExudateAmountDescription(woundRecord.dressing_changes_per_day)}
+                                    {getExudateAmountDescription(woundRecord.exudate_amount)}
                                 </p>
                             </div>
                             
