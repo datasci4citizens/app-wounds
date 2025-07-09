@@ -39,17 +39,16 @@ export default function Menu() {
               console.error("No access token found");
               return;
             }
-            const specialistData = JSON.parse(localStorage.getItem("specialist_data") || '{}');
-            console.log(specialistData);
+
             const response = await axios.get(
-              `${import.meta.env.VITE_SERVER_URL}/specialists/${specialistData.specialist_id}`,
+              `${import.meta.env.VITE_SERVER_URL}/specialists/`,
               { headers: { Authorization: `Bearer ${token}` } }
             );
             
             if (response.data) {
               // Store the complete user info object
-              localStorage.setItem("specialist_data", JSON.stringify(response.data));
-              setSpecialistName(response.data.specialist_name);
+              localStorage.setItem("specialist_data", JSON.stringify(response.data[0]));
+              setSpecialistName(response.data[0].specialist_name);
             }
           } catch (error) {
             console.error("Failed to fetch user data:", error);
@@ -107,12 +106,13 @@ export default function Menu() {
           onClick={() => handleNavigate('/patient/list')}
         />
         
-        <CategoryCard 
+        
+        {/* <CategoryCard 
           title="Histórico de avaliações"
           description="Casos já analisados"
           onClick={() => handleNavigate('/appointments')}
           theme="light_blue"
-        />
+        /> */}
       </div>
       
       {/* Use the reusable mobile menu with custom click handlers */}

@@ -13,7 +13,6 @@ import { GoogleAuth } from "@codetrix-studio/capacitor-google-auth";
 // Define interfaces for API responses
 interface ProviderData {
   provider_name: string;
-  provider_id: number;
   // Add other provider fields if needed
 }
 
@@ -36,17 +35,12 @@ interface LoginResponse {
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  console.log("Arrived at landing page")
-  console.log("Platform: ", navigator.userAgent);
   
   const isNative = Capacitor.isNativePlatform();
-  console.log("Is native platform:", isNative);
 
   // Handle OAuth success response
   const handleAuthSuccess = async (code: string, isToken: boolean) => {
-    console.log("Received code:", code);
     try {
-      console.log(import.meta.env.VITE_SERVER_URL);
       // Send the code to the backend with CORS headers
       let requestBody;
       if(isToken) {
@@ -71,12 +65,11 @@ const LandingPage = () => {
           withCredentials: true
         }
       );
-      console.log("Login successful:", response.data);
       
       const { 
         access, 
         refresh, 
-        provider_data, 
+        specialist_data, 
         patient_data,
         profile_completion_required,
         role,
@@ -94,26 +87,13 @@ const LandingPage = () => {
           break;
         case "specialist":
           // Store provider name if available
-          if (provider_data?.provider_name) {
-            localStorage.setItem("provider_name", provider_data.provider_name);
+          if (specialist_data?.specialist_name) {
+            localStorage.setItem("provider_name", specialist_data.specialist_name);
           }
-          const fetchUserData = async () => {
-            try {
-              const response = await axios.get(
-                `${import.meta.env.VITE_SERVER_URL}/specialists/${provider_data?.provider_id}`,
-                { headers: { Authorization: `Bearer ${access}` } }
-              );
-              
-              if (response.data) {
-                console.log("User data fetched successfully:", response.data);
-                localStorage.setItem("specialist_data", JSON.stringify(response.data));
-              }
-            } catch (error) {
-              console.error("Failed to fetch user data:", error);
-            }
-          };
           
-          fetchUserData();
+          if (specialist_data) {
+            localStorage.setItem("specialist_data", JSON.stringify(specialist_data));
+          }
           // Check if profile completion is required
           if (profile_completion_required) {
             navigate("/specialist-signup");
@@ -141,24 +121,19 @@ const LandingPage = () => {
 
   // Native platform authentication handler
   const handleNativeAuth = async () => {
-    console.log("Starting native auth flow");
     try {
       // Wrap GoogleAuth operations in try/catch blocks individually
       try {
-        console.log("Signing Out");
         await GoogleAuth.signOut();
       } catch (signOutErr) {
-        console.log("Sign out error (can be ignored if not signed in):", signOutErr);
         // Continue with sign in even if sign out fails
       }
       
-      console.log("Signing in");
       // Add a small delay before signing in to prevent app crashes
       await new Promise(resolve => setTimeout(resolve, 500));
       
       const googleUser = await GoogleAuth.signIn();
       const idToken = googleUser.authentication.idToken;
-      console.log("Signed in:", idToken);
       localStorage.removeItem("accessToken");
 
       await handleAuthSuccess(idToken, true);
@@ -186,7 +161,6 @@ const LandingPage = () => {
 
   useEffect(() => {
     const handleAppUrlOpen = async (data: { url: string }) => {
-      console.log("App opened with URL:", data.url);
       
       if (data.url.includes('oauth2redirect')) {
         try {
@@ -204,7 +178,6 @@ const LandingPage = () => {
             try {
               await Browser.close();
             } catch (browserErr) {
-              console.log("Browser close error:", browserErr);
             }
             await handleAuthSuccess(code, true);
           }
@@ -228,7 +201,6 @@ const LandingPage = () => {
   // Web platform authentication
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
-      console.log("OAuth success:", tokenResponse);
       const code = tokenResponse.code;
       await handleAuthSuccess(code, false);
     },
