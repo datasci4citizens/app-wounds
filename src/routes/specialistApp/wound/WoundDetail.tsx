@@ -266,7 +266,7 @@ const WoundRecordCollapsable = ({woundRecord, woundId}: { woundRecord: WoundReco
                             
                             {woundRecord.extra_notes && (
                                 <div>
-                                    <p className="text-xs font-medium">Observações</p>
+                                    <p className="text-xs font-medium">Suas Observações</p>
                                     <p className="text-xs">
                                         {woundRecord.extra_notes}
                                     </p>

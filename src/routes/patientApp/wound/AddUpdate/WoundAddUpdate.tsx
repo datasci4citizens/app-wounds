@@ -26,7 +26,7 @@ const FormSchema = z.object({
     dressingChanges: z.string().min(1, "Campo obrigatório"),
     pusColor: z.string().min(1, "Campo obrigatório"),
     hadFever: z.boolean(),
-    additionalNotes: z.string().optional(),
+    patientNotes: z.string().optional(),
 });
 
 type WoundFormValues = z.infer<typeof FormSchema>;
@@ -47,7 +47,7 @@ export default function WoundAddUpdate() {
             dressingChanges: "",
             pusColor: "",
             hadFever: false,
-            additionalNotes: "",
+            patientNotes: "",
         },
     });
 
@@ -82,8 +82,8 @@ export default function WoundAddUpdate() {
                 had_a_fever: data.hadFever || false,
                 pain_level: data.painLevel.toString(),
                 dressing_changes_per_day: data.dressingChanges || "",
-                guidelines_to_patient: "",
-                extra_notes: data.additionalNotes || "",
+                guidelines_to_patient: data.patientNotes ? `Anotações do paciente: ${data.patientNotes}` : "",
+                extra_notes: "",
                 track_date: new Date().toISOString().split('T')[0],
                 wound_id: woundId,
                 patient_id: patient_id || 0,
@@ -342,7 +342,7 @@ function WoundFields({form}: { form: UseFormReturn<z.infer<typeof FormSchema>> }
             {/* Campo de texto adicional */}
             <FormField
                 control={form.control}
-                name="additionalNotes"
+                name="patientNotes"
                 render={({field}) => (
                     <FormItem>
                         <FormLabel className="text-[#0120AC] font-medium">Deseja relatar algo mais ao especialista?</FormLabel>
