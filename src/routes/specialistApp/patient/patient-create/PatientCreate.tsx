@@ -13,19 +13,18 @@ import { Input } from "@/components/ui/input";
 import DatePicker from "@/components/common/DatePicker";
 import { useNavigate } from "react-router-dom";
 import { isBefore, isAfter, startOfDay } from "date-fns";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { WaveBackgroundLayout } from "@/components/ui/new/wave/WaveBackground";
 import { ProfessionalIcon } from "@/components/ui/new/ProfessionalIcon";
 import { Button } from "@/components/ui/new/Button";
-import useSWRMutation from "swr/mutation";
-import { getBaseURL, getRequest, postRequest } from "@/data/common/HttpExtensions";
+import { getBaseURL, postRequest } from "@/data/common/HttpExtensions";
 import { Checkbox } from "@/components/ui/new/general/Checkbox";
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import smokeFrequency from "@/localdata/smoke-frequency.json";
 import drinkFrequency from "@/localdata/drink-frequency.json";
 import PageTitleWithBackButton from "@/components/shared/PageTitleWithBackButton";
-
+import { commonComorbidities } from "@/data/common/LocalDataMapper";
 const patientSchema = z.object({
   name: z.string().min(1, "Campo obrigatório"),
   phone_number: z.string().optional(),
@@ -39,7 +38,7 @@ const patientSchema = z.object({
     message: "Você precisa aceitar os termos.",
   }),
   hospital_registration: z.string().min(1, "Campo obrigatório"),
-  comorbidities: z.array(z.number()).optional(),
+  comorbidities: z.array(z.string()).optional(),
 });
 
 type PatientFormData = z.infer<typeof patientSchema>;
@@ -72,15 +71,10 @@ export default function PatientCreateRedesign() {
   const [loading] = useState(false);
   const [showOptional, setShowOptional] = useState(false);
 
-
-  const { data: comorbiditiesData, trigger: fetchComorbidities } = useSWRMutation<Comorbidity[]>(
-    getBaseURL("/comorbidities/"),
-    getRequest
-  );
-
-  useEffect(() => {
-    fetchComorbidities();
-  }, [fetchComorbidities]);
+  const comorbiditiesData : Comorbidity[] = Object.entries(commonComorbidities).map(([key, value]) => ({
+    comorbidity_id: parseInt(key, 10),
+    ...value,
+  }));
 
   const allFieldsValid = form.watch("name") &&
     form.watch("hospital_registration") &&
@@ -332,12 +326,12 @@ export default function PatientCreateRedesign() {
                               render={({ field }) => (
                                 <FormItem className="flex items-center gap-2 text-[#0120AC]">
                                   <Checkbox
-                                    checked={field.value?.includes(item.comorbidity_id)}
+                                    checked={field.value?.includes(item.cid11_code)}
                                     onCheckedChange={(checked) =>
                                       checked
-                                        ? field.onChange([...(field.value ?? []), item.comorbidity_id])
+                                        ? field.onChange([...(field.value ?? []), item.cid11_code])
                                         : field.onChange(
-                                            field.value?.filter((id) => id !== item.comorbidity_id)
+                                            field.value?.filter((cd) => cd !== item.cid11_code)
                                           )
                                     }
                                   />

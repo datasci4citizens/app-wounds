@@ -47,7 +47,6 @@ export default function Menu() {
             );
             
             if (response.data) {
-              console.log("User data fetched successfully:", response.data);
               // Store the complete user info object
               localStorage.setItem("specialist_data", JSON.stringify(response.data));
               setSpecialistName(response.data.specialist_name);
