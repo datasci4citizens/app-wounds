@@ -92,7 +92,10 @@ const LandingPage = () => {
           }
           
           if (specialist_data) {
-            localStorage.setItem("specialist_data", JSON.stringify(specialist_data));
+            localStorage.setItem("specialist_data", JSON.stringify({
+              specialist_id: specialist_data.provider_id,
+              ...specialist_data,
+            }));
           }
           // Check if profile completion is required
           if (profile_completion_required) {
