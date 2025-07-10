@@ -395,6 +395,27 @@ export default function WoundRecordDetail() {
                                 </div>
                             </>
                         )}              
+                        {/* Predições */}
+                        {record.predictions && (
+                            <div className="mb-6">
+                                <h2 className="text-lg font-bold text-blue-800 mb-4">Predições automáticas</h2>
+                                <div className="space-y-2 text-blue-900">
+                                    <div>
+                                        <span className="font-medium">Tipo de tecido:</span>{" "}
+                                        {record.predictions.tissue_type}
+                                    </div>
+                                    <div>
+                                        <span className="font-medium">W/I/Fi:</span>{" "}
+                                        {record.predictions.W_I_Fi &&
+                                            `W: ${record.predictions.W_I_Fi.W}, I: ${record.predictions.W_I_Fi.I}, Fi: ${record.predictions.W_I_Fi.Fi}`}
+                                    </div>
+                                    <div>
+                                        <span className="font-medium">Área estimada:</span>{" "}
+                                        {record.predictions.wound_size_cm2} cm²
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
