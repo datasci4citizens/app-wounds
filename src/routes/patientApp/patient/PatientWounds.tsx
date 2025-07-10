@@ -33,6 +33,11 @@ const customGetRequest = async (url: string) => {
     return response.json();
 };
 
+type WoundPredictions = {
+    tissue_type: string;
+    W_I_Fi: any; // Use a more specific type if you know the structure
+    wound_size_cm2: number;
+};
 
 const WoundCard = ({wound, index}: { 
     wound: Wound; 
@@ -42,6 +47,7 @@ const WoundCard = ({wound, index}: {
     const [imageUrl, setImageUrl] = useState<string | null>(null);
     const [imageLoading, setImageLoading] = useState(false);
     const [imageError, setImageError] = useState(false);
+    const [predictions, setPredictions] = useState<WoundPredictions | null>(null);
     
    useEffect(() => {
         const fetchWoundImage = async () => {
@@ -87,7 +93,8 @@ const WoundCard = ({wound, index}: {
                 
                 // Extrair a URL da imagem do JSON retornado
                 const imageData = await response.json();
-                
+                setPredictions(imageData.predictions as WoundPredictions);
+
                 if (!imageData.image) {
                     throw new Error('URL da imagem não encontrada na resposta');
                 }
@@ -208,6 +215,18 @@ const WoundCard = ({wound, index}: {
                     </p>
                 </div>
                 
+                {/* Predictions section - mostrar previsões, se disponíveis, antes dos botões */}
+                {predictions && (
+                    <div className="p-4 pt-2 border-t border-blue-50">
+                        <h4 className="text-xs text-blue-800 font-medium mb-1.5">Previsões</h4>
+                        <div className="mt-2 text-xs text-blue-900">
+                            <div><b>Tecido:</b> {predictions.tissue_type}</div>
+                            <div><b>W/I/Fi:</b> {JSON.stringify(predictions.W_I_Fi)}</div>
+                            <div><b>Área (cm²):</b> {predictions.wound_size_cm2}</div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Action buttons */}
                 <div className="flex justify-end p-4 gap-2">
                     <button 
