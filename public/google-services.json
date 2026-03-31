@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "806302201521",
+    "project_id": "cicatrizando-testes-729ce",
+    "storage_bucket": "cicatrizando-testes-729ce.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:806302201521:android:30d2b173969dc60d8b9490",
+        "android_client_info": {
+          "package_name": "br.unicamp.ic.cicatrizando"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "806302201521-mg1pdj3hpskhml3lafkmmuspl21ripk6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAaMdPoA9nOcg-J9guVJ2bFZg71SWv_RHc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "806302201521-mg1pdj3hpskhml3lafkmmuspl21ripk6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

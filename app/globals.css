@@ -1,0 +1,197 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-primary: #0120AC;
+  --color-primary-light: #3B57D2;
+  --color-primary-dark: #00126B;
+  --color-primary-50: #E6E9F7;
+  --color-primary-100: #CDD4EE;
+
+  /* Cores Semânticas Clínicas */
+  --color-status-success: #10B981; /* Verde - Evolução positiva */
+  --color-status-success-bg: #D1FAE5;
+  --color-status-warning: #F59E0B; /* Âmbar - Estagnação/Atenção */
+  --color-status-warning-bg: #FEF3C7;
+  --color-status-danger: #EF4444;  /* Vermelho - Risco/Infecção */
+  --color-status-danger-bg: #FEE2E2;
+}
+
+@theme inline {
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-heading), ui-sans-serif, system-ui, sans-serif;
+  
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  /* Fundo "Gelo" muito suave, melhor que branco puro para mobile */
+  --background: #F8FAFC; 
+  /* Texto Quase Preto para alto contraste e legibilidade */
+  --foreground: #0F172A;
+  
+  /* Superfícies brancas para destacar do fundo */
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
+  --popover: #FFFFFF;
+  --popover-foreground: #0F172A;
+  
+  /* Cor principal da marca */
+  --primary: #0120AC; 
+  --primary-foreground: #FFFFFF;
+  
+  /* Elementos secundários/apoio */
+  --secondary: #F1F5F9;
+  --secondary-foreground: #0F172A;
+  
+  /* Elementos mutados/desabilitados */
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  
+  /* Elementos de destaque suave */
+  --accent: #E6E9F7; /* Um azul bem claro */
+  --accent-foreground: #0120AC;
+  
+  /* Ações destrutivas */
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  
+  /* Bordas e Inputs sutis */
+  --border: #E2E8F0;
+  --input: #E2E8F0;
+  --ring: #0120AC;
+  
+  /* Bordas mais arredondadas e amigáveis para mobile */
+  --radius: 1rem;
+}
+
+.dark {
+  /* Fundo slate muito escuro para não cansar a vista */
+  --background: #0F172A;
+  --foreground: #F8FAFC;
+  
+  /* Superfícies ligeiramente mais claras que o fundo */
+  --card: #1E293B;
+  --card-foreground: #F8FAFC;
+  --popover: #1E293B;
+  --popover-foreground: #F8FAFC;
+  
+  /* Azul ligeiramente mais claro/vibrante para garantir contraste no fundo escuro */
+  --primary: #3B57D2;
+  --primary-foreground: #FFFFFF;
+  
+  --secondary: #334155;
+  --secondary-foreground: #F8FAFC;
+  
+  --muted: #334155;
+  --muted-foreground: #94A3B8;
+  
+  --accent: #1E293B;
+  --accent-foreground: #3B57D2;
+  
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  
+  --border: #334155;
+  --input: #334155;
+  --ring: #3B57D2;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  
+  html {
+    @apply font-sans;
+    -webkit-text-size-adjust: 100%;
+    /* App-like preventions */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    height: 100dvh;
+    width: 100vw;
+    overflow: hidden;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    height: 100dvh;
+    width: 100vw;
+    overflow: hidden;
+    overscroll-behavior-y: none; /* Prevents pull-to-refresh and bounce */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Prevent text selection everywhere like native apps */
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Allow text selection only where it makes sense */
+  input, textarea, p, h1, h2, h3, h4, h5, h6, [contenteditable="true"] {
+    user-select: auto;
+    -webkit-user-select: auto;
+  }
+}
+
+@layer utilities {
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .pl-safe {
+    padding-left: env(safe-area-inset-left);
+  }
+  .pr-safe {
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}

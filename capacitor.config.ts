@@ -1,21 +1,13 @@
 import type { CapacitorConfig } from '@capacitor/cli';
+import 'dotenv/config'; // Isso faz o Node ler o seu arquivo .env automaticamente!
 
 const config: CapacitorConfig = {
-	appId: 'br.unicamp.ic.wounds',
-	appName: 'wounds',
-	webDir: 'dist',
-	server: {
-		androidScheme: 'https',
-		cleartext: true
-	},
-	plugins: {
-		CapacitorCookies: {
-			enabled: true
-		},
-		Browser: {
-			androidWindowTitle: "Authentication"
-		}
-	}
+  appId: 'br.unicamp.ic.cicatrizando',
+  appName: 'Cicatrizando',
+  webDir: 'out',
+  plugins: {
+    // Firebase Authentication plugin removed - now using react-oauth/google
+  },
 };
 
 export default config;
