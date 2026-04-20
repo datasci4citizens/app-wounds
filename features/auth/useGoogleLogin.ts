@@ -1,29 +1,23 @@
-import { useState } from 'react';
-import { useGoogleLogin as useGoogleOAuth } from '@react-oauth/google';
+import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { Capacitor } from '@capacitor/core';
+import { SocialLogin } from '@capgo/capacitor-social-login';
 import { useUserStore, UserRole, isSpecialist } from '@/store/userStore';
 import { useAuthStore } from '@/store/authStore';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!;
 
-/**
- * Response from server-wounds Google login endpoint
- * POST /auth/google/
- */
-interface GoogleLoginResponse {
+interface BackendLoginResponse {
   access: string;
   refresh: string;
   email: string;
   full_name: string;
   registration_complete: boolean;
-  role: string | null; // "specialist", "patient", or null
+  role: string | null;
 }
 
-/**
- * Maps the role display name from backend to the role code
- */
 const mapRoleDisplayToCode = (roleDisplay: string | null): UserRole => {
-  if (!roleDisplay) return null;
   if (roleDisplay === 'specialist') return 'Pr';
   if (roleDisplay === 'patient') return 'Pa';
   return null;
@@ -31,103 +25,88 @@ const mapRoleDisplayToCode = (roleDisplay: string | null): UserRole => {
 
 export const useGoogleLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   const router = useRouter();
   const setUser = useUserStore((state) => state.setUser);
   const setTokens = useAuthStore((state) => state.setTokens);
 
-  const googleLogin = useGoogleOAuth({
-    flow: 'auth-code',
-    onSuccess: async (codeResponse) => {
-      setIsLoading(true);
-      try {
-        // Exchange the auth code for JWT token via Django backend
-        // Endpoint matches server-wounds: POST /auth/google/
-        const response = await fetch(`${API_URL}/auth/google/`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            auth_code: codeResponse.code
-          }),
-        });
+  useEffect(() => {
+    SocialLogin.initialize({
+      google: {
+        webClientId: GOOGLE_CLIENT_ID,
+        mode: 'offline', // Returns serverAuthCode for backend exchange
+      },
+    })
+      .then(() => setIsInitialized(true))
+      .catch((error) => console.error('Failed to initialize SocialLogin:', error));
+  }, []);
 
-        if (!response.ok) {
-          const responseText = await response.text().catch(() => '');
-          let errorData: Record<string, unknown> = {};
-          try {
-            errorData = responseText ? JSON.parse(responseText) : {};
-          } catch {
-            // Response is not JSON
-          }
-          console.error('Login failed - status:', response.status);
-          console.error('Login failed - statusText:', response.statusText);
-          console.error('Login failed - responseText:', responseText);
-          console.error('Login failed - url:', `${API_URL}/auth/google/`);
-          throw new Error(errorData.detail as string || `Erro ao autenticar com Google (${response.status})`);
-        }
+  const exchangeAuthCode = useCallback(async (authCode: string): Promise<BackendLoginResponse> => {
+    // For mobile platforms (Android/iOS), the redirect_uri must be an empty string
+    // For web, it typically uses the origin or 'postmessage' (default in backend)
+    const isNative = Capacitor.isNativePlatform();
+    const payload: any = { auth_code: authCode };
+    if (isNative) {
+      payload.redirect_uri = '';
+    } else {
+      payload.redirect_uri = window.location.origin + window.location.pathname;
+    }
 
-        const data: GoogleLoginResponse = await response.json();
+    const response = await fetch(`${API_URL}/auth/google/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
 
-        // Store JWT tokens
-        setTokens({
-          access: data.access,
-          refresh: data.refresh,
-        });
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => '');
+      const errorData = errorText ? JSON.parse(errorText).detail : null;
+      throw new Error(errorData || `Erro ao autenticar com Google (${response.status})`);
+    }
 
-        // Map role display name to code
-        const role = mapRoleDisplayToCode(data.role);
+    return response.json();
+  }, []);
 
-        // Store user data
-        setUser({
-          email: data.email,
-          fullName: data.full_name,
-          role,
-          registrationComplete: data.registration_complete,
-        });
+  const handleLoginSuccess = useCallback((data: BackendLoginResponse) => {
+    setTokens({ access: data.access, refresh: data.refresh });
+    
+    const role = mapRoleDisplayToCode(data.role);
+    setUser({
+      email: data.email,
+      fullName: data.full_name,
+      role,
+      registrationComplete: data.registration_complete,
+    });
 
-        // Route based on registration status and role
-        if (!data.registration_complete) {
-          // User needs to complete registration
-          if (!role) {
-            // No role selected yet
-            router.push('/role-selection');
-          } else if (isSpecialist(role)) {
-            // Specialist needs to complete profile
-            router.push('/register-specialist');
-          } else {
-            // Patient role - currently goes to timeline
-            router.push('/timeline');
-          }
-        } else {
-          router.push('/');
-        }
+    if (!data.registration_complete) {
+      if (!role) router.push('/role-selection');
+      else if (isSpecialist(role)) router.push('/register-specialist');
+      else router.push('/timeline');
+    } else {
+      router.push('/');
+    }
+  }, [router, setTokens, setUser]);
 
-      } catch (error) {
-        if (error instanceof TypeError) {
-          // Network errors (CORS, server down, etc.)
-          console.error('Network error during login:', {
-            message: error.message,
-            apiUrl: API_URL,
-            hint: 'Check if the Django backend is running and CORS is configured',
-          });
-        } else {
-          console.error('Erro no login com Google:', error);
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    onError: () => {
-      console.error('Erro no login com Google');
-      setIsLoading(false);
-    },
-  });
-
-  const signInWithGoogle = () => {
+  const signInWithGoogle = useCallback(async () => {
     setIsLoading(true);
-    googleLogin();
-  };
+    try {
+      const { result } = await SocialLogin.login({
+        provider: 'google',
+        options: { scopes: ['email', 'profile'] },
+      });
 
-  return { signInWithGoogle, isLoading };
+      if (result.responseType !== 'offline' || !result.serverAuthCode) {
+        throw new Error('No auth code received from Google');
+      }
+
+      const data = await exchangeAuthCode(result.serverAuthCode);
+      handleLoginSuccess(data);
+    } catch (error) {
+      console.error('Google login error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [exchangeAuthCode, handleLoginSuccess]);
+
+  return { signInWithGoogle, isLoading, isInitialized };
 };

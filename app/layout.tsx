@@ -1,10 +1,6 @@
 'use client';
 
-import type { Metadata } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
-import { useEffect } from 'react';
-import { Capacitor } from '@capacitor/core';
-import { GoogleOAuthProvider } from '@react-oauth/google';
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
@@ -20,17 +16,15 @@ const plusJakarta = Plus_Jakarta_Sans({
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
-      <html lang="pt-BR" className={cn("h-full", "antialiased", inter.variable, plusJakarta.variable, "font-sans")}>
-        <head>
-          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-        </head>
-        <body className="flex flex-col h-[100dvh] w-full overflow-hidden bg-background text-foreground overscroll-none selection:bg-primary/20">
-          <main className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar w-full relative h-full">
-            {children}
-          </main>
-        </body>
-      </html>
-    </GoogleOAuthProvider>
+    <html lang="pt-BR" className={cn("h-full", "antialiased", inter.variable, plusJakarta.variable, "font-sans")}>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+      </head>
+      <body className="flex flex-col h-[100dvh] w-full overflow-hidden bg-background text-foreground overscroll-none selection:bg-primary/20">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar w-full relative h-full">
+          {children}
+        </main>
+      </body>
+    </html>
   );
 }

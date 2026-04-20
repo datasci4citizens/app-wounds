@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getAuthHeaders } from "@/store/authStore";
+import { useAuthStore, getAuthHeaders } from "@/store/authStore";
 import { useLogout } from "@/features/auth/useLogout";
-import { Loader2, LogOut, CheckCircle2, User, Briefcase } from "lucide-react";
+import { Loader2, LogOut, CheckCircle2, User, Briefcase, Plus, Users } from "lucide-react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -30,11 +30,28 @@ interface UserProfile {
 export default function AppHome() {
   const router = useRouter();
   const { logout } = useLogout();
+  const tokens = useAuthStore((state) => state.tokens);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
+  const [patients, setPatients] = useState<any[]>([]);
+
+  // Wait for Zustand to hydrate from localStorage
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   useEffect(() => {
+    // Wait for hydration before checking tokens
+    if (!isHydrated) return;
+
+    // Redirect to login if no auth tokens
+    if (!tokens?.access) {
+      router.push("/login");
+      return;
+    }
+
     const fetchProfile = async () => {
       try {
         const response = await fetch(`${API_URL}/auth/me/`, {
@@ -53,6 +70,21 @@ export default function AppHome() {
 
         const data: UserProfile = await response.json();
         setProfile(data);
+
+        // Se for especialista, buscar a lista de pacientes
+        if (data.role === 'specialist') {
+          try {
+            const patientsRes = await fetch(`${API_URL}/specialist/patients/`, {
+              headers: getAuthHeaders(),
+            });
+            if (patientsRes.ok) {
+              const patientsData = await patientsRes.json();
+              setPatients(patientsData);
+            }
+          } catch (pErr) {
+            console.error('Erro ao buscar pacientes:', pErr);
+          }
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Unknown error");
         console.error("Error fetching profile:", err);
@@ -62,7 +94,7 @@ export default function AppHome() {
     };
 
     fetchProfile();
-  }, [router]);
+  }, [router, tokens, isHydrated]);
 
   if (isLoading) {
     return (
@@ -144,18 +176,57 @@ export default function AppHome() {
 
         {/* Specialist Data Card */}
         {profile?.specialist && (
-          <section className="bg-white dark:bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
-            <div className="flex items-center gap-3 p-4 border-b border-border bg-muted/30">
-              <Briefcase className="w-5 h-5 text-primary" />
-              <h2 className="font-bold text-foreground">Dados Profissionais</h2>
-            </div>
-            <div className="p-4 space-y-3">
-              <DataRow label="ID Especialista" value={profile.specialist.id?.toString()} />
-              <DataRow label="Registro Profissional" value={profile.specialist.professional_id} />
-              <DataRow label="Telefone" value={profile.specialist.contact_phone || "—"} />
-              <DataRow label="Email Profissional" value={profile.specialist.contact_email || "—"} />
-            </div>
-          </section>
+          <>
+            <section className="bg-white dark:bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
+              <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30">
+                <div className="flex items-center gap-3">
+                  <Users className="w-5 h-5 text-primary" />
+                  <h2 className="font-bold text-foreground">Pacientes</h2>
+                </div>
+                <button
+                  onClick={() => router.push("/register-patient")}
+                  className="flex items-center gap-1 text-sm bg-primary text-primary-foreground px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity active:scale-95"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Novo Paciente</span>
+                </button>
+              </div>
+              <div className="p-4 flex flex-col items-center justify-center text-center py-8">
+                {patients.length > 0 ? (
+                  <div className="w-full text-left space-y-3">
+                    {patients.map((p: any, idx: number) => (
+                      <div key={idx} className="flex flex-col border border-border rounded-lg p-3">
+                        <span className="font-semibold text-foreground">{p.name || 'Paciente sem nome'}</span>
+                        <span className="text-sm text-muted-foreground">{p.contact_email}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-sm text-muted-foreground">
+                      Nenhum paciente cadastrado ainda.
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Clique no botão acima para adicionar.
+                    </p>
+                  </>
+                )}
+              </div>
+            </section>
+
+            <section className="bg-white dark:bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
+              <div className="flex items-center gap-3 p-4 border-b border-border bg-muted/30">
+                <Briefcase className="w-5 h-5 text-primary" />
+                <h2 className="font-bold text-foreground">Dados Profissionais</h2>
+              </div>
+              <div className="p-4 space-y-3">
+                <DataRow label="ID Especialista" value={profile.specialist.id?.toString()} />
+                <DataRow label="Registro Profissional" value={profile.specialist.professional_id} />
+                <DataRow label="Telefone" value={profile.specialist.contact_phone || "—"} />
+                <DataRow label="Email Profissional" value={profile.specialist.contact_email || "—"} />
+              </div>
+            </section>
+          </>
         )}
 
         {/* Raw JSON (for debugging) */}

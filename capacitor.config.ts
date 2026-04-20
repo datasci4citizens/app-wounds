@@ -6,7 +6,12 @@ const config: CapacitorConfig = {
   appName: 'Cicatrizando',
   webDir: 'out',
   plugins: {
-    // Firebase Authentication plugin removed - now using react-oauth/google
+    SocialLogin: {
+      google: {
+        // Web Client ID for OAuth - same as NEXT_PUBLIC_GOOGLE_CLIENT_ID
+        webClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+      },
+    },
   },
 };
 
