@@ -50,3 +50,37 @@ negócio.
 2. O Google retorna um `serverAuthCode` (modo offline).
 3. O Next.js envia o `serverAuthCode` para a nossa API em Django.
 4. O Django valida o código junto ao Google e retorna os tokens JWT de acesso, além dos dados do usuário (perfil e status de cadastro).
+
+## Instalação
+
+Para executar o projeto em um novo ambiente, siga os passos abaixo:
+
+### Variáveis de Ambiente
+Antes de iniciar, certifique-se de configurar as variáveis de ambiente necessárias. Crie um arquivo `.env.local` na raiz do projeto (você pode se basear em um arquivo `.env.example` se existir):
+- `NEXT_PUBLIC_API_URL`
+- `NEXT_PUBLIC_GOOGLE_CLIENT_ID`
+
+### Web
+Para rodar a aplicação localmente no navegador (ambiente de desenvolvimento padrão do Next.js):
+
+```bash
+# Instalar todas as dependências
+npm install
+
+# Iniciar o servidor de desenvolvimento na porta 3000
+npm run dev
+```
+
+### Mobile (Capacitor)
+Como o projeto é empacotado para Android, você precisará gerar o build estático e sincronizar com o projeto nativo:
+
+```bash
+# 1. Gerar o build de exportação estática do Next.js (pasta 'out')
+npm run build
+
+# 2. Sincronizar os arquivos web com o projeto Android
+npx cap sync android
+
+# 3. Abrir o projeto no Android Studio para rodar no emulador ou dispositivo físico
+npx cap open android
+```
