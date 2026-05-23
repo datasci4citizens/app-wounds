@@ -191,25 +191,65 @@ export default function AppHome() {
                   <span>Novo Paciente</span>
                 </button>
               </div>
-              <div className="p-4 flex flex-col items-center justify-center text-center py-8">
+              <div className="p-4 flex flex-col items-center justify-center text-center py-4">
                 {patients.length > 0 ? (
-                  <div className="w-full text-left space-y-3">
+                  <div className="w-full text-left space-y-4">
                     {patients.map((p: any, idx: number) => (
-                      <div key={idx} className="flex flex-col border border-border rounded-lg p-3">
-                        <span className="font-semibold text-foreground">{p.name || 'Paciente sem nome'}</span>
-                        <span className="text-sm text-muted-foreground">{p.contact_email}</span>
+                      <div key={idx} className="flex flex-col border border-border rounded-lg overflow-hidden">
+                        <div className="bg-muted/50 p-3 border-b border-border">
+                          <span className="font-bold text-foreground">{p.name || 'Paciente sem nome'}</span>
+                        </div>
+                        <div className="p-3 space-y-2">
+                          <DataRow label="Email" value={p.contact_email} />
+                          <DataRow label="Telefone" value={p.contact_phone} />
+                          <DataRow label="Data Nasc." value={p.birth_date} />
+                          <DataRow label="Localidade" value={`${p.city || ''} - ${p.state || ''}`} />
+                          
+                          <div className="pt-2 border-t border-border mt-2">
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase mb-2">Dados Clínicos</p>
+                            <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                              <DataRow label="Sexo" value={p.gender === 'M' ? 'Masc.' : p.gender === 'F' ? 'Fem.' : '—'} />
+                              <DataRow label="Altura" value={p.height ? `${p.height}m` : '—'} />
+                              <DataRow label="Peso" value={p.weight ? `${p.weight}kg` : '—'} />
+                              <DataRow label="Fumante" value={formatSmoking(p.smoking_status)} />
+                            </div>
+                            <div className="mt-2">
+                              <DataRow label="Álcool" value={formatAlcohol(p.alcohol_consumption)} />
+                            </div>
+                          </div>
+
+                          <div className="pt-2 border-t border-border mt-2">
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Comorbidades</p>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {p.diabetes_type_1 && <Badge label="Diabetes T1" />}
+                              {p.diabetes_type_2 && <Badge label="Diabetes T2" />}
+                              {p.hyperlipoproteinemia && <Badge label="Hiperlipoproteinemia" />}
+                              {p.hypertension && <Badge label="Hipertensão" />}
+                              {p.obesity && <Badge label="Obesidade" />}
+                              {!p.diabetes_type_1 && !p.diabetes_type_2 && !p.hyperlipoproteinemia && !p.hypertension && !p.obesity && (
+                                <span className="text-xs text-muted-foreground italic">Nenhuma informada</span>
+                              )}
+                            </div>
+                            {p.other_comorbidities && (
+                              <div className="mt-2">
+                                <p className="text-[10px] font-bold text-muted-foreground uppercase">Outras</p>
+                                <p className="text-xs text-foreground bg-muted/30 p-2 rounded mt-1">{p.other_comorbidities}</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <>
+                  <div className="py-4">
                     <p className="text-sm text-muted-foreground">
                       Nenhum paciente cadastrado ainda.
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
                       Clique no botão acima para adicionar.
                     </p>
-                  </>
+                  </div>
                 )}
               </div>
             </section>
@@ -232,9 +272,22 @@ export default function AppHome() {
         {/* Raw JSON (for debugging) */}
         <section className="bg-muted/50 rounded-2xl p-4">
           <p className="text-xs font-mono text-muted-foreground mb-2">Raw API Response:</p>
-          <pre className="text-xs font-mono text-foreground overflow-x-auto whitespace-pre-wrap break-all">
-            {JSON.stringify(profile, null, 2)}
-          </pre>
+          <div className="space-y-4">
+            <div>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Profile:</p>
+              <pre className="text-xs font-mono text-foreground overflow-x-auto whitespace-pre-wrap break-all bg-card/50 p-2 rounded border border-border">
+                {JSON.stringify(profile, null, 2)}
+              </pre>
+            </div>
+            {patients.length > 0 && (
+              <div>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Patients:</p>
+                <pre className="text-xs font-mono text-foreground overflow-x-auto whitespace-pre-wrap break-all bg-card/50 p-2 rounded border border-border">
+                  {JSON.stringify(patients, null, 2)}
+                </pre>
+              </div>
+            )}
+          </div>
         </section>
       </main>
     </div>
@@ -258,4 +311,39 @@ function DataRow({
       </span>
     </div>
   );
+}
+
+function Badge({ label }: { label: string }) {
+  return (
+    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-primary/10 text-primary border border-primary/20">
+      {label}
+    </span>
+  );
+}
+
+function formatSmoking(status: string | null) {
+  switch (status) {
+    case 'NEVER': return 'Nunca fumou';
+    case 'LT10': return '< 10/dia';
+    case 'GT10': return '> 10/dia';
+    case 'EX': return 'Ex-fumante';
+    default: return '—';
+  }
+}
+
+function formatAlcohol(status: string | null) {
+  if (!status) return '—';
+  const maps: Record<string, string> = {
+    'NONE': 'Não bebe',
+    'EX': 'Ex-etilista',
+    'LT21_M': '< 21 doses/sem (M)',
+    'GT21_M': '> 21 doses/sem (M)',
+    'LT13_M': '< 13 latas/sem (M)',
+    'GT13_M': '> 13 latas/sem (M)',
+    'LT14_F': '< 14 doses/sem (F)',
+    'GT14_F': '> 14 doses/sem (F)',
+    'LT9_F': '< 9 latas/sem (F)',
+    'GT9_F': '> 9 latas/sem (F)',
+  };
+  return maps[status] || status;
 }
