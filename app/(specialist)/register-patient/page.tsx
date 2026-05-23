@@ -22,12 +22,24 @@ interface IBGECity {
 }
 
 interface PatientRegistrationRequest {
+  google_email: string;
   name: string;
   birth_date: string; // YYYY-MM-DD format
   state: string; // 2-letter Brazilian state code
   city: string;
   contact_phone?: string;
   contact_email: string;
+  gender?: string | null;
+  height?: number | null;
+  weight?: number | null;
+  diabetes_type_1?: boolean;
+  diabetes_type_2?: boolean;
+  hyperlipoproteinemia?: boolean;
+  hypertension?: boolean;
+  obesity?: boolean;
+  other_comorbidities?: string | null;
+  smoking_status?: string | null;
+  alcohol_consumption?: string | null;
 }
 
 export default function RegisterPatientPage() {
@@ -40,6 +52,17 @@ export default function RegisterPatientPage() {
     city: "",
     contactPhone: "",
     contactEmail: "",
+    gender: "",
+    height: "",
+    weight: "",
+    diabetes_type_1: false,
+    diabetes_type_2: false,
+    hyperlipoproteinemia: false,
+    hypertension: false,
+    obesity: false,
+    otherComorbidities: "",
+    smokingStatus: "",
+    alcoholConsumption: "",
   });
 
   const [states, setStates] = useState<IBGEState[]>([]);
@@ -71,9 +94,15 @@ export default function RegisterPatientPage() {
     }
   }, [formData.state]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target;
+    
+    if (type === 'checkbox') {
+      const checked = (e.target as HTMLInputElement).checked;
+      setFormData((prev) => ({ ...prev, [name]: checked }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
     setError(null);
   };
 
@@ -104,12 +133,24 @@ export default function RegisterPatientPage() {
 
     try {
       const requestBody: PatientRegistrationRequest = {
+        google_email: formData.contactEmail,
         name: formData.fullName,
         birth_date: formData.birthDate,
         state: formData.state.toUpperCase(),
         city: formData.city,
         contact_phone: formData.contactPhone || undefined,
         contact_email: formData.contactEmail,
+        gender: formData.gender || null,
+        height: formData.height ? parseFloat(formData.height) : null,
+        weight: formData.weight ? parseFloat(formData.weight) : null,
+        diabetes_type_1: formData.diabetes_type_1,
+        diabetes_type_2: formData.diabetes_type_2,
+        hyperlipoproteinemia: formData.hyperlipoproteinemia,
+        hypertension: formData.hypertension,
+        obesity: formData.obesity,
+        other_comorbidities: formData.otherComorbidities || null,
+        smoking_status: formData.smokingStatus || null,
+        alcohol_consumption: formData.alcoholConsumption || null,
       };
 
       const response = await fetch(`${API_URL}/specialist/patient/register/`, {
@@ -310,6 +351,200 @@ export default function RegisterPatientPage() {
                 disabled={isSubmitting}
                 className="bg-white dark:bg-card border-transparent shadow-sm h-14 rounded-2xl px-5"
               />
+            </div>
+
+            <div className="space-y-6 pt-6 border-t border-border/50 mt-8 pb-4">
+              <div className="space-y-1">
+                <h2 className="text-lg font-bold text-foreground">Informações Clínicas</h2>
+                <p className="text-xs text-muted-foreground">Histórico médico e hábitos do paciente.</p>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="gender" className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">
+                  Sexo
+                </Label>
+                <div className="relative">
+                  <select
+                    id="gender"
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleChange}
+                    disabled={isSubmitting}
+                    className="flex h-14 w-full appearance-none rounded-2xl border border-transparent bg-white dark:bg-card px-5 py-2 text-base font-medium transition-colors focus-visible:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary shadow-sm disabled:opacity-50"
+                  >
+                    <option value="">Selecione</option>
+                    <option value="M">Masculino</option>
+                    <option value="F">Feminino</option>
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-muted-foreground">
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="height" className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">
+                    Altura (m)
+                  </Label>
+                  <Input 
+                    id="height" 
+                    name="height"
+                    type="number"
+                    step="0.01"
+                    placeholder="1.70" 
+                    value={formData.height}
+                    onChange={handleChange}
+                    disabled={isSubmitting}
+                    className="bg-white dark:bg-card border-transparent shadow-sm h-14 rounded-2xl px-5"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="weight" className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">
+                    Peso (kg)
+                  </Label>
+                  <Input 
+                    id="weight" 
+                    name="weight"
+                    type="number"
+                    step="0.1"
+                    placeholder="70.0" 
+                    value={formData.weight}
+                    onChange={handleChange}
+                    disabled={isSubmitting}
+                    className="bg-white dark:bg-card border-transparent shadow-sm h-14 rounded-2xl px-5"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">
+                  Comorbidades
+                </Label>
+                <div className="grid grid-cols-1 gap-2">
+                  {[
+                    { id: "diabetes_type_1", label: "Diabete Tipo 1" },
+                    { id: "diabetes_type_2", label: "Diabete Tipo 2" },
+                    { id: "hyperlipoproteinemia", label: "Hiperlipoproteinemia" },
+                    { id: "hypertension", label: "Hipertensão" },
+                    { id: "obesity", label: "Obesidade" },
+                  ].map((item) => (
+                    <label key={item.id} className="flex items-center gap-3 p-4 bg-white dark:bg-card rounded-2xl shadow-sm cursor-pointer active:scale-[0.99] transition-transform">
+                      <input 
+                        type="checkbox"
+                        name={item.id}
+                        checked={(formData as any)[item.id]}
+                        onChange={handleChange}
+                        disabled={isSubmitting}
+                        className="w-5 h-5 rounded-md border-muted-foreground text-primary focus:ring-primary"
+                      />
+                      <span className="text-sm font-medium text-foreground">{item.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="otherComorbidities" className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">
+                  Outras Comorbidades
+                </Label>
+                <textarea 
+                  id="otherComorbidities" 
+                  name="otherComorbidities"
+                  placeholder="Liste outras comorbidades..." 
+                  value={formData.otherComorbidities}
+                  onChange={handleChange}
+                  disabled={isSubmitting}
+                  className="w-full bg-white dark:bg-card border-transparent shadow-sm min-h-24 rounded-2xl px-5 py-4 text-base focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:opacity-50"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="smokingStatus" className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">
+                  Fumante
+                </Label>
+                <div className="relative">
+                  <select
+                    id="smokingStatus"
+                    name="smokingStatus"
+                    value={formData.smokingStatus}
+                    onChange={handleChange}
+                    disabled={isSubmitting}
+                    className="flex h-14 w-full appearance-none rounded-2xl border border-transparent bg-white dark:bg-card px-5 py-2 text-base font-medium transition-colors focus-visible:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary shadow-sm disabled:opacity-50"
+                  >
+                    <option value="">Selecione</option>
+                    <option value="NEVER">Nunca fumou</option>
+                    <option value="LT10">Menos de 10 cigarros por dia</option>
+                    <option value="GT10">Mais de 10 cigarros por dia</option>
+                    <option value="EX">Ex-tabagista</option>
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-muted-foreground">
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="alcoholConsumption" className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">
+                  Consumo de Álcool
+                </Label>
+                <div className="relative">
+                  <select
+                    id="alcoholConsumption"
+                    name="alcoholConsumption"
+                    value={formData.alcoholConsumption}
+                    onChange={handleChange}
+                    disabled={isSubmitting}
+                    className="flex h-14 w-full appearance-none rounded-2xl border border-transparent bg-white dark:bg-card px-5 py-2 text-base font-medium transition-colors focus-visible:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary shadow-sm disabled:opacity-50"
+                  >
+                    <option value="">Selecione</option>
+                    <option value="NONE">Não bebe</option>
+                    <option value="EX">Ex-etilista</option>
+                    
+                    {formData.gender === 'M' && (
+                      <>
+                        <option value="LT21_M">Menos de 21 doses por semana</option>
+                        <option value="GT21_M">Mais de 21 doses por semana</option>
+                        <option value="LT13_M">Menos de 13 latas por semana</option>
+                        <option value="GT13_M">Mais de 13 latas por semana</option>
+                      </>
+                    )}
+                    {formData.gender === 'F' && (
+                      <>
+                        <option value="LT14_F">Menos de 14 doses por semana</option>
+                        <option value="GT14_F">Mais de 14 doses por semana</option>
+                        <option value="LT9_F">Menos de 9 latas por semana</option>
+                        <option value="GT9_F">Mais de 9 latas por semana</option>
+                      </>
+                    )}
+                    {!formData.gender && (
+                      <>
+                        <optgroup label="Homem">
+                          <option value="LT21_M">Menos de 21 doses por semana</option>
+                          <option value="GT21_M">Mais de 21 doses por semana</option>
+                          <option value="LT13_M">Menos de 13 latas por semana</option>
+                          <option value="GT13_M">Mais de 13 latas por semana</option>
+                        </optgroup>
+                        <optgroup label="Mulher">
+                          <option value="LT14_F">Menos de 14 doses por semana</option>
+                          <option value="GT14_F">Mais de 14 doses por semana</option>
+                          <option value="LT9_F">Menos de 9 latas por semana</option>
+                          <option value="GT9_F">Mais de 9 latas por semana</option>
+                        </optgroup>
+                      </>
+                    )}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-muted-foreground">
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
             </div>
           </form>
         </main>
