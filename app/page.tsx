@@ -221,21 +221,14 @@ export default function AppHome() {
                           <div className="pt-2 border-t border-border mt-2">
                             <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Comorbidades</p>
                             <div className="flex flex-wrap gap-1 mt-1">
-                              {p.diabetes_type_1 && <Badge label="Diabetes T1" />}
-                              {p.diabetes_type_2 && <Badge label="Diabetes T2" />}
-                              {p.hyperlipoproteinemia && <Badge label="Hiperlipoproteinemia" />}
-                              {p.hypertension && <Badge label="Hipertensão" />}
-                              {p.obesity && <Badge label="Obesidade" />}
-                              {!p.diabetes_type_1 && !p.diabetes_type_2 && !p.hyperlipoproteinemia && !p.hypertension && !p.obesity && (
+                              {p.comorbidities && p.comorbidities.length > 0 ? (
+                                p.comorbidities.map((c: any) => (
+                                  <Badge key={c.concept_id} label={c.name} />
+                                ))
+                              ) : (
                                 <span className="text-xs text-muted-foreground italic">Nenhuma informada</span>
                               )}
                             </div>
-                            {p.other_comorbidities && (
-                              <div className="mt-2">
-                                <p className="text-[10px] font-bold text-muted-foreground uppercase">Outras</p>
-                                <p className="text-xs text-foreground bg-muted/30 p-2 rounded mt-1">{p.other_comorbidities}</p>
-                              </div>
-                            )}
                           </div>
                         </div>
                       </div>
