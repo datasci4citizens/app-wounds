@@ -6,6 +6,7 @@ import { getAuthHeaders } from "@/store/authStore";
 import { ChevronLeft, CheckCircle2, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AsyncComorbiditySearch } from "@/components/AsyncComorbiditySearch";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -32,12 +33,7 @@ interface PatientRegistrationRequest {
   gender?: string | null;
   height?: number | null;
   weight?: number | null;
-  diabetes_type_1?: boolean;
-  diabetes_type_2?: boolean;
-  hyperlipoproteinemia?: boolean;
-  hypertension?: boolean;
-  obesity?: boolean;
-  other_comorbidities?: string | null;
+  comorbidities?: string[];
   smoking_status?: string | null;
   alcohol_consumption?: string | null;
 }
@@ -45,7 +41,20 @@ interface PatientRegistrationRequest {
 export default function RegisterPatientPage() {
   const router = useRouter();
   
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    fullName: string;
+    birthDate: string;
+    state: string;
+    city: string;
+    contactPhone: string;
+    contactEmail: string;
+    gender: string;
+    height: string;
+    weight: string;
+    comorbidities: string[];
+    smokingStatus: string;
+    alcoholConsumption: string;
+  }>({
     fullName: "",
     birthDate: "",
     state: "",
@@ -55,12 +64,7 @@ export default function RegisterPatientPage() {
     gender: "",
     height: "",
     weight: "",
-    diabetes_type_1: false,
-    diabetes_type_2: false,
-    hyperlipoproteinemia: false,
-    hypertension: false,
-    obesity: false,
-    otherComorbidities: "",
+    comorbidities: [],
     smokingStatus: "",
     alcoholConsumption: "",
   });
@@ -143,12 +147,7 @@ export default function RegisterPatientPage() {
         gender: formData.gender || null,
         height: formData.height ? parseFloat(formData.height) : null,
         weight: formData.weight ? parseFloat(formData.weight) : null,
-        diabetes_type_1: formData.diabetes_type_1,
-        diabetes_type_2: formData.diabetes_type_2,
-        hyperlipoproteinemia: formData.hyperlipoproteinemia,
-        hypertension: formData.hypertension,
-        obesity: formData.obesity,
-        other_comorbidities: formData.otherComorbidities || null,
+        comorbidities: formData.comorbidities,
         smoking_status: formData.smokingStatus || null,
         alcohol_consumption: formData.alcoholConsumption || null,
       };
@@ -419,46 +418,16 @@ export default function RegisterPatientPage() {
                 </div>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-3 relative z-50">
                 <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">
                   Comorbidades
                 </Label>
                 <div className="grid grid-cols-1 gap-2">
-                  {[
-                    { id: "diabetes_type_1", label: "Diabete Tipo 1" },
-                    { id: "diabetes_type_2", label: "Diabete Tipo 2" },
-                    { id: "hyperlipoproteinemia", label: "Hiperlipoproteinemia" },
-                    { id: "hypertension", label: "Hipertensão" },
-                    { id: "obesity", label: "Obesidade" },
-                  ].map((item) => (
-                    <label key={item.id} className="flex items-center gap-3 p-4 bg-white dark:bg-card rounded-2xl shadow-sm cursor-pointer active:scale-[0.99] transition-transform">
-                      <input 
-                        type="checkbox"
-                        name={item.id}
-                        checked={(formData as any)[item.id]}
-                        onChange={handleChange}
-                        disabled={isSubmitting}
-                        className="w-5 h-5 rounded-md border-muted-foreground text-primary focus:ring-primary"
-                      />
-                      <span className="text-sm font-medium text-foreground">{item.label}</span>
-                    </label>
-                  ))}
+                  <AsyncComorbiditySearch
+                    selectedUris={formData.comorbidities}
+                    onChange={(uris) => setFormData(prev => ({ ...prev, comorbidities: uris }))}
+                  />
                 </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="otherComorbidities" className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">
-                  Outras Comorbidades
-                </Label>
-                <textarea 
-                  id="otherComorbidities" 
-                  name="otherComorbidities"
-                  placeholder="Liste outras comorbidades..." 
-                  value={formData.otherComorbidities}
-                  onChange={handleChange}
-                  disabled={isSubmitting}
-                  className="w-full bg-white dark:bg-card border-transparent shadow-sm min-h-24 rounded-2xl px-5 py-4 text-base focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:opacity-50"
-                />
               </div>
 
               <div className="space-y-2">
