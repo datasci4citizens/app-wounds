@@ -138,10 +138,10 @@ export default function RegisterPatientPage() {
     try {
       const requestBody: PatientRegistrationRequest = {
         google_email: formData.contactEmail,
-        name: formData.fullName,
-        birth_date: formData.birthDate,
-        state: formData.state.toUpperCase(),
-        city: formData.city,
+        name: formData.fullName || undefined,
+        birth_date: formData.birthDate || undefined,
+        state: formData.state ? formData.state.toUpperCase() : undefined,
+        city: formData.city || undefined,
         contact_phone: formData.contactPhone || undefined,
         contact_email: formData.contactEmail,
         gender: formData.gender || null,
@@ -230,7 +230,7 @@ export default function RegisterPatientPage() {
                 placeholder="Nome completo do paciente" 
                 value={formData.fullName}
                 onChange={handleChange}
-                required
+                
                 disabled={isSubmitting}
                 className="bg-white dark:bg-card border-transparent shadow-sm h-14 rounded-2xl px-5"
               />
@@ -246,7 +246,7 @@ export default function RegisterPatientPage() {
                 type="date" 
                 value={formData.birthDate}
                 onChange={handleChange}
-                required
+                
                 disabled={isSubmitting}
                 className="bg-white dark:bg-card border-transparent shadow-sm h-14 rounded-2xl px-5 text-foreground min-h-14"
               />
@@ -263,7 +263,7 @@ export default function RegisterPatientPage() {
                     name="state"
                     value={formData.state}
                     onChange={handleChange}
-                    required
+                    
                     disabled={isSubmitting}
                     className="flex h-14 w-full appearance-none rounded-2xl border border-transparent bg-white dark:bg-card px-5 py-2 text-base font-medium transition-colors focus-visible:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary shadow-sm disabled:opacity-50"
                   >
@@ -292,7 +292,7 @@ export default function RegisterPatientPage() {
                     name="city"
                     value={formData.city}
                     onChange={handleChange}
-                    required
+                    
                     disabled={!formData.state || isLoadingCities || isSubmitting}
                     className="flex h-14 w-full appearance-none rounded-2xl border border-transparent bg-white dark:bg-card px-5 py-2 text-base font-medium transition-colors focus-visible:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary shadow-sm disabled:opacity-50"
                   >
