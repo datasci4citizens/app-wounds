@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore, getAuthHeaders, authenticatedFetch } from "@/store/authStore";
 import { useLogout } from "@/features/auth/useLogout";
-import { Loader2, LogOut, CheckCircle2, User, Briefcase, Plus, Users } from "lucide-react";
+import { Loader2, LogOut, CheckCircle2, User, Briefcase, Plus, Users, Pencil } from "lucide-react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -194,8 +194,15 @@ export default function AppHome() {
                   <div className="w-full text-left space-y-4">
                     {patients.map((p: any, idx: number) => (
                       <div key={idx} className="flex flex-col border border-border rounded-lg overflow-hidden">
-                        <div className="bg-muted/50 p-3 border-b border-border">
+                        <div className="bg-muted/50 p-3 border-b border-border flex justify-between items-center">
                           <span className="font-bold text-foreground">{p.name || 'Paciente sem nome'}</span>
+                          <button
+                            onClick={() => router.push(`/update-patient/${p.id}`)}
+                            className="p-1.5 rounded-md hover:bg-muted active:scale-95 transition-all text-muted-foreground hover:text-primary"
+                            title="Editar Paciente"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </button>
                         </div>
                         <div className="p-3 space-y-2">
                           <DataRow label="Email" value={p.contact_email} />
