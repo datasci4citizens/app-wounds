@@ -120,6 +120,7 @@ export default function AppHome() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
+      <title>Painel do Especialista - Cicatrizando</title>
       {/* Header */}
       <header className="sticky top-0 z-10 flex items-center justify-between px-5 pt-8 pb-4 bg-white dark:bg-card border-b border-border shadow-sm">
         <div className="flex flex-col">

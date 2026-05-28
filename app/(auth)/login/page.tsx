@@ -7,6 +7,7 @@ export default function LoginPage() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-6 bg-slate-50">
+      <title>Login - Cicatrizando</title>
       <div className="w-full max-w-sm flex flex-col items-center">
         <div className="w-20 h-20 bg-teal-500 rounded-full flex items-center justify-center mb-6">
           <svg width="87" height="112" viewBox="0 0 87 112" fill="none" xmlns="http://www.w3.org/2000/svg">
