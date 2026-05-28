@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { getAuthHeaders, authenticatedFetch } from "@/store/authStore";
-import { ChevronLeft, CheckCircle2, Loader2 } from "lucide-react";
+import { ChevronLeft, CheckCircle2, Loader2, Save } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AsyncComorbiditySearch } from "@/components/AsyncComorbiditySearch";
@@ -38,8 +38,10 @@ interface PatientRegistrationRequest {
   alcohol_consumption?: string | null;
 }
 
-export default function RegisterPatientPage() {
+export default function UpdatePatientPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
   
   const [formData, setFormData] = useState<{
     fullName: string;
@@ -68,6 +70,46 @@ export default function RegisterPatientPage() {
     smokingStatus: "",
     alcoholConsumption: "",
   });
+  const [isLoading, setIsLoading] = useState(true);
+  const [initialComorbidities, setInitialComorbidities] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchPatientData = async () => {
+      try {
+        const response = await authenticatedFetch(`${API_URL}/specialist/patient/update/${id}/`);
+        if (response.ok) {
+          const data = await response.json();
+          setFormData({
+            fullName: data.name || "",
+            birthDate: data.birth_date || "",
+            state: data.state || "",
+            city: data.city || "",
+            contactPhone: data.contact_phone || "",
+            contactEmail: data.contact_email || "",
+            gender: data.gender || "",
+            height: data.height?.toString() || "",
+            weight: data.weight?.toString() || "",
+            comorbidities: data.comorbidities?.map((c: any) => c.concept_id) || [],
+            smokingStatus: data.smoking_status || "",
+            alcoholConsumption: data.alcohol_consumption || "",
+          });
+          setInitialComorbidities(data.comorbidities || []);
+        } else {
+          setError("Erro ao carregar dados do paciente.");
+        }
+      } catch (err) {
+        console.error("Error fetching patient data:", err);
+        setError("Erro de conexão ao carregar dados.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchPatientData();
+    }
+  }, [id]);
+
 
   const [states, setStates] = useState<IBGEState[]>([]);
   const [cities, setCities] = useState<IBGECity[]>([]);
@@ -152,8 +194,8 @@ export default function RegisterPatientPage() {
         alcohol_consumption: formData.alcoholConsumption || null,
       };
 
-      const response = await authenticatedFetch(`${API_URL}/specialist/patient/register/`, {
-        method: "POST",
+      const response = await authenticatedFetch(`${API_URL}/specialist/patient/update/${id}/`, {
+        method: "PUT",
         body: JSON.stringify(requestBody),
       });
 
@@ -170,7 +212,7 @@ export default function RegisterPatientPage() {
           throw new Error(errorData.detail);
         }
         
-        throw new Error('Erro ao cadastrar paciente. Verifique os dados e tente novamente.');
+        throw new Error('Erro ao atualizar paciente. Verifique os dados e tente novamente.');
       }
 
       // Navigate back to the dashboard upon successful registration
@@ -184,9 +226,18 @@ export default function RegisterPatientPage() {
     }
   };
 
+  
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-[100dvh] bg-background items-center">
-      <title>Cadastrar Paciente - Cicatrizando</title>
+      <title>Atualizar Paciente - Cicatrizando</title>
       <div className="w-full max-w-lg flex flex-col flex-1 relative">
         {/* App Bar Fixo */}
         <header className="sticky top-0 z-10 flex items-center h-16 px-4 bg-background pt-safe">
@@ -202,10 +253,10 @@ export default function RegisterPatientPage() {
         <main className="flex-1 overflow-y-auto px-6 py-4 no-scrollbar pb-32">
           <div className="mb-8 space-y-2">
             <h1 className="text-2xl font-bold font-heading text-foreground">
-              Cadastrar Paciente
+              Atualizar Paciente
             </h1>
             <p className="text-sm text-muted-foreground">
-              Preencha os dados do paciente para vinculá-lo à sua conta.
+              Atualize os dados do paciente.
             </p>
           </div>
 
@@ -422,6 +473,7 @@ export default function RegisterPatientPage() {
                 <div className="grid grid-cols-1 gap-2">
                   <AsyncComorbiditySearch
                     selectedUris={formData.comorbidities}
+                    initialItems={initialComorbidities}
                     onChange={(uris) => setFormData(prev => ({ ...prev, comorbidities: uris }))}
                   />
                 </div>
@@ -526,9 +578,9 @@ export default function RegisterPatientPage() {
             {isSubmitting ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
-              <CheckCircle2 className="w-5 h-5" />
+              <Save className="w-5 h-5" />
             )}
-            {isSubmitting ? "Salvando..." : "Cadastrar"}
+            {isSubmitting ? "Salvando..." : "Salvar Alterações"}
           </button>
         </footer>
       </div>

@@ -14,21 +14,22 @@ interface Comorbidity {
 interface AsyncComorbiditySearchProps {
   selectedUris: string[];
   onChange: (uris: string[]) => void;
+  initialItems?: Comorbidity[];
 }
 
-export function AsyncComorbiditySearch({ selectedUris, onChange }: AsyncComorbiditySearchProps) {
+export function AsyncComorbiditySearch({ selectedUris, onChange, initialItems = [] }: AsyncComorbiditySearchProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Comorbidity[]>([]);
-  const [selectedItems, setSelectedItems] = useState<Comorbidity[]>([]);
+  const [selectedItems, setSelectedItems] = useState<Comorbidity[]>(initialItems);
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Optional: fetch initial selected items if we only have URIs
-    // Since we are creating a new patient, selectedItems is initially empty,
-    // so we don't need a reverse lookup right now.
-  }, []);
+    if (initialItems.length > 0 && selectedItems.length === 0) {
+      setSelectedItems(initialItems);
+    }
+  }, [initialItems, selectedItems.length]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

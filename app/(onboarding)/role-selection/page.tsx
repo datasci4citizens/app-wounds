@@ -26,6 +26,7 @@ export default function RoleSelectionPage() {
 
   return (
     <div className="flex flex-col min-h-[100dvh] px-6 pt-16 pb-8 bg-background">
+      <title>Seleção de Perfil - Cicatrizando</title>
       <div className="flex-1 w-full max-w-md mx-auto flex flex-col justify-center">
         <div className="text-center space-y-2 mb-10">
           <h1 className="text-2xl font-bold font-heading text-foreground">
