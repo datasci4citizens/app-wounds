@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getAuthHeaders } from "@/store/authStore";
+import { getAuthHeaders, authenticatedFetch } from "@/store/authStore";
 import { ChevronLeft, CheckCircle2, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -152,12 +152,8 @@ export default function RegisterPatientPage() {
         alcohol_consumption: formData.alcoholConsumption || null,
       };
 
-      const response = await fetch(`${API_URL}/specialist/patient/register/`, {
-        method: 'POST',
-        headers: {
-          ...getAuthHeaders(),
-          'Content-Type': 'application/json',
-        },
+      const response = await authenticatedFetch(`${API_URL}/specialist/patient/register/`, {
+        method: "POST",
         body: JSON.stringify(requestBody),
       });
 

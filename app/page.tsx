@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuthStore, getAuthHeaders } from "@/store/authStore";
+import { useAuthStore, getAuthHeaders, authenticatedFetch } from "@/store/authStore";
 import { useLogout } from "@/features/auth/useLogout";
 import { Loader2, LogOut, CheckCircle2, User, Briefcase, Plus, Users } from "lucide-react";
 
@@ -54,9 +54,8 @@ export default function AppHome() {
 
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`${API_URL}/auth/me/`, {
+        const response = await authenticatedFetch(`${API_URL}/auth/me/`, {
           method: "GET",
-          headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -74,9 +73,7 @@ export default function AppHome() {
         // Se for especialista, buscar a lista de pacientes
         if (data.role === 'specialist') {
           try {
-            const patientsRes = await fetch(`${API_URL}/specialist/patients/`, {
-              headers: getAuthHeaders(),
-            });
+            const patientsRes = await authenticatedFetch(`${API_URL}/specialist/patients/`);
             if (patientsRes.ok) {
               const patientsData = await patientsRes.json();
               setPatients(patientsData);

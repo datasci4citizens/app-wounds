@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/store/userStore";
-import { useAuthStore, getAuthHeaders } from "@/store/authStore";
+import { useAuthStore, getAuthHeaders, authenticatedFetch } from "@/store/authStore";
 import { ChevronLeft, CheckCircle2, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -128,9 +128,8 @@ export default function RegisterSpecialistPage() {
 
       // Call the specialist registration endpoint
       // POST /auth/register/specialist/
-      const response = await fetch(`${API_URL}/auth/register/specialist/`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
+      const response = await authenticatedFetch(`${API_URL}/auth/register/specialist/`, {
+        method: "POST",
         body: JSON.stringify(requestBody),
       });
 

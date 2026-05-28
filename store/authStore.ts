@@ -82,3 +82,38 @@ export const refreshAccessToken = async (): Promise<string | null> => {
     return null;
   }
 };
+
+/**
+ * A wrapper around fetch that automatically handles token refresh on 401 errors
+ */
+export const authenticatedFetch = async (
+  input: RequestInfo | URL,
+  init?: RequestInit
+): Promise<Response> => {
+  // First attempt
+  let response = await fetch(input, {
+    ...init,
+    headers: {
+      ...getAuthHeaders(),
+      ...(init?.headers || {}),
+    },
+  });
+
+  // If unauthorized, try to refresh token and retry once
+  if (response.status === 401) {
+    const newAccessToken = await refreshAccessToken();
+    
+    if (newAccessToken) {
+      // Retry with new token
+      response = await fetch(input, {
+        ...init,
+        headers: {
+          ...getAuthHeaders(), // This will now get the new token
+          ...(init?.headers || {}),
+        },
+      });
+    }
+  }
+
+  return response;
+};
