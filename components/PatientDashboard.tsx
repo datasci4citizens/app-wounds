@@ -158,6 +158,19 @@ export function PatientDashboard({ profile }: PatientDashboardProps) {
           </div>
         </section>
 
+        {/* Raw JSON (for debugging) */}
+        <section className="bg-muted/50 rounded-2xl p-4">
+          <p className="text-xs font-mono text-muted-foreground mb-2">Raw API Response:</p>
+          <div className="space-y-4">
+            <div>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Profile:</p>
+              <pre className="text-xs font-mono text-foreground overflow-x-auto whitespace-pre-wrap break-all bg-card/50 p-2 rounded border border-border">
+                {JSON.stringify(profile, null, 2)}
+              </pre>
+            </div>
+          </div>
+        </section>
+
       </main>
     </div>
   );
