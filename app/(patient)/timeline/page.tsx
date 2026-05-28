@@ -1,3 +1,5 @@
+"use client";
+
 import { PatientDashboard } from "@/components/PatientDashboard";
 import { useEffect, useState } from "react";
 import { useAuthStore, authenticatedFetch } from "@/store/authStore";
