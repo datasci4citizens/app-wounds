@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { getAuthHeaders, authenticatedFetch } from "@/store/authStore";
 import { ChevronLeft, CheckCircle2, Loader2, Save } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -40,7 +40,8 @@ interface PatientRegistrationRequest {
 
 export default function UpdatePatientPage() {
   const router = useRouter();
-  const { id } = useParams();
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
   
   const [formData, setFormData] = useState<{
     fullName: string;

@@ -197,7 +197,7 @@ export default function AppHome() {
                         <div className="bg-muted/50 p-3 border-b border-border flex justify-between items-center">
                           <span className="font-bold text-foreground">{p.name || 'Paciente sem nome'}</span>
                           <button
-                            onClick={() => router.push(`/update-patient/${p.id}`)}
+                            onClick={() => router.push(`/update-patient?id=${p.id}`)}
                             className="p-1.5 rounded-md hover:bg-muted active:scale-95 transition-all text-muted-foreground hover:text-primary"
                             title="Editar Paciente"
                           >
