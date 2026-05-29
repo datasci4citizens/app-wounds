@@ -249,14 +249,14 @@ function formatAlcohol(status: string | null) {
   const maps: Record<string, string> = {
     'NONE': 'Não bebe',
     'EX': 'Ex-etilista',
-    'LT21_M': '< 21 doses/sem (M)',
-    'GT21_M': '> 21 doses/sem (M)',
-    'LT13_M': '< 13 latas/sem (M)',
-    'GT13_M': '> 13 latas/sem (M)',
-    'LT14_F': '< 14 doses/sem (F)',
-    'GT14_F': '> 14 doses/sem (F)',
-    'LT9_F': '< 9 latas/sem (F)',
-    'GT9_F': '> 9 latas/sem (F)',
+    'LT21_M': '< 21 doses/sem',
+    'GT21_M': '> 21 doses/sem',
+    'LT13_M': '< 13 latas/sem',
+    'GT13_M': '> 13 latas/sem',
+    'LT14_F': '< 14 doses/sem',
+    'GT14_F': '> 14 doses/sem',
+    'LT9_F': '< 9 latas/sem',
+    'GT9_F': '> 9 latas/sem',
   };
   return maps[status] || status;
 }
