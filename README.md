@@ -21,11 +21,14 @@ src/ (ou raiz do projeto)
 │   ├── (onboarding)/         # Fluxo de integração de novos usuários
 │   │   ├── role-selection/   # Seleção de perfil (Paciente ou Especialista)
 │   │   └── register-specialist/ # Cadastro de especialista
-│   ├── (patient)/            # Rotas exclusivas do paciente
-│   │   └── timeline/         # Linha do tempo de feridas
+│   ├── (patient)/            # Rotas exclusivas do paciente (atualmente centralizadas na raiz '/')
 │   └── (specialist)/         # Rotas exclusivas do especialista
 │       ├── dashboard/        # Painel do especialista
 │       └── register-patient/ # Cadastro de paciente
+├── app/                      # Outras rotas principais
+│   ├── patient-wounds/       # Listagem de feridas de um paciente específico
+│   ├── wound-detail/         # Histórico clínico e linha do tempo de uma ferida
+│   └── add-observation/      # Formulário de novo registro clínico
 ├── components/               # Componentes de UI genéricos e reutilizáveis (Botões, Modais, Inputs)
 ├── features/                 # Lógica de negócio isolada por domínio
 │   └── auth/                 # Regras, hooks e componentes de autenticação (Google Login)
@@ -59,6 +62,12 @@ A raiz da aplicação (`/`) atua como um roteador dinâmico com base no papel do
 
 #### Formulário Unificado
 Todo o processo de cadastro e atualização de pacientes (pelo especialista ou pelo próprio paciente) utiliza o componente reutilizável `PatientForm`. Isso garante que campos como Peso, Altura, Hábitos (Tabagismo/Álcool) e Comorbidades (com busca assíncrona CID-11) sejam validados e estruturados de forma consistente em todo o aplicativo.
+
+#### Monitoramento de Feridas (MVP)
+A aplicação agora suporta o acompanhamento clínico detalhado:
+1. **Registro de Ferida**: Especialistas podem cadastrar novas feridas para seus pacientes (definindo etiologia e localização).
+2. **Linha do Tempo**: Tanto pacientes quanto especialistas visualizam o histórico cronológico de observações.
+3. **Observações Clínicas**: Registro de métricas como nível de dor, tipo/quantidade de exsudato, tipo de tecido e febre, garantindo um acompanhamento técnico da evolução.
 
 ## Instalação
 
