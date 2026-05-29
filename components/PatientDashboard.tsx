@@ -4,6 +4,7 @@ import { useLogout } from "@/features/auth/useLogout";
 import { LogOut, User, Activity, Calendar, MapPin, Heart, List, Users, Pencil, ChevronLeft } from "lucide-react";
 import { useState } from "react";
 import { PatientProfileReview } from "./PatientProfileReview";
+import { fetchWounds, Wound } from "@/lib/api";
 
 interface SpecialistData {
   id: number;
@@ -50,7 +51,23 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
   const { logout } = useLogout();
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState(initialProfile);
+  const [wounds, setWounds] = useState<Wound[]>([]);
+  const [isLoadingWounds, setIsLoadingWounds] = useState(true);
   const patient = profile.patient;
+
+  useEffect(() => {
+    const getWounds = async () => {
+      try {
+        const data = await fetchWounds();
+        setWounds(data);
+      } catch (err) {
+        console.error("Error fetching wounds:", err);
+      } finally {
+        setIsLoadingWounds(false);
+      }
+    };
+    getWounds();
+  }, []);
 
   if (isEditing) {
     return (
@@ -183,18 +200,50 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
           </div>
         </section>
 
-        {/* Timeline Placeholder */}
+        {/* Wounds List */}
         <section className="bg-white dark:bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
           <div className="flex items-center gap-3 p-4 border-b border-border bg-muted/30">
             <List className="w-5 h-5 text-primary" />
-            <h2 className="font-bold text-foreground">Linha do Tempo de Feridas</h2>
+            <h2 className="font-bold text-foreground">Minhas Feridas</h2>
           </div>
-          <div className="p-8 text-center space-y-2">
-             <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto opacity-50">
-                <Activity className="w-6 h-6 text-muted-foreground" />
-             </div>
-             <p className="font-medium text-foreground">Nenhuma observação ainda</p>
-             <p className="text-xs text-muted-foreground">Quando você ou seu especialista registrarem o estado de uma ferida, ela aparecerá aqui.</p>
+          <div className="p-4 space-y-4">
+             {isLoadingWounds ? (
+                <div className="flex justify-center py-8">
+                    <Activity className="w-6 h-6 animate-pulse text-muted-foreground" />
+                </div>
+             ) : wounds.length > 0 ? (
+                 <div className="space-y-3">
+                    {wounds.map(w => (
+                        <div key={w.id} className="p-4 border border-border rounded-xl bg-card hover:bg-muted/10 transition-colors active:scale-[0.99]">
+                            <div className="flex justify-between items-start mb-2">
+                                <h3 className="font-bold text-primary">{w.etiology}</h3>
+                                {w.is_healed ? (
+                                    <span className="text-[10px] bg-status-success/10 text-status-success px-2 py-0.5 rounded-full font-bold uppercase">Cicatrizada</span>
+                                ) : (
+                                    <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold uppercase">Em Tratamento</span>
+                                )}
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <MapPin className="w-3.5 h-3.5" />
+                                <span>{w.location}</span>
+                            </div>
+                            <div className="mt-3 flex justify-end">
+                                <span className="text-xs font-bold text-primary flex items-center gap-1">
+                                    Ver Detalhes <ChevronLeft className="w-3 h-3 rotate-180" />
+                                </span>
+                            </div>
+                        </div>
+                    ))}
+                 </div>
+             ) : (
+                <div className="p-8 text-center space-y-2">
+                    <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto opacity-50">
+                        <Activity className="w-6 h-6 text-muted-foreground" />
+                    </div>
+                    <p className="font-medium text-foreground">Nenhuma ferida registrada</p>
+                    <p className="text-xs text-muted-foreground">Seu especialista irá registrar suas feridas aqui para acompanhamento.</p>
+                </div>
+             )}
           </div>
         </section>
 
