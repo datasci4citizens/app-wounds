@@ -103,7 +103,9 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
         
         {/* Welcome Section */}
         <section>
-          <h2 className="text-xl font-bold text-foreground">Olá, {profile.name}!</h2>
+          <h2 className="text-xl font-bold text-foreground">
+            {profile.name ? `Olá, ${profile.name}!` : "Olá!"}
+          </h2>
           <p className="text-sm text-muted-foreground">Acompanhe aqui o estado das suas feridas e seu perfil de saúde.</p>
         </section>
 
