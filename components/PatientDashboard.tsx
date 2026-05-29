@@ -1,7 +1,9 @@
 "use client";
 
 import { useLogout } from "@/features/auth/useLogout";
-import { LogOut, User, Activity, Calendar, MapPin, Heart, List, Users } from "lucide-react";
+import { LogOut, User, Activity, Calendar, MapPin, Heart, List, Users, Pencil, ChevronLeft } from "lucide-react";
+import { useState } from "react";
+import { PatientProfileReview } from "./PatientProfileReview";
 
 interface SpecialistData {
   id: number;
@@ -44,9 +46,34 @@ interface PatientDashboardProps {
   profile: UserProfile;
 }
 
-export function PatientDashboard({ profile }: PatientDashboardProps) {
+export function PatientDashboard({ profile: initialProfile }: PatientDashboardProps) {
   const { logout } = useLogout();
+  const [isEditing, setIsEditing] = useState(false);
+  const [profile, setProfile] = useState(initialProfile);
   const patient = profile.patient;
+
+  if (isEditing) {
+    return (
+      <div className="relative min-h-screen bg-background">
+        <header className="sticky top-0 z-20 flex items-center h-16 px-4 bg-background border-b border-border pt-safe">
+          <button 
+            onClick={() => setIsEditing(false)}
+            className="p-2 -ml-2 rounded-full hover:bg-muted active:bg-accent text-foreground transition-colors"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <h2 className="ml-2 font-bold text-foreground">Editar Perfil</h2>
+        </header>
+        <PatientProfileReview 
+          profile={profile} 
+          onComplete={() => {
+            setIsEditing(false);
+            window.location.reload(); 
+          }} 
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -80,11 +107,19 @@ export function PatientDashboard({ profile }: PatientDashboardProps) {
           <p className="text-sm text-muted-foreground">Acompanhe aqui o estado das suas feridas e seu perfil de saúde.</p>
         </section>
 
-        {/* Health Profile Card */}
         <section className="bg-white dark:bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
-          <div className="flex items-center gap-3 p-4 border-b border-border bg-muted/30">
-            <User className="w-5 h-5 text-primary" />
-            <h2 className="font-bold text-foreground">Meu Perfil de Saúde</h2>
+          <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30">
+            <div className="flex items-center gap-3">
+              <User className="w-5 h-5 text-primary" />
+              <h2 className="font-bold text-foreground">Meu Perfil de Saúde</h2>
+            </div>
+            <button
+              onClick={() => setIsEditing(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-all active:scale-95 text-xs font-bold"
+            >
+              <Pencil className="w-3 h-3" />
+              <span>Editar</span>
+            </button>
           </div>
           <div className="p-4 space-y-4">
             <div className="grid grid-cols-2 gap-4">

@@ -6,6 +6,7 @@ import { useAuthStore, authenticatedFetch } from "@/store/authStore";
 import { Loader2 } from "lucide-react";
 import { SpecialistDashboard } from "@/components/SpecialistDashboard";
 import { PatientDashboard } from "@/components/PatientDashboard";
+import { PatientProfileReview } from "@/components/PatientProfileReview";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -17,6 +18,9 @@ export default function AppHome() {
   const [error, setError] = useState<string | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
   const [patients, setPatients] = useState<any[]>([]);
+
+  // Force re-fetch after review
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Wait for Zustand to hydrate from localStorage
   useEffect(() => {
@@ -47,7 +51,6 @@ export default function AppHome() {
         }
 
         const profileData = await response.json();
-        setProfile(profileData);
 
         // If specialist, fetch their patients list
         if (profileData.role === 'specialist') {
@@ -56,16 +59,20 @@ export default function AppHome() {
             const patientsData = await patientsRes.json();
             setPatients(patientsData);
           }
+          setProfile(profileData);
         }
         
-        // If patient, fetch their extended profile (optional, as MeView is already enhanced)
-        // But if we want to follow the plan exactly:
-        if (profileData.role === 'patient') {
+        // If patient, fetch their extended profile
+        else if (profileData.role === 'patient') {
             const patientRes = await authenticatedFetch(`${API_URL}/patient/me/`);
             if (patientRes.ok) {
                 const patientData = await patientRes.json();
-                setProfile((prev: any) => ({ ...prev, patient: patientData }));
+                setProfile({ ...profileData, patient: patientData });
+            } else {
+                setProfile(profileData);
             }
+        } else {
+            setProfile(profileData);
         }
 
       } catch (err) {
@@ -77,7 +84,7 @@ export default function AppHome() {
     };
 
     fetchData();
-  }, [router, tokens, isHydrated]);
+  }, [router, tokens, isHydrated, refreshKey]);
 
   if (isLoading) {
     return (
@@ -89,7 +96,7 @@ export default function AppHome() {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-background p-6">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background p-6 text-center">
         <p className="text-destructive mb-4">{error}</p>
         <button
           onClick={() => router.push("/login")}
