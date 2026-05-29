@@ -194,10 +194,39 @@ export function PatientForm({
               <option value="">Selecione</option>
               <option value="NONE">Não bebe</option>
               <option value="EX">Ex-etilista</option>
-              <option value="LT21_M">Menos de 21 doses/sem (H)</option>
-              <option value="GT21_M">Mais de 21 doses/sem (H)</option>
-              <option value="LT14_F">Menos de 14 doses/sem (M)</option>
-              <option value="GT14_F">Mais de 14 doses/sem (M)</option>
+              
+              {formData.gender === 'M' && (
+                <>
+                  <option value="LT21_M">Menos de 21 doses/sem (H)</option>
+                  <option value="GT21_M">Mais de 21 doses/sem (H)</option>
+                  <option value="LT13_M">Menos de 13 latas/sem (H)</option>
+                  <option value="GT13_M">Mais de 13 latas/sem (H)</option>
+                </>
+              )}
+              {formData.gender === 'F' && (
+                <>
+                  <option value="LT14_F">Menos de 14 doses/sem (M)</option>
+                  <option value="GT14_F">Mais de 14 doses/sem (M)</option>
+                  <option value="LT9_F">Menos de 9 latas/sem (M)</option>
+                  <option value="GT9_F">Mais de 9 latas/sem (M)</option>
+                </>
+              )}
+              {!formData.gender && (
+                <>
+                  <optgroup label="Homem">
+                    <option value="LT21_M">Menos de 21 doses/sem (H)</option>
+                    <option value="GT21_M">Mais de 21 doses/sem (H)</option>
+                    <option value="LT13_M">Menos de 13 latas/sem (H)</option>
+                    <option value="GT13_M">Mais de 13 latas/sem (H)</option>
+                  </optgroup>
+                  <optgroup label="Mulher">
+                    <option value="LT14_F">Menos de 14 doses/sem (M)</option>
+                    <option value="GT14_F">Mais de 14 doses/sem (M)</option>
+                    <option value="LT9_F">Menos de 9 latas/sem (M)</option>
+                    <option value="GT9_F">Mais de 9 latas/sem (M)</option>
+                  </optgroup>
+                </>
+              )}
           </select>
         </div>
       </div>
