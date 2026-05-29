@@ -1,7 +1,7 @@
 "use client";
 
 import { useLogout } from "@/features/auth/useLogout";
-import { LogOut, CheckCircle2, User, Users, Plus, Pencil, Briefcase } from "lucide-react";
+import { LogOut, CheckCircle2, User, Users, Plus, Pencil, Briefcase, Activity } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface SpecialistData {
