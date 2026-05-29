@@ -81,7 +81,7 @@ export const useGoogleLogin = () => {
     if (!data.registration_complete) {
       if (!role) router.push('/role-selection');
       else if (isSpecialist(role)) router.push('/register-specialist');
-      else router.push('/timeline');
+      else router.push('/');
     } else {
       router.push('/');
     }

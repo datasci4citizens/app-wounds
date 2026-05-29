@@ -16,8 +16,8 @@ export default function RoleSelectionPage() {
       // Specialist - needs to complete registration
       router.push("/register-specialist");
     } else {
-      // Patient - currently goes to timeline
-      router.push("/timeline");
+      // Patient - dispatcher at root will handle profile review vs timeline
+      router.push("/");
     }
   };
 
