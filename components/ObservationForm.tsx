@@ -69,6 +69,11 @@ export function ObservationForm({
             value={formData.pain_level} 
             onChange={handleChange}
             className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+            style={{
+                backgroundSize: `${formData.pain_level * 10}% 100%`,
+                backgroundImage: 'linear-gradient(#3b82f6, #3b82f6)',
+                backgroundRepeat: 'no-repeat'
+            }}
             disabled={isSubmitting}
         />
         <div className="flex justify-between px-1 text-[10px] font-bold text-muted-foreground">

@@ -3,6 +3,7 @@
 import { useLogout } from "@/features/auth/useLogout";
 import { LogOut, User, Activity, Calendar, MapPin, Heart, List, Users, Pencil, ChevronLeft } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { PatientProfileReview } from "./PatientProfileReview";
 import { fetchWounds, Wound } from "@/lib/api";
 
@@ -48,6 +49,7 @@ interface PatientDashboardProps {
 }
 
 export function PatientDashboard({ profile: initialProfile }: PatientDashboardProps) {
+  const router = useRouter();
   const { logout } = useLogout();
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState(initialProfile);
@@ -214,7 +216,11 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
              ) : wounds.length > 0 ? (
                  <div className="space-y-3">
                     {wounds.map(w => (
-                        <div key={w.id} className="p-4 border border-border rounded-xl bg-card hover:bg-muted/10 transition-colors active:scale-[0.99]">
+                        <div 
+                            key={w.id} 
+                            onClick={() => router.push(`/wound-detail?id=${w.id}`)}
+                            className="p-4 border border-border rounded-xl bg-card hover:bg-muted/10 transition-colors active:scale-[0.99] cursor-pointer"
+                        >
                             <div className="flex justify-between items-start mb-2">
                                 <h3 className="font-bold text-primary">{w.etiology}</h3>
                                 {w.is_healed ? (
