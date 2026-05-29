@@ -202,7 +202,7 @@ export function PatientForm({
         </div>
       </div>
 
-      <footer className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-background via-background pb-[calc(env(safe-area-inset-bottom)+24px)] pt-12 z-40 pointer-events-none">
+      <div className="sticky bottom-0 left-0 right-0 p-6 -mx-6 bg-gradient-to-t from-background via-background pb-[calc(env(safe-area-inset-bottom)+24px)] pt-12 z-40 pointer-events-none mt-auto">
         <button
           type="submit"
           disabled={isSubmitting}
@@ -211,7 +211,7 @@ export function PatientForm({
           {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : submitIcon}
           {submitLabel}
         </button>
-      </footer>
+      </div>
     </form>
   );
 }
