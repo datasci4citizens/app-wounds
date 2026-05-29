@@ -112,7 +112,15 @@ export default function AppHome() {
 
   // Smart Registration Flow for Patients
   if (profile.role === "patient" && !profile.registration_complete) {
-    return <PatientProfileReview profile={profile} onComplete={() => setRefreshKey(k => k + 1)} />;
+    return (
+      <PatientProfileReview 
+        profile={profile} 
+        title="Complete seu Cadastro"
+        description="Por favor, revise e complete as informações abaixo para começar a usar o aplicativo."
+        submitLabel="Confirmar e Entrar"
+        onComplete={() => setRefreshKey(k => k + 1)} 
+      />
+    );
   }
 
   // Role Dispatcher

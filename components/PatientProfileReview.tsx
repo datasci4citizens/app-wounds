@@ -10,9 +10,18 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 interface PatientProfileReviewProps {
   profile: any;
   onComplete: () => void;
+  title?: string;
+  description?: string;
+  submitLabel?: string;
 }
 
-export function PatientProfileReview({ profile, onComplete }: PatientProfileReviewProps) {
+export function PatientProfileReview({ 
+  profile, 
+  onComplete,
+  title = "Confirme seus dados",
+  description = "Por favor, revise e complete as informações abaixo para começar.",
+  submitLabel = "Confirmar e Entrar"
+}: PatientProfileReviewProps) {
   const patient = profile.patient || {};
   
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -77,10 +86,10 @@ export function PatientProfileReview({ profile, onComplete }: PatientProfileRevi
         <main className="flex-1 overflow-y-auto px-6 py-8 no-scrollbar pb-32">
           <div className="mb-8 space-y-2">
             <h1 className="text-2xl font-bold font-heading text-foreground">
-              Confirme seus dados
+              {title}
             </h1>
             <p className="text-sm text-muted-foreground">
-              Por favor, revise e complete as informações abaixo para começar.
+              {description}
             </p>
           </div>
 
@@ -95,7 +104,7 @@ export function PatientProfileReview({ profile, onComplete }: PatientProfileRevi
             initialComorbidities={patient.comorbidities || []}
             onSubmit={handleSubmit}
             isSubmitting={isSubmitting}
-            submitLabel="Confirmar e Entrar"
+            submitLabel={submitLabel}
             submitIcon={<CheckCircle2 className="w-5 h-5" />}
           />
         </main>

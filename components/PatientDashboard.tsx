@@ -66,6 +66,9 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
         </header>
         <PatientProfileReview 
           profile={profile} 
+          title="Editar Perfil"
+          description="Atualize suas informações de saúde e contato."
+          submitLabel="Salvar Alterações"
           onComplete={() => {
             setIsEditing(false);
             window.location.reload(); 
@@ -77,13 +80,13 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <title>Minha Saúde - Cicatrizando</title>
+      <title>Painel do Paciente - Cicatrizando</title>
       
       {/* Header */}
       <header className="sticky top-0 z-10 flex items-center justify-between px-5 pt-8 pb-4 bg-white dark:bg-card border-b border-border shadow-sm">
         <div className="flex flex-col">
           <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-0.5">
-            Minha Saúde
+            Painel do Paciente
           </span>
           <h1 className="text-2xl font-bold font-heading text-primary">
             Cicatrizando
