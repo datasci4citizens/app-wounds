@@ -2,7 +2,7 @@
 
 import { useLogout } from "@/features/auth/useLogout";
 import { LogOut, User, Activity, Calendar, MapPin, Heart, List, Users, Pencil, ChevronLeft } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PatientProfileReview } from "./PatientProfileReview";
 import { fetchWounds, Wound } from "@/lib/api";
 
