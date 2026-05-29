@@ -111,17 +111,16 @@ export default function AppHome() {
   if (!profile) return null;
 
   // Smart Registration Flow for Patients
-  // If the specialist didn't fill all mandatory fields (birth_date, state, city)
   if (profile.role === "patient" && !profile.registration_complete) {
     return <PatientProfileReview profile={profile} onComplete={() => setRefreshKey(k => k + 1)} />;
   }
 
   // Role Dispatcher
-  if (profile.role === "specialist") {
+  if (profile.role === "specialist" && profile.registration_complete) {
     return <SpecialistDashboard profile={profile} patients={patients} />;
   }
 
-  if (profile.role === "patient") {
+  if (profile.role === "patient" && profile.registration_complete) {
     return <PatientDashboard profile={profile} />;
   }
 
