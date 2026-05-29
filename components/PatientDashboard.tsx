@@ -1,7 +1,7 @@
 "use client";
 
 import { useLogout } from "@/features/auth/useLogout";
-import { LogOut, User, Activity, Calendar, MapPin, Heart, List } from "lucide-react";
+import { LogOut, User, Activity, Calendar, MapPin, Heart, List, Users } from "lucide-react";
 
 interface SpecialistData {
   id: number;
