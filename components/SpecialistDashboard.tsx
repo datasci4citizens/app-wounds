@@ -143,7 +143,7 @@ export function SpecialistDashboard({ profile, patients }: SpecialistDashboardPr
                         <div className="flex flex-wrap gap-1 mt-1">
                           {p.comorbidities && p.comorbidities.length > 0 ? (
                             p.comorbidities.map((c: any) => (
-                              <Badge key={c.concept_id} label={c.name} />
+                              <Badge key={c.concept_id} label={c.name} code={c.code} />
                             ))
                           ) : (
                             <span className="text-xs text-muted-foreground italic">Nenhuma informada</span>
@@ -226,9 +226,10 @@ function DataRow({
   );
 }
 
-function Badge({ label }: { label: string }) {
+function Badge({ label, code }: { label: string, code?: string }) {
   return (
     <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-primary/10 text-primary border border-primary/20">
+      {code && <span className="font-bold mr-1 opacity-70">[{code}]</span>}
       {label}
     </span>
   );

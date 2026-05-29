@@ -149,7 +149,7 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
                 <div className="flex flex-wrap gap-2">
                     {patient?.comorbidities && patient.comorbidities.length > 0 ? (
                         patient.comorbidities.map(c => (
-                            <Badge key={c.concept_id} label={c.name} />
+                            <Badge key={c.concept_id} label={c.name} code={c.code} />
                         ))
                     ) : (
                         <p className="text-xs text-muted-foreground italic">Nenhuma informada.</p>
@@ -237,9 +237,10 @@ function DataRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Badge({ label }: { label: string }) {
+function Badge({ label, code }: { label: string, code?: string }) {
   return (
     <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-primary/10 text-primary border border-primary/20">
+      {code && <span className="font-bold mr-1 opacity-70">[{code}]</span>}
       {label}
     </span>
   );
