@@ -15,7 +15,7 @@ manter o código escalável e modular, separando as regras de negócio por domí
 ```text
 src/ (ou raiz do projeto)
 ├── app/                      # Roteamento do Next.js (App Router)
-│   ├── page.tsx              # Rota inicial
+│   ├── page.tsx              # Rota inicial (Dispatcher: Painel do Especialista, Painel do Paciente ou Revisão de Perfil)
 │   ├── (auth)/               # Grupo de rotas de autenticação
 │   │   └── login/            # Tela de login
 │   ├── (onboarding)/         # Fluxo de integração de novos usuários
@@ -50,6 +50,15 @@ negócio.
 2. O Google retorna um `serverAuthCode` (modo offline).
 3. O Next.js envia o `serverAuthCode` para a nossa API em Django.
 4. O Django valida o código junto ao Google e retorna os tokens JWT de acesso, além dos dados do usuário (perfil e status de cadastro).
+
+#### Fluxo de Permissões e Perfis (Role Dispatcher)
+A raiz da aplicação (`/`) atua como um roteador dinâmico com base no papel do usuário e no status de seu cadastro:
+1. **Especialistas Completos**: Visualizam o `SpecialistDashboard` (gerenciamento de pacientes).
+2. **Pacientes Completos**: Visualizam o `PatientDashboard` (linha do tempo de saúde e métricas).
+3. **Pacientes Incompletos**: Caso o especialista não tenha preenchido todos os dados obrigatórios do paciente, este é automaticamente redirecionado à tela `PatientProfileReview` para completar seu perfil clínico na primeira vez que acessa a aplicação.
+
+#### Formulário Unificado
+Todo o processo de cadastro e atualização de pacientes (pelo especialista ou pelo próprio paciente) utiliza o componente reutilizável `PatientForm`. Isso garante que campos como Peso, Altura, Hábitos (Tabagismo/Álcool) e Comorbidades (com busca assíncrona CID-11) sejam validados e estruturados de forma consistente em todo o aplicativo.
 
 ## Instalação
 
