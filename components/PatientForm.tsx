@@ -110,23 +110,23 @@ export function PatientForm({
       <div className="space-y-4">
         <div className="space-y-2">
           <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">Nome Completo</Label>
-          <Input name="fullName" value={formData.fullName} onChange={handleChange} required className="bg-white dark:bg-card border-transparent shadow-sm h-14 rounded-2xl px-5" disabled={isSubmitting} />
+          <Input name="fullName" value={formData.fullName} onChange={handleChange} className="bg-white dark:bg-card border-transparent shadow-sm h-14 rounded-2xl px-5" disabled={isSubmitting} />
         </div>
         <div className="space-y-2">
           <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">Data de Nascimento</Label>
-          <Input name="birthDate" type="date" value={formData.birthDate} onChange={handleChange} required className="bg-white dark:bg-card border-transparent shadow-sm h-14 rounded-2xl px-5 min-h-14" disabled={isSubmitting} />
+          <Input name="birthDate" type="date" value={formData.birthDate} onChange={handleChange} className="bg-white dark:bg-card border-transparent shadow-sm h-14 rounded-2xl px-5 min-h-14" disabled={isSubmitting} />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">Estado (UF)</Label>
-            <select name="state" value={formData.state} onChange={handleChange} required disabled={isSubmitting} className="flex h-14 w-full appearance-none rounded-2xl border border-transparent bg-white dark:bg-card px-5 py-2 text-base font-medium shadow-sm disabled:opacity-50">
+            <select name="state" value={formData.state} onChange={handleChange} disabled={isSubmitting} className="flex h-14 w-full appearance-none rounded-2xl border border-transparent bg-white dark:bg-card px-5 py-2 text-base font-medium shadow-sm disabled:opacity-50">
                 <option value="" disabled>UF</option>
                 {states.map(s => <option key={s.id} value={s.sigla}>{s.sigla}</option>)}
             </select>
           </div>
           <div className="space-y-2">
             <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">Cidade</Label>
-            <select name="city" value={formData.city} onChange={handleChange} required disabled={!formData.state || isLoadingCities || isSubmitting} className="flex h-14 w-full appearance-none rounded-2xl border border-transparent bg-white dark:bg-card px-5 py-2 text-base font-medium shadow-sm disabled:opacity-50">
+            <select name="city" value={formData.city} onChange={handleChange} disabled={!formData.state || isLoadingCities || isSubmitting} className="flex h-14 w-full appearance-none rounded-2xl border border-transparent bg-white dark:bg-card px-5 py-2 text-base font-medium shadow-sm disabled:opacity-50">
                 <option value="" disabled>{isLoadingCities ? "..." : "Selecione"}</option>
                 {cities.map(c => <option key={c.id} value={c.nome}>{c.nome}</option>)}
             </select>
@@ -178,7 +178,7 @@ export function PatientForm({
         </div>
 
         <div className="space-y-2">
-          <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">Fumante</Label>
+          <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">Tabagismo</Label>
           <select name="smokingStatus" value={formData.smokingStatus} onChange={handleChange} disabled={isSubmitting} className="flex h-14 w-full appearance-none rounded-2xl border border-transparent bg-white dark:bg-card px-5 py-2 text-base font-medium shadow-sm disabled:opacity-50">
               <option value="">Selecione</option>
               <option value="NEVER">Nunca fumou</option>
@@ -189,7 +189,7 @@ export function PatientForm({
         </div>
 
         <div className="space-y-2">
-          <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">Álcool</Label>
+          <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">Consumo de álcool</Label>
           <select name="alcoholConsumption" value={formData.alcoholConsumption} onChange={handleChange} disabled={isSubmitting} className="flex h-14 w-full appearance-none rounded-2xl border border-transparent bg-white dark:bg-card px-5 py-2 text-base font-medium shadow-sm disabled:opacity-50">
               <option value="">Selecione</option>
               <option value="NONE">Não bebe</option>

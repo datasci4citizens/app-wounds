@@ -156,8 +156,8 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
             <div className="pt-2 border-t border-border">
                 <p className="text-xs font-bold text-muted-foreground uppercase mb-2">Hábitos</p>
                 <div className="space-y-2">
-                    <DataRow label="Fumante" value={formatSmoking(patient?.smoking_status || null)} />
-                    <DataRow label="Álcool" value={formatAlcohol(patient?.alcohol_consumption || null)} />
+                    <DataRow label="Tabagismo" value={formatSmoking(patient?.smoking_status || null)} />
+                    <DataRow label="Consumo de álcool" value={formatAlcohol(patient?.alcohol_consumption || null)} />
                 </div>
             </div>
 

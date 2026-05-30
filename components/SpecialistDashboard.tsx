@@ -140,10 +140,10 @@ export function SpecialistDashboard({ profile, patients }: SpecialistDashboardPr
                           <DataRow label="Sexo" value={p.gender === 'M' ? 'Masc.' : p.gender === 'F' ? 'Fem.' : '—'} />
                           <DataRow label="Altura" value={p.height ? `${p.height}m` : '—'} />
                           <DataRow label="Peso" value={p.weight ? `${p.weight}kg` : '—'} />
-                          <DataRow label="Fumante" value={formatSmoking(p.smoking_status)} />
+                          <DataRow label="Tabagismo" value={formatSmoking(p.smoking_status)} />
                         </div>
                         <div className="mt-2">
-                          <DataRow label="Álcool" value={formatAlcohol(p.alcohol_consumption)} />
+                          <DataRow label="Consumo de álcool" value={formatAlcohol(p.alcohol_consumption)} />
                         </div>
                       </div>
 

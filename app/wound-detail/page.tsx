@@ -3,12 +3,14 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { fetchObservations, Observation } from "@/lib/api";
+import { useUserStore } from "@/store/userStore";
 import { ChevronLeft, Activity, Calendar, User, Clock, Loader2, MessageSquare, Thermometer, Droplets } from "lucide-react";
 
 export default function WoundDetailPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const woundId = searchParams.get("id");
+  const { user: currentUser } = useUserStore();
   
   const [observations, setObservations] = useState<Observation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -104,7 +106,7 @@ export default function WoundDetailPage() {
                             </div>
                         </div>
 
-                        {obs.extra_notes && (
+                        {obs.extra_notes && !(currentUser?.role === 'Pa' && obs.author_role === 'Pr') && (
                             <div className="bg-muted/30 p-3 rounded-xl">
                                 <div className="flex items-center gap-1.5 mb-1">
                                     <MessageSquare className="w-3 h-3 text-muted-foreground" />
