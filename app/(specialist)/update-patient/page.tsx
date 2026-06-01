@@ -90,7 +90,7 @@ function UpdatePatientContent() {
         throw new Error('Erro ao atualizar paciente. Verifique os dados e tente novamente.');
       }
 
-      router.push("/");
+      router.back();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
     } finally {

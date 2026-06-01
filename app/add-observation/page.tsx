@@ -23,7 +23,7 @@ function AddObservationContent() {
 
     try {
       await createObservation(parseInt(woundId), formData);
-      router.push(`/wound-detail?id=${woundId}`);
+      router.back();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao salvar observação');
     } finally {
