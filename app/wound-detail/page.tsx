@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { fetchObservations, Observation } from "@/lib/api";
 import { useUserStore } from "@/store/userStore";
 import { ChevronLeft, Activity, Calendar, User, Clock, Loader2, MessageSquare, Thermometer, Droplets } from "lucide-react";
 
-export default function WoundDetailPage() {
+function WoundDetailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const woundId = searchParams.get("id");
@@ -140,6 +140,15 @@ export default function WoundDetailPage() {
     </div>
   );
 }
+
+export default function WoundDetailPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-background"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+      <WoundDetailContent />
+    </Suspense>
+  );
+}
+
 
 function MetricItem({ label, value, color = "text-primary" }: { label: string, value: string, color?: string }) {
     return (

@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { fetchWounds, Wound, createWound } from "@/lib/api";
 import { ChevronLeft, Plus, Activity, MapPin, Loader2, CheckCircle2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export default function PatientWoundsPage() {
+function PatientWoundsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const patientId = searchParams.get("id");
@@ -194,5 +194,13 @@ export default function PatientWoundsPage() {
         </main>
       </div>
     </div>
+  );
+}
+
+export default function PatientWoundsPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-background"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+      <PatientWoundsContent />
+    </Suspense>
   );
 }

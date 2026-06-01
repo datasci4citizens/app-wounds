@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createObservation } from "@/lib/api";
 import { useUserStore } from "@/store/userStore";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Loader2 } from "lucide-react";
 import { ObservationForm, ObservationFormData } from "@/components/ObservationForm";
 
-export default function AddObservationPage() {
+function AddObservationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const woundId = searchParams.get("woundId");
@@ -71,5 +71,13 @@ export default function AddObservationPage() {
         </main>
       </div>
     </div>
+  );
+}
+
+export default function AddObservationPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-background"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+      <AddObservationContent />
+    </Suspense>
   );
 }

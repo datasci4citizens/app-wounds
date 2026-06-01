@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { authenticatedFetch } from "@/store/authStore";
 import { ChevronLeft, Loader2, Save } from "lucide-react";
@@ -8,7 +8,7 @@ import { PatientForm, PatientFormData } from "@/components/PatientForm";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-export default function UpdatePatientPage() {
+function UpdatePatientContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
@@ -148,5 +148,13 @@ export default function UpdatePatientPage() {
         </main>
       </div>
     </div>
+  );
+}
+
+export default function UpdatePatientPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-background"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+      <UpdatePatientContent />
+    </Suspense>
   );
 }
