@@ -34,12 +34,9 @@ export const useAuthStore = create<AuthState>()(
 export const getAuthHeaders = (): HeadersInit => {
   const token = useAuthStore.getState().getAccessToken();
   if (!token) {
-    return {
-      'Content-Type': 'application/json',
-    };
+    return {};
   }
   return {
-    'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`,
   };
 };
@@ -90,13 +87,21 @@ export const authenticatedFetch = async (
   input: RequestInfo | URL,
   init?: RequestInit
 ): Promise<Response> => {
+  const authHeaders = getAuthHeaders();
+  const headers: Record<string, string> = {
+    ...(authHeaders as Record<string, string>),
+    ...(init?.headers as Record<string, string> || {}),
+  };
+
+  // Automatically add Content-Type: application/json if body is present and NOT FormData
+  if (init?.body && !(init.body instanceof FormData) && !headers['Content-Type']) {
+    headers['Content-Type'] = 'application/json';
+  }
+
   // First attempt
   let response = await fetch(input, {
     ...init,
-    headers: {
-      ...getAuthHeaders(),
-      ...(init?.headers || {}),
-    },
+    headers,
   });
 
   // If unauthorized, try to refresh token and retry once
@@ -104,13 +109,17 @@ export const authenticatedFetch = async (
     const newAccessToken = await refreshAccessToken();
     
     if (newAccessToken) {
+      // Get fresh auth headers with new token
+      const freshAuthHeaders = getAuthHeaders();
+      const freshHeaders = {
+        ...headers,
+        ...(freshAuthHeaders as Record<string, string>),
+      };
+
       // Retry with new token
       response = await fetch(input, {
         ...init,
-        headers: {
-          ...getAuthHeaders(), // This will now get the new token
-          ...(init?.headers || {}),
-        },
+        headers: freshHeaders,
       });
     }
   }

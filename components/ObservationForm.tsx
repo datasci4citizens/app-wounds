@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, CheckCircle2, Save } from "lucide-react";
+import { Loader2, CheckCircle2, Save, Camera, X, Image as ImageIcon } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import { Camera as CapacitorCamera, CameraResultType, CameraSource } from "@capacitor/camera";
 
 export interface ObservationFormData {
   pain_level: number;
@@ -15,10 +16,11 @@ export interface ObservationFormData {
   fever_24h: boolean;
   extra_notes: string;
   patient_guidelines: string;
+  image_blob?: Blob | null;
 }
 
 interface ObservationFormProps {
-  onSubmit: (data: ObservationFormData) => void;
+  onSubmit: (data: FormData) => void;
   isSubmitting: boolean;
   authorRole: 'Pr' | 'Pa' | null;
 }
@@ -38,8 +40,41 @@ export function ObservationForm({
     wound_edge: "Indefinidas, não visíveis claramente",
     fever_24h: false,
     extra_notes: "",
-    patient_guidelines: ""
+    patient_guidelines: "",
+    image_blob: null
   });
+
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  const takePhoto = async () => {
+    try {
+      const image = await CapacitorCamera.getPhoto({
+        quality: 90,
+        allowEditing: false,
+        resultType: CameraResultType.Uri,
+        source: CameraSource.Prompt, // Prompt allows user to choose camera or gallery
+        promptLabelHeader: "Foto da Ferida",
+        promptLabelPhoto: "Escolher da Galeria",
+        promptLabelPicture: "Tirar Foto"
+      });
+
+      if (image.webPath) {
+        setImagePreview(image.webPath);
+        
+        // Convert to Blob for upload
+        const response = await fetch(image.webPath);
+        const blob = await response.blob();
+        setFormData(prev => ({ ...prev, image_blob: blob }));
+      }
+    } catch (err) {
+      console.error("Camera error:", err);
+    }
+  };
+
+  const removePhoto = () => {
+    setImagePreview(null);
+    setFormData(prev => ({ ...prev, image_blob: null }));
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -49,7 +84,25 @@ export function ObservationForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    
+    // Create FormData for multipart upload
+    const data = new FormData();
+    data.append("pain_level", formData.pain_level.toString());
+    data.append("exudate_amount", formData.exudate_amount);
+    data.append("exudate_type", formData.exudate_type);
+    data.append("tissue_type", formData.tissue_type);
+    data.append("dressing_changes", formData.dressing_changes.toString());
+    data.append("periwound_skin", formData.periwound_skin);
+    data.append("wound_edge", formData.wound_edge);
+    data.append("fever_24h", formData.fever_24h.toString());
+    data.append("extra_notes", formData.extra_notes);
+    data.append("patient_guidelines", formData.patient_guidelines);
+    
+    if (formData.image_blob) {
+      data.append("image", formData.image_blob, "observation.jpg");
+    }
+
+    onSubmit(data);
   };
 
   return (
@@ -197,6 +250,38 @@ export function ObservationForm({
             />
           </div>
       )}
+
+      {/* Photo Capture Section */}
+      <div className="space-y-3">
+          <Label className="text-xs font-bold uppercase text-muted-foreground ml-1">Foto da Ferida</Label>
+          
+          {imagePreview ? (
+              <div className="relative w-full aspect-square rounded-2xl overflow-hidden border border-border bg-muted group">
+                  <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                  <button 
+                    type="button"
+                    onClick={removePhoto}
+                    className="absolute top-3 right-3 p-2 bg-black/50 text-white rounded-full backdrop-blur-md active:scale-90 transition-transform"
+                    disabled={isSubmitting}
+                  >
+                      <X className="w-5 h-5" />
+                  </button>
+              </div>
+          ) : (
+              <button 
+                type="button"
+                onClick={takePhoto}
+                disabled={isSubmitting}
+                className="w-full aspect-square flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-border bg-muted/30 text-muted-foreground active:bg-muted transition-colors"
+              >
+                  <div className="p-4 bg-background rounded-full shadow-sm border border-border">
+                    <Camera className="w-8 h-8 text-primary" />
+                  </div>
+                  <span className="text-xs font-bold uppercase tracking-tight">Capturar Imagem</span>
+                  <span className="text-[10px] opacity-70">Opcional para acompanhamento visual</span>
+              </button>
+          )}
+      </div>
 
       <div className="pt-4">
         <button
