@@ -33,13 +33,16 @@ export const useAuthStore = create<AuthState>()(
  */
 export const getAuthHeaders = (): HeadersInit => {
   const token = useAuthStore.getState().getAccessToken();
+  const baseHeaders: HeadersInit = {
+    'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': 'true',
+  };
+
   if (!token) {
-    return {
-      'Content-Type': 'application/json',
-    };
+    return baseHeaders;
   }
   return {
-    'Content-Type': 'application/json',
+    ...baseHeaders,
     'Authorization': `Bearer ${token}`,
   };
 };
@@ -60,6 +63,7 @@ export const refreshAccessToken = async (): Promise<string | null> => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
       },
       body: JSON.stringify({ refresh: tokens.refresh }),
     });
