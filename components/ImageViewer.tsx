@@ -35,13 +35,19 @@ export function ImageViewer({ src, onClose }: ImageViewerProps) {
       </div>
 
       {/* Zoom Area */}
-      <div className="flex-1 w-full overflow-hidden flex items-center justify-center relative touch-none">
-        <QuickPinchZoom onUpdate={onUpdate} containerProps={{ className: "w-full h-full flex items-center justify-center" }}>
+      <div className="flex-1 w-full overflow-hidden flex items-center justify-center relative touch-none select-none">
+        <QuickPinchZoom 
+          onUpdate={onUpdate} 
+          containerProps={{ 
+            className: "w-full h-full flex items-center justify-center" 
+          }}
+        >
           <img
             ref={imgRef}
             src={src}
             alt="Wound Full View"
-            className="max-w-full max-h-full object-contain will-change-transform"
+            draggable={false}
+            className="block mx-auto max-w-full max-h-full object-contain will-change-transform shadow-2xl"
           />
         </QuickPinchZoom>
       </div>
