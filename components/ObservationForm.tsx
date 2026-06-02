@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Loader2, CheckCircle2, Save, Camera, X, Image as ImageIcon } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Camera as CapacitorCamera, CameraResultType, CameraSource } from "@capacitor/camera";
+import { Capacitor } from "@capacitor/core";
 
 export interface ObservationFormData {
   pain_level: number;
@@ -30,6 +31,8 @@ export function ObservationForm({
   isSubmitting,
   authorRole
 }: ObservationFormProps) {
+  const isNative = Capacitor.isNativePlatform();
+
   const [formData, setFormData] = useState<ObservationFormData>({
     pain_level: 0,
     exudate_amount: "Nenhum",
@@ -52,7 +55,7 @@ export function ObservationForm({
         quality: 90,
         allowEditing: false,
         resultType: CameraResultType.Uri,
-        source: CameraSource.Prompt, // Prompt allows user to choose camera or gallery
+        source: isNative ? CameraSource.Prompt : CameraSource.Photos,
         promptLabelHeader: "Foto da Ferida",
         promptLabelPhoto: "Escolher da Galeria",
         promptLabelPicture: "Tirar Foto"
@@ -275,10 +278,18 @@ export function ObservationForm({
                 className="w-full aspect-square flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-border bg-muted/30 text-muted-foreground active:bg-muted transition-colors"
               >
                   <div className="p-4 bg-background rounded-full shadow-sm border border-border">
-                    <Camera className="w-8 h-8 text-primary" />
+                    {isNative ? (
+                        <Camera className="w-8 h-8 text-primary" />
+                    ) : (
+                        <ImageIcon className="w-8 h-8 text-primary" />
+                    )}
                   </div>
-                  <span className="text-xs font-bold uppercase tracking-tight">Capturar Imagem</span>
-                  <span className="text-[10px] opacity-70">Opcional para acompanhamento visual</span>
+                  <span className="text-xs font-bold uppercase tracking-tight">
+                    {isNative ? "Capturar Imagem" : "Selecionar Imagem"}
+                  </span>
+                  <span className="text-[10px] opacity-70">
+                    {isNative ? "Câmera ou Galeria" : "Escolher arquivo do computador"}
+                  </span>
               </button>
           )}
       </div>

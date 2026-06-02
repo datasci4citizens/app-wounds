@@ -4,7 +4,8 @@ import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { fetchObservations, Observation } from "@/lib/api";
 import { useUserStore } from "@/store/userStore";
-import { ChevronLeft, Activity, Calendar, User, Clock, Loader2, MessageSquare, Thermometer, Droplets } from "lucide-react";
+import { ChevronLeft, Activity, Calendar, User, Clock, Loader2, MessageSquare, Thermometer, Droplets, ZoomIn } from "lucide-react";
+import { ImageViewer } from "@/components/ImageViewer";
 
 function WoundDetailContent() {
   const router = useRouter();
@@ -14,6 +15,7 @@ function WoundDetailContent() {
   
   const [observations, setObservations] = useState<Observation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
     const loadObservations = async () => {
@@ -105,12 +107,20 @@ function WoundDetailContent() {
                       </div>
 
                       {obs.image && (
-                          <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-border bg-muted group">
+                          <div 
+                            onClick={() => setSelectedImage(obs.image)}
+                            className="relative w-full aspect-video rounded-xl overflow-hidden border border-border bg-muted group cursor-zoom-in"
+                          >
                               <img 
                                   src={obs.image} 
                                   alt="Foto da Ferida" 
                                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                               />
+                              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                  <div className="bg-black/50 p-2 rounded-full backdrop-blur-sm">
+                                      <ZoomIn className="w-6 h-6 text-white" />
+                                  </div>
+                              </div>
                           </div>
                       )}
 
@@ -143,11 +153,18 @@ function WoundDetailContent() {
               <p className="text-sm text-muted-foreground px-8">Nenhuma observação clínica foi registrada para esta ferida ainda.</p>
             </div>
         )}
-      </main>
-    </div>
-  );
-}
+        </main>
 
+        {/* Full Image Viewer Overlay */}
+        {selectedImage && (
+        <ImageViewer 
+          src={selectedImage} 
+          onClose={() => setSelectedImage(null)} 
+        />
+        )}
+        </div>
+        );
+        }
 export default function WoundDetailPage() {
   return (
     <div className="flex flex-col min-h-screen bg-background items-center">

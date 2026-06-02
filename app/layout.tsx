@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from "react";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
@@ -15,6 +16,14 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    const registerPWAElements = async () => {
+      const { defineCustomElements } = await import("@ionic/pwa-elements/loader");
+      defineCustomElements(window);
+    };
+    registerPWAElements();
+  }, []);
+
   return (
     <html lang="pt-BR" className={cn("h-full", "antialiased", inter.variable, plusJakarta.variable, "font-sans")}>
       <head>
