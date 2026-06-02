@@ -86,8 +86,8 @@ export function ImageViewer({ src, onClose }: ImageViewerProps) {
       
       {/* Footer hint */}
       <div className="p-6 text-center shrink-0 opacity-40">
-          <p className="text-[10px] text-white uppercase font-medium tracking-widest">
-            Role para zoom • Arraste para mover
+          <p className="text-[10px] text-white uppercase font-medium tracking-widest leading-relaxed">
+            Aperte os botões para zoom • Arraste para mover
           </p>
       </div>
     </div>
