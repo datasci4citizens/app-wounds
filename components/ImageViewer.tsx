@@ -14,12 +14,14 @@ export function ImageViewer({ src, onClose }: ImageViewerProps) {
   const onUpdate = useCallback(({ x, y, scale }: { x: number; y: number; scale: number }) => {
     if (imgRef.current) {
       const value = make3dTransformValue({ x, y, scale });
-      imgRef.current.style.setProperty("transform", value);
+      // Prepend translate(-50%, -50%) to ensure centering is preserved 
+      // even when the library applies its zoom/pan transforms
+      imgRef.current.style.setProperty("transform", `translate(-50%, -50%) ${value}`);
     }
   }, []);
 
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col bg-black/95 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[100] flex flex-col bg-black animate-in fade-in duration-200">
       {/* Header */}
       <div className="flex items-center justify-between px-4 h-16 shrink-0 z-[110]">
         <div className="flex items-center gap-2 text-white/70">
@@ -35,20 +37,24 @@ export function ImageViewer({ src, onClose }: ImageViewerProps) {
       </div>
 
       {/* Zoom Area */}
-      <div className="flex-1 w-full overflow-hidden flex items-center justify-center relative touch-none select-none">
+      <div className="flex-1 w-full overflow-hidden relative touch-none select-none">
         <QuickPinchZoom 
           onUpdate={onUpdate} 
+          draggableUnZoomed={false}
           containerProps={{ 
-            className: "w-full h-full flex items-center justify-center" 
+            className: "w-full h-full" 
           }}
         >
-          <img
-            ref={imgRef}
-            src={src}
-            alt="Wound Full View"
-            draggable={false}
-            className="block mx-auto max-w-full max-h-full object-contain will-change-transform shadow-2xl"
-          />
+          <div className="w-full h-full relative">
+            <img
+              ref={imgRef}
+              src={src}
+              alt="Wound Full View"
+              draggable={false}
+              style={{ transformOrigin: '0 0' }}
+              className="absolute top-1/2 left-1/2 max-w-full max-h-full object-contain will-change-transform shadow-2xl"
+            />
+          </div>
         </QuickPinchZoom>
       </div>
 
