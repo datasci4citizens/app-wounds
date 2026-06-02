@@ -50,12 +50,12 @@ export function ImageViewer({ src, onClose }: ImageViewerProps) {
                 </div>
               </TransformComponent>
 
-              {/* Zoom Controls Bar */}
-              <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-2 p-2 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 z-[120] shadow-2xl">
+              {/* Zoom Controls Bar - Dark Glassmorphism */}
+              <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-2 p-2 bg-zinc-900/60 backdrop-blur-2xl rounded-3xl border border-white/10 z-[120] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
                 <button 
                   type="button"
                   onClick={() => zoomOut()}
-                  className="p-4 bg-white/5 hover:bg-white/20 active:bg-white/30 text-white rounded-xl transition-all border border-white/10"
+                  className="p-4 bg-white/5 hover:bg-white/10 active:bg-white/20 text-white/90 rounded-2xl transition-all border border-white/5"
                   title="Zoom Out"
                 >
                   <ZoomOut className="w-6 h-6" />
@@ -64,7 +64,7 @@ export function ImageViewer({ src, onClose }: ImageViewerProps) {
                 <button 
                   type="button"
                   onClick={() => resetTransform()}
-                  className="p-4 bg-white/5 hover:bg-white/20 active:bg-white/30 text-white rounded-xl transition-all border border-white/10"
+                  className="p-4 bg-white/5 hover:bg-white/10 active:bg-white/20 text-white/90 rounded-2xl transition-all border border-white/5"
                   title="Reset"
                 >
                   <RotateCcw className="w-6 h-6" />
@@ -73,7 +73,7 @@ export function ImageViewer({ src, onClose }: ImageViewerProps) {
                 <button 
                   type="button"
                   onClick={() => zoomIn()}
-                  className="p-4 bg-white/5 hover:bg-white/20 active:bg-white/30 text-white rounded-xl transition-all border border-white/10"
+                  className="p-4 bg-white/5 hover:bg-white/10 active:bg-white/20 text-white/90 rounded-2xl transition-all border border-white/5"
                   title="Zoom In"
                 >
                   <ZoomIn className="w-6 h-6" />
