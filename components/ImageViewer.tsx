@@ -11,14 +11,34 @@ interface ImageViewerProps {
 
 export function ImageViewer({ src, onClose }: ImageViewerProps) {
   const imgRef = useRef<HTMLImageElement>(null);
+  const pinchZoomRef = useRef<any>(null);
+
   const onUpdate = useCallback(({ x, y, scale }: { x: number; y: number; scale: number }) => {
     if (imgRef.current) {
       const value = make3dTransformValue({ x, y, scale });
-      // Prepend translate(-50%, -50%) to ensure centering is preserved 
-      // even when the library applies its zoom/pan transforms
       imgRef.current.style.setProperty("transform", `translate(-50%, -50%) ${value}`);
     }
   }, []);
+
+  const handleZoomIn = () => {
+    if (pinchZoomRef.current) {
+      pinchZoomRef.current.scaleTo({
+        scale: pinchZoomRef.current.scale * 1.5,
+        x: 0,
+        y: 0,
+      });
+    }
+  };
+
+  const handleZoomOut = () => {
+    if (pinchZoomRef.current) {
+      pinchZoomRef.current.scaleTo({
+        scale: pinchZoomRef.current.scale / 1.5,
+        x: 0,
+        y: 0,
+      });
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-[100] flex flex-col bg-black animate-in fade-in duration-200">
@@ -39,6 +59,7 @@ export function ImageViewer({ src, onClose }: ImageViewerProps) {
       {/* Zoom Area */}
       <div className="flex-1 w-full overflow-hidden relative touch-none select-none">
         <QuickPinchZoom 
+          ref={pinchZoomRef}
           onUpdate={onUpdate} 
           draggableUnZoomed={false}
           containerProps={{ 
@@ -58,11 +79,25 @@ export function ImageViewer({ src, onClose }: ImageViewerProps) {
         </QuickPinchZoom>
       </div>
 
-      {/* Footer Info */}
-      <div className="p-6 text-center shrink-0">
-          <p className="text-[10px] text-white/40 uppercase font-medium tracking-widest">
-            Use dois dedos para dar zoom ou clique e arraste
-          </p>
+      {/* Zoom Controls Bar */}
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-4 p-2 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 z-[120] shadow-2xl">
+          <button 
+            onClick={handleZoomOut}
+            className="p-4 bg-white/5 hover:bg-white/20 active:scale-90 text-white rounded-xl transition-all border border-white/10"
+            title="Zoom Out"
+          >
+            <ZoomOut className="w-6 h-6" />
+          </button>
+          
+          <div className="h-8 w-px bg-white/20 mx-1" />
+
+          <button 
+            onClick={handleZoomIn}
+            className="p-4 bg-white/5 hover:bg-white/20 active:scale-90 text-white rounded-xl transition-all border border-white/10"
+            title="Zoom In"
+          >
+            <ZoomIn className="w-6 h-6" />
+          </button>
       </div>
     </div>
   );
