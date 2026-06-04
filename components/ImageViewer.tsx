@@ -34,7 +34,7 @@ export function ImageViewer({ src, onClose }: ImageViewerProps) {
           minScale={1}
           maxScale={8}
         >
-          {({ zoomIn, zoomOut, resetTransform }) => (
+          {({ zoomIn, zoomOut, resetTransform }: any) => (
             <>
               <TransformComponent 
                 wrapperClass="!w-full !h-full" 
