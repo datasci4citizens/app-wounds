@@ -76,6 +76,7 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
       <div className="relative min-h-screen bg-background">
         <header className="sticky top-0 z-20 flex items-center h-16 px-4 bg-background border-b border-border pt-safe">
           <button 
+            data-back-override
             onClick={() => setIsEditing(false)}
             className="p-2 -ml-2 rounded-full hover:bg-muted active:bg-accent text-foreground transition-colors"
           >

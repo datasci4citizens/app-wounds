@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { authenticatedFetch } from "@/store/authStore";
 import { ChevronLeft, Loader2, Save } from "lucide-react";
@@ -8,7 +8,7 @@ import { PatientForm, PatientFormData } from "@/components/PatientForm";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-export default function UpdatePatientPage() {
+function UpdatePatientContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
@@ -90,7 +90,7 @@ export default function UpdatePatientPage() {
         throw new Error('Erro ao atualizar paciente. Verifique os dados e tente novamente.');
       }
 
-      router.push("/");
+      router.back();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
     } finally {
@@ -100,53 +100,65 @@ export default function UpdatePatientPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
+      <div className="flex items-center justify-center min-h-[50vh]">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
+    <div className="w-full max-w-lg flex flex-col flex-1 relative">
+      <header className="sticky top-0 z-10 flex items-center h-16 px-4 bg-background pt-safe">
+        <button 
+          onClick={() => router.back()}
+          className="p-2 -ml-2 rounded-full hover:bg-muted active:bg-accent text-foreground transition-colors"
+        >
+          <ChevronLeft className="w-6 h-6" />
+        </button>
+      </header>
+
+      <main className="flex-1 overflow-y-auto px-6 py-4 no-scrollbar pb-32">
+        <div className="mb-8 space-y-2">
+          <h1 className="text-2xl font-bold font-heading text-foreground">
+            Atualizar Paciente
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Atualize os dados do paciente.
+          </p>
+        </div>
+
+        {error && (
+          <div className="mb-4 p-4 bg-destructive/10 border border-destructive/20 rounded-xl text-destructive text-sm">
+            {error}
+          </div>
+        )}
+
+        {initialData && (
+          <PatientForm
+            initialData={initialData}
+            initialComorbidities={initialComorbidities}
+            onSubmit={handleSubmit}
+            isSubmitting={isSubmitting}
+            submitLabel="Salvar Alterações"
+            submitIcon={<Save className="w-5 h-5" />}
+          />
+        )}
+      </main>
+    </div>
+  );
+}
+
+export default function UpdatePatientPage() {
+  return (
     <div className="flex flex-col min-h-[100dvh] bg-background items-center">
       <title>Atualizar Paciente - Cicatrizando</title>
-      <div className="w-full max-w-lg flex flex-col flex-1 relative">
-        <header className="sticky top-0 z-10 flex items-center h-16 px-4 bg-background pt-safe">
-          <button 
-            onClick={() => router.back()}
-            className="p-2 -ml-2 rounded-full hover:bg-muted active:bg-accent text-foreground transition-colors"
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </button>
-        </header>
-
-        <main className="flex-1 overflow-y-auto px-6 py-4 no-scrollbar pb-32">
-          <div className="mb-8 space-y-2">
-            <h1 className="text-2xl font-bold font-heading text-foreground">
-              Atualizar Paciente
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Atualize os dados do paciente.
-            </p>
-          </div>
-
-          {error && (
-            <div className="mb-4 p-4 bg-destructive/10 border border-destructive/20 rounded-xl text-destructive text-sm">
-              {error}
-            </div>
-          )}
-
-          {initialData && (
-            <PatientForm
-              initialData={initialData}
-              initialComorbidities={initialComorbidities}
-              onSubmit={handleSubmit}
-              isSubmitting={isSubmitting}
-              submitLabel="Salvar Alterações"
-              submitIcon={<Save className="w-5 h-5" />}
-            />
-          )}
-        </main>
-      </div>
+      <Suspense fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      }>
+        <UpdatePatientContent />
+      </Suspense>
     </div>
   );
 }

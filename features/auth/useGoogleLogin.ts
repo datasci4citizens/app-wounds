@@ -54,7 +54,10 @@ export const useGoogleLogin = () => {
 
     const response = await fetch(`${API_URL}/auth/google/`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true'
+      },
       body: JSON.stringify(payload),
     });
 

@@ -33,13 +33,15 @@ export const useAuthStore = create<AuthState>()(
  */
 export const getAuthHeaders = (): HeadersInit => {
   const token = useAuthStore.getState().getAccessToken();
+  const baseHeaders: HeadersInit = {
+    'ngrok-skip-browser-warning': 'true',
+  };
+
   if (!token) {
-    return {
-      'Content-Type': 'application/json',
-    };
+    return baseHeaders;
   }
   return {
-    'Content-Type': 'application/json',
+    ...baseHeaders,
     'Authorization': `Bearer ${token}`,
   };
 };
@@ -60,6 +62,7 @@ export const refreshAccessToken = async (): Promise<string | null> => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
       },
       body: JSON.stringify({ refresh: tokens.refresh }),
     });
@@ -90,13 +93,21 @@ export const authenticatedFetch = async (
   input: RequestInfo | URL,
   init?: RequestInit
 ): Promise<Response> => {
+  const authHeaders = getAuthHeaders();
+  const headers: Record<string, string> = {
+    ...(authHeaders as Record<string, string>),
+    ...(init?.headers as Record<string, string> || {}),
+  };
+
+  // Automatically add Content-Type: application/json if NOT FormData
+  if (!(init?.body instanceof FormData) && !headers['Content-Type']) {
+    headers['Content-Type'] = 'application/json';
+  }
+
   // First attempt
   let response = await fetch(input, {
     ...init,
-    headers: {
-      ...getAuthHeaders(),
-      ...(init?.headers || {}),
-    },
+    headers,
   });
 
   // If unauthorized, try to refresh token and retry once
@@ -104,13 +115,17 @@ export const authenticatedFetch = async (
     const newAccessToken = await refreshAccessToken();
     
     if (newAccessToken) {
+      // Get fresh auth headers with new token
+      const freshAuthHeaders = getAuthHeaders();
+      const freshHeaders = {
+        ...headers,
+        ...(freshAuthHeaders as Record<string, string>),
+      };
+
       // Retry with new token
       response = await fetch(input, {
         ...init,
-        headers: {
-          ...getAuthHeaders(), // This will now get the new token
-          ...(init?.headers || {}),
-        },
+        headers: freshHeaders,
       });
     }
   }
