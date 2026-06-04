@@ -29,6 +29,7 @@ export interface Observation {
   fever_24h: boolean;
   extra_notes: string | null;
   patient_guidelines: string | null;
+  image: string | null;
 }
 
 export const fetchWounds = async (patientId?: number): Promise<Wound[]> => {
@@ -56,10 +57,12 @@ export const createWound = async (data: Partial<Wound>): Promise<Wound> => {
   return response.json();
 };
 
-export const createObservation = async (woundId: number, data: any): Promise<Observation> => {
+export const createObservation = async (woundId: number, data: FormData): Promise<Observation> => {
   const response = await authenticatedFetch(`${API_URL}/wounds/${woundId}/observations/`, {
     method: "POST",
-    body: JSON.stringify(data),
+    body: data,
+    // Note: When body is FormData, browser automatically sets multipart/form-data and boundary.
+    // authenticatedFetch needs to NOT set Content-Type to application/json in this case.
   });
   if (!response.ok) throw new Error("Failed to create observation");
   return response.json();
