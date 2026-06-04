@@ -39,7 +39,7 @@ export const getAuthHeaders = (): HeadersInit => {
   };
 
   if (!token) {
-    return {};
+    return baseHeaders;
   }
   return {
     ...baseHeaders,
