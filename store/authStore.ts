@@ -34,7 +34,6 @@ export const useAuthStore = create<AuthState>()(
 export const getAuthHeaders = (): HeadersInit => {
   const token = useAuthStore.getState().getAccessToken();
   const baseHeaders: HeadersInit = {
-    'Content-Type': 'application/json',
     'ngrok-skip-browser-warning': 'true',
   };
 
@@ -100,8 +99,8 @@ export const authenticatedFetch = async (
     ...(init?.headers as Record<string, string> || {}),
   };
 
-  // Automatically add Content-Type: application/json if body is present and NOT FormData
-  if (init?.body && !(init.body instanceof FormData) && !headers['Content-Type']) {
+  // Automatically add Content-Type: application/json if NOT FormData
+  if (!(init?.body instanceof FormData) && !headers['Content-Type']) {
     headers['Content-Type'] = 'application/json';
   }
 
