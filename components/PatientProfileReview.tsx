@@ -39,7 +39,7 @@ export function PatientProfileReview({
     weight: patient.weight?.toString() || "",
     comorbidities: patient.comorbidities?.map((c: any) => c.concept_id) || [],
     smokingStatus: patient.smoking_status || "",
-    alcoholConsumption: patient.alcohol_consumption || "",
+    alcoholConsumption: Array.isArray(patient.alcohol_consumption) ? patient.alcohol_consumption : [patient.alcohol_consumption].filter(Boolean),
   };
 
   const handleSubmit = async (formData: PatientFormData) => {
@@ -59,7 +59,7 @@ export function PatientProfileReview({
         weight: formData.weight ? parseFloat(formData.weight) : null,
         comorbidities: formData.comorbidities,
         smoking_status: formData.smokingStatus || null,
-        alcohol_consumption: formData.alcoholConsumption || null,
+        alcohol_consumption: formData.alcoholConsumption,
       };
 
       const response = await authenticatedFetch(`${API_URL}/Update/`, {

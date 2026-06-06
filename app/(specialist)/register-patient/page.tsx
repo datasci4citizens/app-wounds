@@ -31,7 +31,7 @@ export default function RegisterPatientPage() {
         weight: formData.weight ? parseFloat(formData.weight) : null,
         comorbidities: formData.comorbidities,
         smoking_status: formData.smokingStatus || null,
-        alcohol_consumption: formData.alcoholConsumption || null,
+        alcohol_consumption: formData.alcoholConsumption,
       };
 
       const response = await authenticatedFetch(`${API_URL}/specialist/patient/register/`, {
@@ -67,7 +67,7 @@ export default function RegisterPatientPage() {
     weight: "",
     comorbidities: [],
     smokingStatus: "",
-    alcoholConsumption: "",
+    alcoholConsumption: [],
   };
 
   return (

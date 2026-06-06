@@ -29,7 +29,7 @@ export interface PatientFormData {
   weight: string;
   comorbidities: string[];
   smokingStatus: string;
-  alcoholConsumption: string;
+  alcoholConsumption: string[];
 }
 
 interface PatientFormProps {
@@ -85,6 +85,58 @@ export function PatientForm({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Alcohol consumption value groups
+  const DOSES_VALUES = ['LT21_M', 'GT21_M', 'LT14_F', 'GT14_F'];
+  const LATAS_VALUES = ['LT13_M', 'GT13_M', 'LT9_F', 'GT9_F'];
+  const ALL_DRINKING_VALUES = [...DOSES_VALUES, ...LATAS_VALUES];
+
+  const handleAlcoholNone = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      alcoholConsumption: checked ? ['NONE'] : prev.alcoholConsumption.filter((v) => v !== 'NONE'),
+    }));
+  };
+
+  const handleAlcoholEx = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { checked } = e.target;
+    setFormData((prev) => {
+      if (checked) {
+        return {
+          ...prev,
+          alcoholConsumption: [
+            ...prev.alcoholConsumption.filter((v) => v === 'NONE' || !ALL_DRINKING_VALUES.includes(v)),
+            'EX',
+          ],
+        };
+      } else {
+        return { ...prev, alcoholConsumption: prev.alcoholConsumption.filter((v) => v !== 'EX') };
+      }
+    });
+  };
+
+  const handleAlcoholDosesRadio = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      alcoholConsumption: [
+        ...prev.alcoholConsumption.filter((v) => !DOSES_VALUES.includes(v)),
+        value,
+      ],
+    }));
+  };
+
+  const handleAlcoholLatasRadio = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      alcoholConsumption: [
+        ...prev.alcoholConsumption.filter((v) => !LATAS_VALUES.includes(v)),
+        value,
+      ],
+    }));
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -190,44 +242,164 @@ export function PatientForm({
 
         <div className="space-y-2">
           <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">Consumo de álcool</Label>
-          <select name="alcoholConsumption" value={formData.alcoholConsumption} onChange={handleChange} disabled={isSubmitting} className="flex h-14 w-full appearance-none rounded-2xl border border-transparent bg-white dark:bg-card px-5 py-2 text-base font-medium shadow-sm disabled:opacity-50">
-              <option value="">Selecione</option>
-              <option value="NONE">Não bebe</option>
-              <option value="EX">Ex-etilista</option>
-              
-              {formData.gender === 'M' && (
-                <>
-                  <option value="LT21_M">Menos de 21 doses/sem</option>
-                  <option value="GT21_M">Mais de 21 doses/sem</option>
-                  <option value="LT13_M">Menos de 13 latas/sem</option>
-                  <option value="GT13_M">Mais de 13 latas/sem</option>
-                </>
-              )}
-              {formData.gender === 'F' && (
-                <>
-                  <option value="LT14_F">Menos de 14 doses/sem</option>
-                  <option value="GT14_F">Mais de 14 doses/sem</option>
-                  <option value="LT9_F">Menos de 9 latas/sem</option>
-                  <option value="GT9_F">Mais de 9 latas/sem</option>
-                </>
-              )}
-              {!formData.gender && (
-                <>
-                  <optgroup label="Homem">
-                    <option value="LT21_M">Menos de 21 doses/sem</option>
-                    <option value="GT21_M">Mais de 21 doses/sem</option>
-                    <option value="LT13_M">Menos de 13 latas/sem</option>
-                    <option value="GT13_M">Mais de 13 latas/sem</option>
-                  </optgroup>
-                  <optgroup label="Mulher">
-                    <option value="LT14_F">Menos de 14 doses/sem</option>
-                    <option value="GT14_F">Mais de 14 doses/sem</option>
-                    <option value="LT9_F">Menos de 9 latas/sem</option>
-                    <option value="GT9_F">Mais de 9 latas/sem</option>
-                  </optgroup>
-                </>
-              )}
-          </select>
+          <div className="space-y-3 bg-white dark:bg-card rounded-2xl p-4 shadow-sm">
+            {/* Não bebe — exclusive: clears everything else */}
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.alcoholConsumption.includes('NONE')}
+                onChange={handleAlcoholNone}
+                disabled={isSubmitting}
+                className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
+              />
+              <span className="text-sm font-medium">Não bebe</span>
+            </label>
+
+            {/* Ex-etilista — clears drinking volumes when checked */}
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.alcoholConsumption.includes('EX')}
+                onChange={handleAlcoholEx}
+                disabled={isSubmitting || formData.alcoholConsumption.includes('NONE')}
+                className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
+              />
+              <span className="text-sm font-medium">Ex-etilista</span>
+            </label>
+
+            {/* Doses — radio group, mutually exclusive within */}
+            {(formData.gender === 'M' || formData.gender === 'F') && !formData.alcoholConsumption.includes('NONE') && !formData.alcoholConsumption.includes('EX') && (
+              <div className="border-t border-border/50 pt-3 mt-1">
+                <p className="text-xs text-muted-foreground mb-2 font-semibold">Doses (por semana):</p>
+                {formData.gender === 'M' ? (
+                  <>
+                    <label className="flex items-center gap-3 cursor-pointer py-0.5">
+                      <input
+                        type="radio"
+                        name="alcohol-doses"
+                        value="LT21_M"
+                        checked={formData.alcoholConsumption.includes('LT21_M')}
+                        onChange={handleAlcoholDosesRadio}
+                        disabled={isSubmitting || formData.alcoholConsumption.includes('EX')}
+                        className="w-5 h-5 border-gray-300 text-primary focus:ring-primary"
+                      />
+                      <span className="text-sm">Menos de 21 doses/sem</span>
+                    </label>
+                    <label className="flex items-center gap-3 cursor-pointer py-0.5">
+                      <input
+                        type="radio"
+                        name="alcohol-doses"
+                        value="GT21_M"
+                        checked={formData.alcoholConsumption.includes('GT21_M')}
+                        onChange={handleAlcoholDosesRadio}
+                        disabled={isSubmitting || formData.alcoholConsumption.includes('EX')}
+                        className="w-5 h-5 border-gray-300 text-primary focus:ring-primary"
+                      />
+                      <span className="text-sm">Mais de 21 doses/sem</span>
+                    </label>
+                  </>
+                ) : (
+                  <>
+                    <label className="flex items-center gap-3 cursor-pointer py-0.5">
+                      <input
+                        type="radio"
+                        name="alcohol-doses"
+                        value="LT14_F"
+                        checked={formData.alcoholConsumption.includes('LT14_F')}
+                        onChange={handleAlcoholDosesRadio}
+                        disabled={isSubmitting || formData.alcoholConsumption.includes('EX')}
+                        className="w-5 h-5 border-gray-300 text-primary focus:ring-primary"
+                      />
+                      <span className="text-sm">Menos de 14 doses/sem</span>
+                    </label>
+                    <label className="flex items-center gap-3 cursor-pointer py-0.5">
+                      <input
+                        type="radio"
+                        name="alcohol-doses"
+                        value="GT14_F"
+                        checked={formData.alcoholConsumption.includes('GT14_F')}
+                        onChange={handleAlcoholDosesRadio}
+                        disabled={isSubmitting || formData.alcoholConsumption.includes('EX')}
+                        className="w-5 h-5 border-gray-300 text-primary focus:ring-primary"
+                      />
+                      <span className="text-sm">Mais de 14 doses/sem</span>
+                    </label>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* Latas — radio group, mutually exclusive within */}
+            {(formData.gender === 'M' || formData.gender === 'F') && !formData.alcoholConsumption.includes('NONE') && !formData.alcoholConsumption.includes('EX') && (
+              <div className="border-t border-border/50 pt-3 mt-1">
+                <p className="text-xs text-muted-foreground mb-2 font-semibold">Latas (por semana):</p>
+                {formData.gender === 'M' ? (
+                  <>
+                    <label className="flex items-center gap-3 cursor-pointer py-0.5">
+                      <input
+                        type="radio"
+                        name="alcohol-latas"
+                        value="LT13_M"
+                        checked={formData.alcoholConsumption.includes('LT13_M')}
+                        onChange={handleAlcoholLatasRadio}
+                        disabled={isSubmitting || formData.alcoholConsumption.includes('EX')}
+                        className="w-5 h-5 border-gray-300 text-primary focus:ring-primary"
+                      />
+                      <span className="text-sm">Menos de 13 latas/sem</span>
+                    </label>
+                    <label className="flex items-center gap-3 cursor-pointer py-0.5">
+                      <input
+                        type="radio"
+                        name="alcohol-latas"
+                        value="GT13_M"
+                        checked={formData.alcoholConsumption.includes('GT13_M')}
+                        onChange={handleAlcoholLatasRadio}
+                        disabled={isSubmitting || formData.alcoholConsumption.includes('EX')}
+                        className="w-5 h-5 border-gray-300 text-primary focus:ring-primary"
+                      />
+                      <span className="text-sm">Mais de 13 latas/sem</span>
+                    </label>
+                  </>
+                ) : (
+                  <>
+                    <label className="flex items-center gap-3 cursor-pointer py-0.5">
+                      <input
+                        type="radio"
+                        name="alcohol-latas"
+                        value="LT9_F"
+                        checked={formData.alcoholConsumption.includes('LT9_F')}
+                        onChange={handleAlcoholLatasRadio}
+                        disabled={isSubmitting || formData.alcoholConsumption.includes('EX')}
+                        className="w-5 h-5 border-gray-300 text-primary focus:ring-primary"
+                      />
+                      <span className="text-sm">Menos de 9 latas/sem</span>
+                    </label>
+                    <label className="flex items-center gap-3 cursor-pointer py-0.5">
+                      <input
+                        type="radio"
+                        name="alcohol-latas"
+                        value="GT9_F"
+                        checked={formData.alcoholConsumption.includes('GT9_F')}
+                        onChange={handleAlcoholLatasRadio}
+                        disabled={isSubmitting || formData.alcoholConsumption.includes('EX')}
+                        className="w-5 h-5 border-gray-300 text-primary focus:ring-primary"
+                      />
+                      <span className="text-sm">Mais de 9 latas/sem</span>
+                    </label>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* Gender not set — instructional message */}
+            {(!formData.gender || (formData.gender !== 'M' && formData.gender !== 'F')) && !formData.alcoholConsumption.includes('NONE') && (
+              <div className="border-t border-border/50 pt-3 mt-1">
+                <p className="text-xs text-muted-foreground">
+                  Selecione o sexo acima para definir as opções de consumo.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

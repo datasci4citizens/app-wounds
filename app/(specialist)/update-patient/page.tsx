@@ -37,7 +37,7 @@ function UpdatePatientContent() {
             weight: data.weight?.toString() || "",
             comorbidities: data.comorbidities?.map((c: any) => c.concept_id) || [],
             smokingStatus: data.smoking_status || "",
-            alcoholConsumption: data.alcohol_consumption || "",
+            alcoholConsumption: Array.isArray(data.alcohol_consumption) ? data.alcohol_consumption : [data.alcohol_consumption].filter(Boolean),
           });
           setInitialComorbidities(data.comorbidities || []);
         } else {
@@ -74,7 +74,7 @@ function UpdatePatientContent() {
         weight: formData.weight ? parseFloat(formData.weight) : null,
         comorbidities: formData.comorbidities,
         smoking_status: formData.smokingStatus || null,
-        alcohol_consumption: formData.alcoholConsumption || null,
+        alcohol_consumption: formData.alcoholConsumption,
       };
 
       const response = await authenticatedFetch(`${API_URL}/specialist/patient/update/${id}/`, {
