@@ -23,7 +23,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => (typeof window !== 'undefined' ? localStorage : { getItem: () => null, setItem: () => {}, removeItem: () => {} })),
     }
   )
 );
@@ -127,6 +127,13 @@ export const authenticatedFetch = async (
         ...init,
         headers: freshHeaders,
       });
+    }
+
+    // If still 401 after refresh attempt (or refresh failed), redirect to login
+    if (response.status === 401 && typeof window !== 'undefined') {
+      console.warn('Unauthorized access detected, redirecting to login...');
+      useAuthStore.getState().clearTokens();
+      window.location.href = '/login';
     }
   }
 
