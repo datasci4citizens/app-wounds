@@ -104,6 +104,11 @@ export function AsyncComorbiditySearch({ selectedUris, onChange, initialItems = 
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+          }
+        }}
         onFocus={() => { if (results.length > 0) setIsOpen(true); }}
         placeholder="Buscar comorbidade por código ou nome..."
         className="flex h-14 w-full rounded-2xl border border-transparent bg-white dark:bg-card px-5 py-2 text-base font-medium transition-colors focus-visible:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary shadow-sm disabled:opacity-50"
