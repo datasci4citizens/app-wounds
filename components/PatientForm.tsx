@@ -72,7 +72,7 @@ export function PatientForm({
           setCities(data);
           // If the selected city is not in the new list (e.g. state changed), clear it
           if (!data.some((c: IBGECity) => c.nome === formData.city)) {
-              setFormData(prev => ({ ...prev, city: "" }));
+            setFormData(prev => ({ ...prev, city: "" }));
           }
         })
         .catch((err) => console.error("Erro ao buscar cidades:", err))
@@ -172,15 +172,15 @@ export function PatientForm({
           <div className="space-y-2">
             <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">Estado (UF)</Label>
             <select name="state" value={formData.state} onChange={handleChange} disabled={isSubmitting} className="flex h-14 w-full appearance-none rounded-2xl border border-transparent bg-white dark:bg-card px-5 py-2 text-base font-medium shadow-sm disabled:opacity-50">
-                <option value="" disabled>UF</option>
-                {states.map(s => <option key={s.id} value={s.sigla}>{s.sigla}</option>)}
+              <option value="" disabled>UF</option>
+              {states.map(s => <option key={s.id} value={s.sigla}>{s.sigla}</option>)}
             </select>
           </div>
           <div className="space-y-2">
             <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">Cidade</Label>
             <select name="city" value={formData.city} onChange={handleChange} disabled={!formData.state || isLoadingCities || isSubmitting} className="flex h-14 w-full appearance-none rounded-2xl border border-transparent bg-white dark:bg-card px-5 py-2 text-base font-medium shadow-sm disabled:opacity-50">
-                <option value="" disabled>{isLoadingCities ? "..." : "Selecione"}</option>
-                {cities.map(c => <option key={c.id} value={c.nome}>{c.nome}</option>)}
+              <option value="" disabled>{isLoadingCities ? "..." : "Selecione"}</option>
+              {cities.map(c => <option key={c.id} value={c.nome}>{c.nome}</option>)}
             </select>
           </div>
         </div>
@@ -204,9 +204,9 @@ export function PatientForm({
         <div className="space-y-2">
           <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">Sexo</Label>
           <select name="gender" value={formData.gender} onChange={handleChange} disabled={isSubmitting} className="flex h-14 w-full appearance-none rounded-2xl border border-transparent bg-white dark:bg-card px-5 py-2 text-base font-medium shadow-sm disabled:opacity-50">
-              <option value="">Selecione</option>
-              <option value="M">Masculino</option>
-              <option value="F">Feminino</option>
+            <option value="">Selecione</option>
+            <option value="M">Masculino</option>
+            <option value="F">Feminino</option>
           </select>
         </div>
         <div className="grid grid-cols-2 gap-4">
@@ -232,11 +232,11 @@ export function PatientForm({
         <div className="space-y-2">
           <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">Tabagismo</Label>
           <select name="smokingStatus" value={formData.smokingStatus} onChange={handleChange} disabled={isSubmitting} className="flex h-14 w-full appearance-none rounded-2xl border border-transparent bg-white dark:bg-card px-5 py-2 text-base font-medium shadow-sm disabled:opacity-50">
-              <option value="">Selecione</option>
-              <option value="NEVER">Nunca fumou</option>
-              <option value="LT10">Menos de 10 cigarros/dia</option>
-              <option value="GT10">Mais de 10 cigarros/dia</option>
-              <option value="EX">Ex-tabagista</option>
+            <option value="">Selecione</option>
+            <option value="NEVER">Não tabagista</option>
+            <option value="LT10">Menos de 10 cigarros/dia</option>
+            <option value="GT10">Mais de 10 cigarros/dia</option>
+            <option value="EX">Ex-tabagista</option>
           </select>
         </div>
 

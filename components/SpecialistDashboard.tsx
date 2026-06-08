@@ -81,9 +81,9 @@ export function SpecialistDashboard({ profile, patients }: SpecialistDashboardPr
             <DataRow label="Estado" value={profile?.state} />
             <DataRow label="Cidade" value={profile?.city} />
             <DataRow label="Perfil" value="Especialista" />
-            <DataRow 
-              label="Cadastro Completo" 
-              value={profile?.registration_complete ? "Sim" : "Não"} 
+            <DataRow
+              label="Cadastro Completo"
+              value={profile?.registration_complete ? "Sim" : "Não"}
               highlight={profile?.registration_complete}
             />
           </div>
@@ -133,7 +133,7 @@ export function SpecialistDashboard({ profile, patients }: SpecialistDashboardPr
                       <DataRow label="Telefone" value={p.contact_phone} />
                       <DataRow label="Data Nasc." value={p.birth_date} />
                       <DataRow label="Localidade" value={`${p.city || ''} - ${p.state || ''}`} />
-                      
+
                       <div className="pt-2 border-t border-border mt-2">
                         <p className="text-[10px] font-bold text-muted-foreground uppercase mb-2">Dados Clínicos</p>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-1">
@@ -216,12 +216,12 @@ export function SpecialistDashboard({ profile, patients }: SpecialistDashboardPr
   );
 }
 
-function DataRow({ 
-  label, 
-  value, 
-  highlight = false 
-}: { 
-  label: string; 
+function DataRow({
+  label,
+  value,
+  highlight = false
+}: {
+  label: string;
   value: string | null | undefined;
   highlight?: boolean;
 }) {
@@ -246,10 +246,10 @@ function Badge({ label, code }: { label: string, code?: string }) {
 
 function formatSmoking(status: string | null) {
   switch (status) {
-    case 'NEVER': return 'Nunca fumou';
+    case 'NEVER': return 'Não tabagista';
     case 'LT10': return '< 10/dia';
     case 'GT10': return '> 10/dia';
-    case 'EX': return 'Ex-fumante';
+    case 'EX': return 'Ex-tabagista';
     default: return '—';
   }
 }

@@ -75,7 +75,7 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
     return (
       <div className="relative min-h-screen bg-background">
         <header className="sticky top-0 z-20 flex items-center h-16 px-4 bg-background border-b border-border pt-safe">
-          <button 
+          <button
             data-back-override
             onClick={() => setIsEditing(false)}
             className="p-2 -ml-2 rounded-full hover:bg-muted active:bg-accent text-foreground transition-colors"
@@ -84,15 +84,15 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
           </button>
           <h2 className="ml-2 font-bold text-foreground">Editar Perfil</h2>
         </header>
-        <PatientProfileReview 
-          profile={profile} 
+        <PatientProfileReview
+          profile={profile}
           title="Editar Perfil"
           description="Atualize suas informações de saúde e contato."
           submitLabel="Salvar Alterações"
           onComplete={() => {
             setIsEditing(false);
-            window.location.reload(); 
-          }} 
+            window.location.reload();
+          }}
         />
       </div>
     );
@@ -101,7 +101,7 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <title>Painel do Paciente - Cicatrizando</title>
-      
+
       {/* Header */}
       <header className="sticky top-0 z-10 flex items-center justify-between px-5 pt-8 pb-4 bg-white dark:bg-card border-b border-border shadow-sm">
         <div className="flex flex-col">
@@ -123,7 +123,7 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
 
       {/* Main Content */}
       <main className="flex-1 px-5 py-6 space-y-6">
-        
+
         {/* Welcome Section */}
         <section>
           <h2 className="text-xl font-bold text-foreground">
@@ -148,33 +148,33 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
           </div>
           <div className="p-4 space-y-4">
             <div className="grid grid-cols-2 gap-4">
-               <MetricCard icon={<Activity className="w-4 h-4" />} label="Altura" value={patient?.height ? `${patient.height}m` : '—'} />
-               <MetricCard icon={<Activity className="w-4 h-4" />} label="Peso" value={patient?.weight ? `${patient.weight}kg` : '—'} />
-               <MetricCard icon={<Calendar className="w-4 h-4" />} label="Nascimento" value={profile.birth_date || '—'} />
-               <MetricCard icon={<MapPin className="w-4 h-4" />} label="Cidade" value={profile.city || '—'} />
+              <MetricCard icon={<Activity className="w-4 h-4" />} label="Altura" value={patient?.height ? `${patient.height}m` : '—'} />
+              <MetricCard icon={<Activity className="w-4 h-4" />} label="Peso" value={patient?.weight ? `${patient.weight}kg` : '—'} />
+              <MetricCard icon={<Calendar className="w-4 h-4" />} label="Nascimento" value={profile.birth_date || '—'} />
+              <MetricCard icon={<MapPin className="w-4 h-4" />} label="Cidade" value={profile.city || '—'} />
             </div>
 
             <div className="pt-2 border-t border-border">
-                <p className="text-xs font-bold text-muted-foreground uppercase mb-2">Hábitos</p>
-                <div className="space-y-2">
-                    <DataRow label="Tabagismo" value={formatSmoking(patient?.smoking_status || null)} />
-                    <DataRow label="Consumo de álcool" value={formatAlcohol(patient?.alcohol_consumption || null)} />
-                </div>
+              <p className="text-xs font-bold text-muted-foreground uppercase mb-2">Hábitos</p>
+              <div className="space-y-2">
+                <DataRow label="Tabagismo" value={formatSmoking(patient?.smoking_status || null)} />
+                <DataRow label="Consumo de álcool" value={formatAlcohol(patient?.alcohol_consumption || null)} />
+              </div>
             </div>
 
             <div className="pt-2 border-t border-border">
-                <p className="text-xs font-bold text-muted-foreground uppercase mb-2 flex items-center gap-1">
-                    <Heart className="w-3 h-3 text-status-error" /> Comorbidades
-                </p>
-                <div className="flex flex-wrap gap-2">
-                    {patient?.comorbidities && patient.comorbidities.length > 0 ? (
-                        patient.comorbidities.map(c => (
-                            <Badge key={c.concept_id} label={c.name} code={c.code} />
-                        ))
-                    ) : (
-                        <p className="text-xs text-muted-foreground italic">Nenhuma informada.</p>
-                    )}
-                </div>
+              <p className="text-xs font-bold text-muted-foreground uppercase mb-2 flex items-center gap-1">
+                <Heart className="w-3 h-3 text-status-error" /> Comorbidades
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {patient?.comorbidities && patient.comorbidities.length > 0 ? (
+                  patient.comorbidities.map(c => (
+                    <Badge key={c.concept_id} label={c.name} code={c.code} />
+                  ))
+                ) : (
+                  <p className="text-xs text-muted-foreground italic">Nenhuma informada.</p>
+                )}
+              </div>
             </div>
           </div>
         </section>
@@ -186,16 +186,16 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
             <h2 className="font-bold text-foreground">Especialistas Acompanhando</h2>
           </div>
           <div className="p-4 space-y-3">
-             {patient?.assigned_specialists && patient.assigned_specialists.length > 0 ? (
-                 patient.assigned_specialists.map(s => (
-                    <div key={s.id} className="p-3 border border-border rounded-xl bg-muted/10">
-                        <p className="font-bold text-primary">{s.name}</p>
-                        <p className="text-xs text-muted-foreground">Reg: {s.professional_id}</p>
-                    </div>
-                 ))
-             ) : (
-                 <p className="text-sm text-muted-foreground italic">Você ainda não tem especialistas atribuídos.</p>
-             )}
+            {patient?.assigned_specialists && patient.assigned_specialists.length > 0 ? (
+              patient.assigned_specialists.map(s => (
+                <div key={s.id} className="p-3 border border-border rounded-xl bg-muted/10">
+                  <p className="font-bold text-primary">{s.name}</p>
+                  <p className="text-xs text-muted-foreground">Reg: {s.professional_id}</p>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground italic">Você ainda não tem especialistas atribuídos.</p>
+            )}
           </div>
         </section>
 
@@ -206,47 +206,47 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
             <h2 className="font-bold text-foreground">Minhas Feridas</h2>
           </div>
           <div className="p-4 space-y-4">
-             {isLoadingWounds ? (
-                <div className="flex justify-center py-8">
-                    <Activity className="w-6 h-6 animate-pulse text-muted-foreground" />
-                </div>
-             ) : wounds.length > 0 ? (
-                 <div className="space-y-3">
-                    {wounds.map(w => (
-                        <div 
-                            key={w.id} 
-                            onClick={() => router.push(`/wound-detail?id=${w.id}`)}
-                            className="p-4 border border-border rounded-xl bg-card hover:bg-muted/10 transition-colors active:scale-[0.99] cursor-pointer"
-                        >
-                            <div className="flex justify-between items-start mb-2">
-                                <h3 className="font-bold text-primary">{w.etiology}</h3>
-                                {w.is_healed ? (
-                                    <span className="text-[10px] bg-status-success/10 text-status-success px-2 py-0.5 rounded-full font-bold uppercase">Cicatrizada</span>
-                                ) : (
-                                    <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold uppercase">Em Tratamento</span>
-                                )}
-                            </div>
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <MapPin className="w-3.5 h-3.5" />
-                                <span>{w.location}</span>
-                            </div>
-                            <div className="mt-3 flex justify-end">
-                                <span className="text-xs font-bold text-primary flex items-center gap-1">
-                                    Ver Detalhes <ChevronLeft className="w-3 h-3 rotate-180" />
-                                </span>
-                            </div>
-                        </div>
-                    ))}
-                 </div>
-             ) : (
-                <div className="p-8 text-center space-y-2">
-                    <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto opacity-50">
-                        <Activity className="w-6 h-6 text-muted-foreground" />
+            {isLoadingWounds ? (
+              <div className="flex justify-center py-8">
+                <Activity className="w-6 h-6 animate-pulse text-muted-foreground" />
+              </div>
+            ) : wounds.length > 0 ? (
+              <div className="space-y-3">
+                {wounds.map(w => (
+                  <div
+                    key={w.id}
+                    onClick={() => router.push(`/wound-detail?id=${w.id}`)}
+                    className="p-4 border border-border rounded-xl bg-card hover:bg-muted/10 transition-colors active:scale-[0.99] cursor-pointer"
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-bold text-primary">{w.etiology}</h3>
+                      {w.is_healed ? (
+                        <span className="text-[10px] bg-status-success/10 text-status-success px-2 py-0.5 rounded-full font-bold uppercase">Cicatrizada</span>
+                      ) : (
+                        <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold uppercase">Em Tratamento</span>
+                      )}
                     </div>
-                    <p className="font-medium text-foreground">Nenhuma ferida registrada</p>
-                    <p className="text-xs text-muted-foreground">Seu especialista irá registrar suas feridas aqui para acompanhamento.</p>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <MapPin className="w-3.5 h-3.5" />
+                      <span>{w.location}</span>
+                    </div>
+                    <div className="mt-3 flex justify-end">
+                      <span className="text-xs font-bold text-primary flex items-center gap-1">
+                        Ver Detalhes <ChevronLeft className="w-3 h-3 rotate-180" />
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-8 text-center space-y-2">
+                <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto opacity-50">
+                  <Activity className="w-6 h-6 text-muted-foreground" />
                 </div>
-             )}
+                <p className="font-medium text-foreground">Nenhuma ferida registrada</p>
+                <p className="text-xs text-muted-foreground">Seu especialista irá registrar suas feridas aqui para acompanhamento.</p>
+              </div>
+            )}
           </div>
         </section>
 
@@ -269,15 +269,15 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
 }
 
 function MetricCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-    return (
-        <div className="bg-muted/20 p-3 rounded-xl border border-border/50">
-            <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                {icon}
-                <span className="text-[10px] font-bold uppercase tracking-tight">{label}</span>
-            </div>
-            <p className="text-lg font-bold text-primary">{value}</p>
-        </div>
-    );
+  return (
+    <div className="bg-muted/20 p-3 rounded-xl border border-border/50">
+      <div className="flex items-center gap-2 text-muted-foreground mb-1">
+        {icon}
+        <span className="text-[10px] font-bold uppercase tracking-tight">{label}</span>
+      </div>
+      <p className="text-lg font-bold text-primary">{value}</p>
+    </div>
+  );
 }
 
 function DataRow({ label, value }: { label: string; value: string }) {
@@ -299,28 +299,28 @@ function Badge({ label, code }: { label: string, code?: string }) {
 }
 
 function formatSmoking(status: string | null) {
-    switch (status) {
-      case 'NEVER': return 'Nunca fumou';
-      case 'LT10': return 'Menos de 10 cigarros/dia';
-      case 'GT10': return 'Mais de 10 cigarros/dia';
-      case 'EX': return 'Ex-tabagista';
-      default: return '—';
-    }
+  switch (status) {
+    case 'NEVER': return 'Não tabagista';
+    case 'LT10': return 'Menos de 10 cigarros/dia';
+    case 'GT10': return 'Mais de 10 cigarros/dia';
+    case 'EX': return 'Ex-tabagista';
+    default: return '—';
+  }
 }
 
 function formatAlcohol(status: string | null) {
-    if (!status) return '—';
-    const maps: Record<string, string> = {
-      'NONE': 'Não bebe',
-      'EX': 'Ex-etilista',
-      'LT21_M': 'Menos de 21 doses/sem',
-      'GT21_M': 'Mais de 21 doses/sem',
-      'LT13_M': 'Menos de 13 latas/sem',
-      'GT13_M': 'Mais de 13 latas/sem',
-      'LT14_F': 'Menos de 14 doses/sem',
-      'GT14_F': 'Mais de 14 doses/sem',
-      'LT9_F': 'Menos de 9 latas/sem',
-      'GT9_F': 'Mais de 9 latas/sem',
-    };
-    return maps[status] || status;
+  if (!status) return '—';
+  const maps: Record<string, string> = {
+    'NONE': 'Não bebe',
+    'EX': 'Ex-etilista',
+    'LT21_M': 'Menos de 21 doses/sem',
+    'GT21_M': 'Mais de 21 doses/sem',
+    'LT13_M': 'Menos de 13 latas/sem',
+    'GT13_M': 'Mais de 13 latas/sem',
+    'LT14_F': 'Menos de 14 doses/sem',
+    'GT14_F': 'Mais de 14 doses/sem',
+    'LT9_F': 'Menos de 9 latas/sem',
+    'GT9_F': 'Mais de 9 latas/sem',
+  };
+  return maps[status] || status;
 }
