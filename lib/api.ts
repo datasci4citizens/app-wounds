@@ -1,4 +1,5 @@
 import { authenticatedFetch } from "@/store/authStore";
+import { handleApiResponse } from "@/lib/errors";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -64,6 +65,7 @@ export const createObservation = async (woundId: number, data: FormData): Promis
     // Note: When body is FormData, browser automatically sets multipart/form-data and boundary.
     // authenticatedFetch needs to NOT set Content-Type to application/json in this case.
   });
-  if (!response.ok) throw new Error("Failed to create observation");
+
+  await handleApiResponse(response, "Failed to create observation");
   return response.json();
 };
