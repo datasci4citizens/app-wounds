@@ -254,8 +254,9 @@ function formatSmoking(status: string | null) {
   }
 }
 
-function formatAlcohol(status: string | null) {
-  if (!status) return '—';
+function formatAlcohol(status: string | string[] | null) {
+  if (!status || (Array.isArray(status) && status.length === 0)) return '—';
+  
   const maps: Record<string, string> = {
     'NONE': 'Não bebe',
     'EX': 'Ex-etilista',
@@ -268,5 +269,10 @@ function formatAlcohol(status: string | null) {
     'LT9_F': '< 9 latas/sem',
     'GT9_F': '> 9 latas/sem',
   };
+
+  if (Array.isArray(status)) {
+    return status.map(s => maps[s] || s).join(', ');
+  }
+
   return maps[status] || status;
 }
