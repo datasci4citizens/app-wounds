@@ -191,10 +191,6 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
                     <div key={s.id} className="p-3 border border-border rounded-xl bg-muted/10">
                         <p className="font-bold text-primary">{s.name}</p>
                         <p className="text-xs text-muted-foreground">Reg: {s.professional_id}</p>
-                        <div className="mt-2 text-sm">
-                            <p>{s.contact_email}</p>
-                            <p>{s.contact_phone}</p>
-                        </div>
                     </div>
                  ))
              ) : (
