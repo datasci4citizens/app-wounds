@@ -14,7 +14,7 @@ name: Build, Push and Deploy
 on:
   push:
     branches:
-      - feat/k8-auto-deploy
+      - main
   workflow_dispatch:
 
 env:
