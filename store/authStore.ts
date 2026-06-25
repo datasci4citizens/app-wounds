@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
+const IS_NGROK = process.env.NEXT_PUBLIC_API_URL?.includes('ngrok') ?? false;
+
 interface AuthTokens {
   access: string;
   refresh: string;
@@ -34,7 +36,7 @@ export const useAuthStore = create<AuthState>()(
 export const getAuthHeaders = (): HeadersInit => {
   const token = useAuthStore.getState().getAccessToken();
   const baseHeaders: HeadersInit = {
-    'ngrok-skip-browser-warning': 'true',
+    ...(IS_NGROK && { 'ngrok-skip-browser-warning': 'true' }),
   };
 
   if (!token) {
@@ -62,7 +64,7 @@ export const refreshAccessToken = async (): Promise<string | null> => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'ngrok-skip-browser-warning': 'true',
+        ...(IS_NGROK && { 'ngrok-skip-browser-warning': 'true' }),
       },
       body: JSON.stringify({ refresh: tokens.refresh }),
     });
