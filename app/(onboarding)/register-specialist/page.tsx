@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/store/userStore";
 import { useAuthStore, getAuthHeaders, authenticatedFetch } from "@/store/authStore";
+import { handleApiResponse, ApiValidationError } from "@/lib/errors";
 import { ChevronLeft, CheckCircle2, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -56,6 +57,18 @@ export default function RegisterSpecialistPage() {
   const [isLoadingCities, setIsLoadingCities] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+
+  const getErrorClass = (field: string) => {
+    return fieldErrors?.[field] 
+      ? "border-destructive focus-visible:ring-destructive bg-destructive/5" 
+      : "border-transparent";
+  };
+
+  const ErrorMsg = ({ field }: { field: string }) => {
+    if (!fieldErrors?.[field]) return null;
+    return <p className="text-destructive text-xs mt-1 font-medium ml-1">{fieldErrors[field][0]}</p>;
+  };
 
   // Buscar estados ao carregar a página
   useEffect(() => {
@@ -87,6 +100,7 @@ export default function RegisterSpecialistPage() {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setError(null);
+    setFieldErrors({});
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -112,6 +126,7 @@ export default function RegisterSpecialistPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setFieldErrors({});
     setIsSubmitting(true);
 
     try {
@@ -133,22 +148,7 @@ export default function RegisterSpecialistPage() {
         body: JSON.stringify(requestBody),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        
-        // Handle validation errors from Django
-        if (errorData.state) {
-          throw new Error(`Estado: ${errorData.state.join(', ')}`);
-        }
-        if (errorData.professional_id) {
-          throw new Error(`ID Profissional: ${errorData.professional_id.join(', ')}`);
-        }
-        if (errorData.detail) {
-          throw new Error(errorData.detail);
-        }
-        
-        throw new Error('Erro ao completar cadastro. Tente novamente.');
-      }
+      await handleApiResponse(response, 'Erro ao completar cadastro. Tente novamente.');
 
       // Update user state to reflect completed registration
       setRegistrationComplete(true);
@@ -156,8 +156,13 @@ export default function RegisterSpecialistPage() {
       // Navigate to specialist dashboard
       router.push("/");
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
-      setError(errorMessage);
+      if (err instanceof ApiValidationError) {
+        setFieldErrors(err.fieldErrors);
+        setError(err.message);
+      } else {
+        const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
+        setError(errorMessage);
+      }
       console.error('Erro ao registrar especialista:', err);
     } finally {
       setIsSubmitting(false);
@@ -195,7 +200,7 @@ export default function RegisterSpecialistPage() {
             </div>
           )}
 
-          <form id="specialist-form" onSubmit={handleSubmit} className="space-y-5">
+          <form id="specialist-form" onSubmit={handleSubmit} noValidate className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="fullName" className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">
                 Nome Completo
@@ -208,8 +213,9 @@ export default function RegisterSpecialistPage() {
                 onChange={handleChange}
                 required
                 disabled={isSubmitting}
-                className="bg-white dark:bg-card border-transparent shadow-sm h-14 rounded-2xl px-5"
+                className={`bg-white dark:bg-card shadow-sm h-14 rounded-2xl px-5 ${getErrorClass('name')}`}
               />
+              <ErrorMsg field="name" />
             </div>
 
             <div className="space-y-2">
@@ -224,8 +230,9 @@ export default function RegisterSpecialistPage() {
                 onChange={handleChange}
                 required
                 disabled={isSubmitting}
-                className="bg-white dark:bg-card border-transparent shadow-sm h-14 rounded-2xl px-5 text-foreground min-h-14"
+                className={`bg-white dark:bg-card shadow-sm h-14 rounded-2xl px-5 text-foreground min-h-14 ${getErrorClass('birth_date')}`}
               />
+              <ErrorMsg field="birth_date" />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -241,7 +248,7 @@ export default function RegisterSpecialistPage() {
                     onChange={handleChange}
                     required
                     disabled={isSubmitting}
-                    className="flex h-14 w-full appearance-none rounded-2xl border border-transparent bg-white dark:bg-card px-5 py-2 text-base font-medium transition-colors focus-visible:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary shadow-sm disabled:opacity-50"
+                    className={`flex h-14 w-full appearance-none rounded-2xl border bg-white dark:bg-card px-5 py-2 text-base font-medium transition-colors focus-visible:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary shadow-sm disabled:opacity-50 ${getErrorClass('state')}`}
                   >
                     <option value="" disabled>Selecione</option>
                     {states.map((state) => (
@@ -256,6 +263,7 @@ export default function RegisterSpecialistPage() {
                     </svg>
                   </div>
                 </div>
+                <ErrorMsg field="state" />
               </div>
 
               <div className="space-y-2">
@@ -270,7 +278,7 @@ export default function RegisterSpecialistPage() {
                     onChange={handleChange}
                     required
                     disabled={!formData.state || isLoadingCities || isSubmitting}
-                    className="flex h-14 w-full appearance-none rounded-2xl border border-transparent bg-white dark:bg-card px-5 py-2 text-base font-medium transition-colors focus-visible:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary shadow-sm disabled:opacity-50"
+                    className={`flex h-14 w-full appearance-none rounded-2xl border bg-white dark:bg-card px-5 py-2 text-base font-medium transition-colors focus-visible:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary shadow-sm disabled:opacity-50 ${getErrorClass('city')}`}
                   >
                     <option value="" disabled>
                       {isLoadingCities ? "Carregando..." : "Selecione"}
@@ -291,6 +299,7 @@ export default function RegisterSpecialistPage() {
                     )}
                   </div>
                 </div>
+                <ErrorMsg field="city" />
               </div>
             </div>
 
@@ -306,8 +315,9 @@ export default function RegisterSpecialistPage() {
                 onChange={handleChange}
                 required
                 disabled={isSubmitting}
-                className="bg-white dark:bg-card border-transparent shadow-sm h-14 rounded-2xl px-5"
+                className={`bg-white dark:bg-card shadow-sm h-14 rounded-2xl px-5 ${getErrorClass('professional_id')}`}
               />
+              <ErrorMsg field="professional_id" />
             </div>
 
             <div className="space-y-2">
@@ -323,8 +333,9 @@ export default function RegisterSpecialistPage() {
                 onChange={handlePhoneChange}
                 maxLength={15}
                 disabled={isSubmitting}
-                className="bg-white dark:bg-card border-transparent shadow-sm h-14 rounded-2xl px-5"
+                className={`bg-white dark:bg-card shadow-sm h-14 rounded-2xl px-5 ${getErrorClass('contact_phone')}`}
               />
+              <ErrorMsg field="contact_phone" />
             </div>
 
             <div className="space-y-2">
@@ -339,8 +350,9 @@ export default function RegisterSpecialistPage() {
                 value={formData.professionalEmail}
                 onChange={handleChange}
                 disabled={isSubmitting}
-                className="bg-white dark:bg-card border-transparent shadow-sm h-14 rounded-2xl px-5"
+                className={`bg-white dark:bg-card shadow-sm h-14 rounded-2xl px-5 ${getErrorClass('contact_email')}`}
               />
+              <ErrorMsg field="contact_email" />
             </div>
           </form>
         </main>

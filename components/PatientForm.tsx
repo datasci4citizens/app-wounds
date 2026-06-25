@@ -40,6 +40,7 @@ interface PatientFormProps {
   submitIcon?: React.ReactNode;
   submitLabel: string;
   emailRequired?: boolean;
+  fieldErrors?: Record<string, string[]>;
 }
 
 export function PatientForm({
@@ -50,6 +51,7 @@ export function PatientForm({
   submitIcon,
   submitLabel,
   emailRequired = true,
+  fieldErrors = {},
 }: PatientFormProps) {
   const [formData, setFormData] = useState<PatientFormData>(initialData);
   const [states, setStates] = useState<IBGEState[]>([]);
@@ -156,42 +158,62 @@ export function PatientForm({
     onSubmit(formData);
   };
 
+  const getErrorClass = (fields: string | string[]) => {
+    const fieldArray = Array.isArray(fields) ? fields : [fields];
+    const hasError = fieldArray.some(field => fieldErrors?.[field]);
+    return hasError 
+      ? "border-destructive focus-visible:ring-destructive bg-destructive/5" 
+      : "border-transparent";
+  };
+
+  const ErrorMsg = ({ field }: { field: string }) => {
+    if (!fieldErrors?.[field]) return null;
+    return <p className="text-destructive text-xs mt-1 font-medium ml-1">{fieldErrors[field][0]}</p>;
+  };
+
   return (
-    <form id="patient-form" onSubmit={handleSubmit} className="space-y-5">
+    <form id="patient-form" onSubmit={handleSubmit} noValidate className="space-y-5">
       {/* Basic Info */}
       <div className="space-y-4">
         <div className="space-y-2">
           <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">Nome Completo</Label>
-          <Input name="fullName" value={formData.fullName} onChange={handleChange} className="bg-white dark:bg-card border-transparent shadow-sm h-14 rounded-2xl px-5" disabled={isSubmitting} />
+          <Input name="fullName" value={formData.fullName} onChange={handleChange} className={`bg-white dark:bg-card shadow-sm h-14 rounded-2xl px-5 ${getErrorClass('name')}`} disabled={isSubmitting} />
+          <ErrorMsg field="name" />
         </div>
         <div className="space-y-2">
           <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">Data de Nascimento</Label>
-          <Input name="birthDate" type="date" value={formData.birthDate} onChange={handleChange} className="bg-white dark:bg-card border-transparent shadow-sm h-14 rounded-2xl px-5 min-h-14" disabled={isSubmitting} />
+          <Input name="birthDate" type="date" value={formData.birthDate} onChange={handleChange} className={`bg-white dark:bg-card shadow-sm h-14 rounded-2xl px-5 min-h-14 ${getErrorClass('birth_date')}`} disabled={isSubmitting} />
+          <ErrorMsg field="birth_date" />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">Estado (UF)</Label>
-            <select name="state" value={formData.state} onChange={handleChange} disabled={isSubmitting} className="flex h-14 w-full appearance-none rounded-2xl border border-transparent bg-white dark:bg-card px-5 py-2 text-base font-medium shadow-sm disabled:opacity-50">
+            <select name="state" value={formData.state} onChange={handleChange} disabled={isSubmitting} className={`flex h-14 w-full appearance-none rounded-2xl border bg-white dark:bg-card px-5 py-2 text-base font-medium shadow-sm disabled:opacity-50 ${getErrorClass('state')}`}>
               <option value="" disabled>UF</option>
               {states.map(s => <option key={s.id} value={s.sigla}>{s.sigla}</option>)}
             </select>
+            <ErrorMsg field="state" />
           </div>
           <div className="space-y-2">
             <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">Cidade</Label>
-            <select name="city" value={formData.city} onChange={handleChange} disabled={!formData.state || isLoadingCities || isSubmitting} className="flex h-14 w-full appearance-none rounded-2xl border border-transparent bg-white dark:bg-card px-5 py-2 text-base font-medium shadow-sm disabled:opacity-50">
+            <select name="city" value={formData.city} onChange={handleChange} disabled={!formData.state || isLoadingCities || isSubmitting} className={`flex h-14 w-full appearance-none rounded-2xl border bg-white dark:bg-card px-5 py-2 text-base font-medium shadow-sm disabled:opacity-50 ${getErrorClass('city')}`}>
               <option value="" disabled>{isLoadingCities ? "..." : "Selecione"}</option>
               {cities.map(c => <option key={c.id} value={c.nome}>{c.nome}</option>)}
             </select>
+            <ErrorMsg field="city" />
           </div>
         </div>
         <div className="space-y-2">
           <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">E-mail do Paciente {emailRequired && "(Obrigatório)"}</Label>
-          <Input name="contactEmail" type="email" value={formData.contactEmail} onChange={handleChange} required={emailRequired} className="bg-white dark:bg-card border-transparent shadow-sm h-14 rounded-2xl px-5" disabled={isSubmitting} />
+          <Input name="contactEmail" type="email" value={formData.contactEmail} onChange={handleChange} required={emailRequired} className={`bg-white dark:bg-card shadow-sm h-14 rounded-2xl px-5 ${getErrorClass(['contact_email', 'google_email'])}`} disabled={isSubmitting} />
           <p className="text-[10px] text-muted-foreground ml-1">Usado para o login do paciente no aplicativo.</p>
+          <ErrorMsg field="contact_email" />
+          <ErrorMsg field="google_email" />
         </div>
         <div className="space-y-2">
           <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">Telefone / WhatsApp</Label>
-          <Input name="contactPhone" type="tel" value={formData.contactPhone} onChange={handlePhoneChange} maxLength={15} className="bg-white dark:bg-card border-transparent shadow-sm h-14 rounded-2xl px-5" disabled={isSubmitting} />
+          <Input name="contactPhone" type="tel" value={formData.contactPhone} onChange={handlePhoneChange} maxLength={15} className={`bg-white dark:bg-card shadow-sm h-14 rounded-2xl px-5 ${getErrorClass('contact_phone')}`} disabled={isSubmitting} />
+          <ErrorMsg field="contact_phone" />
         </div>
       </div>
 
@@ -203,41 +225,46 @@ export function PatientForm({
         </div>
         <div className="space-y-2">
           <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">Sexo</Label>
-          <select name="gender" value={formData.gender} onChange={handleChange} disabled={isSubmitting} className="flex h-14 w-full appearance-none rounded-2xl border border-transparent bg-white dark:bg-card px-5 py-2 text-base font-medium shadow-sm disabled:opacity-50">
+          <select name="gender" value={formData.gender} onChange={handleChange} disabled={isSubmitting} className={`flex h-14 w-full appearance-none rounded-2xl border bg-white dark:bg-card px-5 py-2 text-base font-medium shadow-sm disabled:opacity-50 ${getErrorClass('gender')}`}>
             <option value="">Selecione</option>
             <option value="M">Masculino</option>
             <option value="F">Feminino</option>
           </select>
+          <ErrorMsg field="gender" />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">Altura (m)</Label>
-            <Input name="height" type="number" step="0.01" value={formData.height} onChange={handleChange} className="bg-white dark:bg-card border-transparent shadow-sm h-14 rounded-2xl px-5" disabled={isSubmitting} />
+            <Input name="height" type="number" step="0.01" value={formData.height} onChange={handleChange} className={`bg-white dark:bg-card shadow-sm h-14 rounded-2xl px-5 ${getErrorClass('height')}`} disabled={isSubmitting} />
+            <ErrorMsg field="height" />
           </div>
           <div className="space-y-2">
             <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">Peso (kg)</Label>
-            <Input name="weight" type="number" step="0.1" value={formData.weight} onChange={handleChange} className="bg-white dark:bg-card border-transparent shadow-sm h-14 rounded-2xl px-5" disabled={isSubmitting} />
+            <Input name="weight" type="number" step="0.1" value={formData.weight} onChange={handleChange} className={`bg-white dark:bg-card shadow-sm h-14 rounded-2xl px-5 ${getErrorClass('weight')}`} disabled={isSubmitting} />
+            <ErrorMsg field="weight" />
           </div>
         </div>
 
-        <div className="space-y-2 relative z-50">
+        <div className={`space-y-2 relative z-50 rounded-2xl ${fieldErrors?.comorbidities ? 'border border-destructive/50 bg-destructive/5 p-2' : ''}`}>
           <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">Comorbidades</Label>
           <AsyncComorbiditySearch
             selectedUris={formData.comorbidities}
             initialItems={initialComorbidities}
             onChange={(uris) => setFormData(prev => ({ ...prev, comorbidities: uris }))}
           />
+          <ErrorMsg field="comorbidities" />
         </div>
 
         <div className="space-y-2">
           <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold ml-1">Tabagismo</Label>
-          <select name="smokingStatus" value={formData.smokingStatus} onChange={handleChange} disabled={isSubmitting} className="flex h-14 w-full appearance-none rounded-2xl border border-transparent bg-white dark:bg-card px-5 py-2 text-base font-medium shadow-sm disabled:opacity-50">
+          <select name="smokingStatus" value={formData.smokingStatus} onChange={handleChange} disabled={isSubmitting} className={`flex h-14 w-full appearance-none rounded-2xl border bg-white dark:bg-card px-5 py-2 text-base font-medium shadow-sm disabled:opacity-50 ${getErrorClass('smoking_status')}`}>
             <option value="">Selecione</option>
             <option value="NEVER">Não tabagista</option>
             <option value="LT10">Menos de 10 cigarros/dia</option>
             <option value="GT10">Mais de 10 cigarros/dia</option>
             <option value="EX">Ex-tabagista</option>
           </select>
+          <ErrorMsg field="smoking_status" />
         </div>
 
         <div className="space-y-2">
@@ -400,6 +427,7 @@ export function PatientForm({
               </div>
             )}
           </div>
+          <ErrorMsg field="alcohol_consumption" />
         </div>
       </div>
 

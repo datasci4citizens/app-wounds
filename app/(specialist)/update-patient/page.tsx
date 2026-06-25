@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { authenticatedFetch } from "@/store/authStore";
+import { handleApiResponse, ApiValidationError } from "@/lib/errors";
 import { ChevronLeft, Loader2, Save } from "lucide-react";
 import { PatientForm, PatientFormData } from "@/components/PatientForm";
 
@@ -18,6 +19,7 @@ function UpdatePatientContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
 
   useEffect(() => {
     const fetchPatientData = async () => {
@@ -58,16 +60,17 @@ function UpdatePatientContent() {
 
   const handleSubmit = async (formData: PatientFormData) => {
     setError(null);
+    setFieldErrors({});
     setIsSubmitting(true);
 
     try {
       const requestBody = {
         google_email: formData.contactEmail,
-        name: formData.fullName || undefined,
-        birth_date: formData.birthDate || undefined,
-        state: formData.state ? formData.state.toUpperCase() : undefined,
-        city: formData.city || undefined,
-        contact_phone: formData.contactPhone || undefined,
+        name: formData.fullName,
+        birth_date: formData.birthDate,
+        state: formData.state ? formData.state.toUpperCase() : "",
+        city: formData.city,
+        contact_phone: formData.contactPhone,
         contact_email: formData.contactEmail,
         gender: formData.gender || null,
         height: formData.height ? parseFloat(formData.height) : null,
@@ -82,17 +85,16 @@ function UpdatePatientContent() {
         body: JSON.stringify(requestBody),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        if (errorData.error) throw new Error(errorData.error);
-        if (errorData.state) throw new Error(`Estado: ${errorData.state.join(', ')}`);
-        if (errorData.detail) throw new Error(errorData.detail);
-        throw new Error('Erro ao atualizar paciente. Verifique os dados e tente novamente.');
-      }
+      await handleApiResponse(response, 'Erro ao atualizar paciente. Verifique os dados e tente novamente.');
 
       router.back();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro desconhecido');
+      if (err instanceof ApiValidationError) {
+        setFieldErrors(err.fieldErrors);
+        setError(err.message);
+      } else {
+        setError(err instanceof Error ? err.message : 'Erro desconhecido');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -141,6 +143,7 @@ function UpdatePatientContent() {
             isSubmitting={isSubmitting}
             submitLabel="Salvar Alterações"
             submitIcon={<Save className="w-5 h-5" />}
+            fieldErrors={fieldErrors}
           />
         )}
       </main>

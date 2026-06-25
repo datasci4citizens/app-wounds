@@ -3,6 +3,7 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createObservation } from "@/lib/api";
+import { ApiValidationError } from "@/lib/errors";
 import { useUserStore } from "@/store/userStore";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import { ObservationForm } from "@/components/ObservationForm";
@@ -15,17 +16,24 @@ function AddObservationContent() {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
 
   const handleSubmit = async (formData: FormData) => {
     if (!woundId) return;
     setError(null);
+    setFieldErrors({});
     setIsSubmitting(true);
 
     try {
       await createObservation(parseInt(woundId), formData);
       router.back();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao salvar observação');
+      if (err instanceof ApiValidationError) {
+        setFieldErrors(err.fieldErrors);
+        setError(err.message);
+      } else {
+        setError(err instanceof Error ? err.message : 'Erro ao salvar observação');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -65,6 +73,7 @@ function AddObservationContent() {
           onSubmit={handleSubmit}
           isSubmitting={isSubmitting}
           authorRole={user?.role || null}
+          fieldErrors={fieldErrors}
         />
       </main>
     </div>

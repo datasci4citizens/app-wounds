@@ -24,12 +24,14 @@ interface ObservationFormProps {
   onSubmit: (data: FormData) => void;
   isSubmitting: boolean;
   authorRole: 'Pr' | 'Pa' | null;
+  fieldErrors?: Record<string, string[]>;
 }
 
 export function ObservationForm({
   onSubmit,
   isSubmitting,
-  authorRole
+  authorRole,
+  fieldErrors = {}
 }: ObservationFormProps) {
   const isNative = Capacitor.isNativePlatform();
 
@@ -108,8 +110,19 @@ export function ObservationForm({
     onSubmit(data);
   };
 
+  const getErrorClass = (field: string) => {
+    return fieldErrors?.[field] 
+      ? "border-destructive focus-visible:ring-destructive bg-destructive/5" 
+      : "border-border";
+  };
+
+  const ErrorMsg = ({ field }: { field: string }) => {
+    if (!fieldErrors?.[field]) return null;
+    return <p className="text-destructive text-xs mt-1 font-medium ml-1">{fieldErrors[field][0]}</p>;
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} noValidate className="space-y-6">
       {/* Pain Level */}
       <div className="space-y-3">
         <div className="flex justify-between items-center">
@@ -124,7 +137,7 @@ export function ObservationForm({
             step="1" 
             value={formData.pain_level} 
             onChange={handleChange}
-            className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+            className={`w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary ${fieldErrors?.pain_level ? 'ring-2 ring-destructive ring-offset-2' : ''}`}
             style={{
                 backgroundSize: `${formData.pain_level * 10}% 100%`,
                 backgroundImage: 'linear-gradient(#3b82f6, #3b82f6)',
@@ -135,30 +148,33 @@ export function ObservationForm({
         <div className="flex justify-between px-1 text-[10px] font-bold text-muted-foreground">
             <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
         </div>
+        <ErrorMsg field="pain_level" />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         {/* Exudate Amount */}
         <div className="space-y-2">
             <Label className="text-xs font-bold uppercase text-muted-foreground ml-1">Qtd. Exsudato</Label>
-            <select name="exudate_amount" value={formData.exudate_amount} onChange={handleChange} className="flex h-12 w-full rounded-xl border border-border bg-background px-4 py-2 text-sm shadow-sm" disabled={isSubmitting}>
+            <select name="exudate_amount" value={formData.exudate_amount} onChange={handleChange} className={`flex h-12 w-full rounded-xl border bg-background px-4 py-2 text-sm shadow-sm ${getErrorClass('exudate_amount')}`} disabled={isSubmitting}>
                 <option value="Nenhum">Nenhum</option>
                 <option value="Pouco">Pouco</option>
                 <option value="Médio">Médio</option>
                 <option value="Muito">Muito</option>
             </select>
+            <ErrorMsg field="exudate_amount" />
         </div>
 
         {/* Exudate Type */}
         <div className="space-y-2">
             <Label className="text-xs font-bold uppercase text-muted-foreground ml-1">Tipo Exsudato</Label>
-            <select name="exudate_type" value={formData.exudate_type} onChange={handleChange} className="flex h-12 w-full rounded-xl border border-border bg-background px-4 py-2 text-sm shadow-sm" disabled={isSubmitting}>
+            <select name="exudate_type" value={formData.exudate_type} onChange={handleChange} className={`flex h-12 w-full rounded-xl border bg-background px-4 py-2 text-sm shadow-sm ${getErrorClass('exudate_type')}`} disabled={isSubmitting}>
                 <option value="Seroso">Seroso</option>
                 <option value="Purulento">Purulento</option>
                 <option value="Sanguinolento">Sanguinolento</option>
                 <option value="Serosanguinolento">Serosanguinolento</option>
                 <option value="Ausente">Ausente</option>
             </select>
+            <ErrorMsg field="exudate_type" />
         </div>
       </div>
 
@@ -166,13 +182,14 @@ export function ObservationForm({
         {/* Tissue Type */}
         <div className="space-y-2">
             <Label className="text-xs font-bold uppercase text-muted-foreground ml-1">Tipo Tecido</Label>
-            <select name="tissue_type" value={formData.tissue_type} onChange={handleChange} className="flex h-12 w-full rounded-xl border border-border bg-background px-4 py-2 text-sm shadow-sm" disabled={isSubmitting}>
+            <select name="tissue_type" value={formData.tissue_type} onChange={handleChange} className={`flex h-12 w-full rounded-xl border bg-background px-4 py-2 text-sm shadow-sm ${getErrorClass('tissue_type')}`} disabled={isSubmitting}>
                 <option value="Cicatrizado">Cicatrizado</option>
                 <option value="Epitelização">Epitelização</option>
                 <option value="Granulação">Granulação</option>
                 <option value="Desvitalizado">Desvitalizado</option>
                 <option value="Necrótico">Necrótico</option>
             </select>
+            <ErrorMsg field="tissue_type" />
         </div>
 
         {/* Dressing Changes */}
@@ -184,46 +201,52 @@ export function ObservationForm({
                 min="0" 
                 value={formData.dressing_changes} 
                 onChange={handleChange}
-                className="flex h-12 w-full rounded-xl border border-border bg-background px-4 py-2 text-sm shadow-sm"
+                className={`flex h-12 w-full rounded-xl border bg-background px-4 py-2 text-sm shadow-sm ${getErrorClass('dressing_changes')}`}
                 required
                 disabled={isSubmitting}
             />
+            <ErrorMsg field="dressing_changes" />
         </div>
       </div>
 
       {/* Periwound Skin */}
       <div className="space-y-2">
           <Label className="text-xs font-bold uppercase text-muted-foreground ml-1">Pele ao redor</Label>
-          <select name="periwound_skin" value={formData.periwound_skin} onChange={handleChange} className="flex h-12 w-full rounded-xl border border-border bg-background px-4 py-2 text-sm shadow-sm" disabled={isSubmitting}>
+          <select name="periwound_skin" value={formData.periwound_skin} onChange={handleChange} className={`flex h-12 w-full rounded-xl border bg-background px-4 py-2 text-sm shadow-sm ${getErrorClass('periwound_skin')}`} disabled={isSubmitting}>
               <option value="Inchaço/Edema">Inchaço/Edema</option>
               <option value="Eritema menor que 2 cm">Eritema menor que 2 cm</option>
               <option value="Eritema maior que 2 cm">Eritema maior que 2 cm</option>
           </select>
+          <ErrorMsg field="periwound_skin" />
       </div>
 
       {/* Wound Edge */}
       <div className="space-y-2">
           <Label className="text-xs font-bold uppercase text-muted-foreground ml-1">Bordas da ferida</Label>
-          <select name="wound_edge" value={formData.wound_edge} onChange={handleChange} className="flex h-12 w-full rounded-xl border border-border bg-background px-4 py-2 text-sm shadow-sm" disabled={isSubmitting}>
+          <select name="wound_edge" value={formData.wound_edge} onChange={handleChange} className={`flex h-12 w-full rounded-xl border bg-background px-4 py-2 text-sm shadow-sm ${getErrorClass('wound_edge')}`} disabled={isSubmitting}>
               <option value="Indefinidas, não visíveis claramente">Indefinidas, não visíveis</option>
               <option value="Definidas, contorno claramente visível, aderidas, niveladas com a base da ferida">Definidas, aderidas, niveladas</option>
               <option value="Bem definidas, não aderidas à base da ferida">Bem definidas, não aderidas</option>
               <option value="Bem definidas, não aderidas à base, enrolada, espessada">Bem definidas, não aderidas, enroladas</option>
               <option value="Bem definidas, fibróticas, com crostas e/ou hiperqueratose.">Bem definidas, fibróticas/crostas</option>
           </select>
+          <ErrorMsg field="wound_edge" />
       </div>
 
       {/* Fever Toggle */}
-      <div className="flex items-center justify-between p-4 bg-muted/20 border border-border rounded-xl">
-          <Label className="text-sm font-bold text-foreground">Febre nas últimas 24h?</Label>
-          <input 
-            type="checkbox" 
-            name="fever_24h" 
-            checked={formData.fever_24h} 
-            onChange={handleChange}
-            className="w-5 h-5 accent-primary"
-            disabled={isSubmitting}
-          />
+      <div className="space-y-2">
+        <div className={`flex items-center justify-between p-4 bg-muted/20 border rounded-xl ${fieldErrors?.fever_24h ? 'border-destructive bg-destructive/5' : 'border-border'}`}>
+            <Label className="text-sm font-bold text-foreground">Febre nas últimas 24h?</Label>
+            <input 
+              type="checkbox" 
+              name="fever_24h" 
+              checked={formData.fever_24h} 
+              onChange={handleChange}
+              className="w-5 h-5 accent-primary"
+              disabled={isSubmitting}
+            />
+        </div>
+        <ErrorMsg field="fever_24h" />
       </div>
 
       {/* Notes */}
@@ -234,9 +257,10 @@ export function ObservationForm({
             value={formData.extra_notes} 
             onChange={handleChange}
             placeholder="Algum detalhe adicional..."
-            className="w-full h-24 rounded-xl border border-border bg-background p-4 text-sm shadow-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className={`w-full h-24 rounded-xl border bg-background p-4 text-sm shadow-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 ${getErrorClass('extra_notes')}`}
             disabled={isSubmitting}
           />
+          <ErrorMsg field="extra_notes" />
       </div>
 
       {/* Specialist only guidelines */}
@@ -248,9 +272,10 @@ export function ObservationForm({
                 value={formData.patient_guidelines} 
                 onChange={handleChange}
                 placeholder="O que foi conversado na consulta..."
-                className="w-full h-24 rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm shadow-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className={`w-full h-24 rounded-xl border bg-primary/5 p-4 text-sm shadow-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 ${fieldErrors?.patient_guidelines ? 'border-destructive bg-destructive/5' : 'border-primary/20'}`}
                 disabled={isSubmitting}
             />
+            <ErrorMsg field="patient_guidelines" />
           </div>
       )}
 
@@ -259,7 +284,7 @@ export function ObservationForm({
           <Label className="text-xs font-bold uppercase text-muted-foreground ml-1">Foto da Ferida</Label>
           
           {imagePreview ? (
-              <div className="relative w-full aspect-square rounded-2xl overflow-hidden border border-border bg-muted group">
+              <div className={`relative w-full aspect-square rounded-2xl overflow-hidden border bg-muted group ${fieldErrors?.image ? 'border-destructive ring-2 ring-destructive ring-offset-2' : 'border-border'}`}>
                   <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
                   <button 
                     type="button"
@@ -275,13 +300,13 @@ export function ObservationForm({
                 type="button"
                 onClick={takePhoto}
                 disabled={isSubmitting}
-                className="w-full aspect-square flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-border bg-muted/30 text-muted-foreground active:bg-muted transition-colors"
+                className={`w-full aspect-square flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed bg-muted/30 text-muted-foreground active:bg-muted transition-colors ${fieldErrors?.image ? 'border-destructive bg-destructive/5 text-destructive' : 'border-border'}`}
               >
-                  <div className="p-4 bg-background rounded-full shadow-sm border border-border">
+                  <div className={`p-4 bg-background rounded-full shadow-sm border ${fieldErrors?.image ? 'border-destructive text-destructive' : 'border-border'}`}>
                     {isNative ? (
-                        <Camera className="w-8 h-8 text-primary" />
+                        <Camera className={`w-8 h-8 ${fieldErrors?.image ? 'text-destructive' : 'text-primary'}`} />
                     ) : (
-                        <ImageIcon className="w-8 h-8 text-primary" />
+                        <ImageIcon className={`w-8 h-8 ${fieldErrors?.image ? 'text-destructive' : 'text-primary'}`} />
                     )}
                   </div>
                   <span className="text-xs font-bold uppercase tracking-tight">
@@ -292,6 +317,7 @@ export function ObservationForm({
                   </span>
               </button>
           )}
+          <ErrorMsg field="image" />
       </div>
 
       <div className="pt-4">
