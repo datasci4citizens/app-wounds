@@ -49,6 +49,16 @@ export const fetchObservations = async (woundId: number): Promise<Observation[]>
   return response.json();
 };
 
+export const fetchPatientById = async (patientId: number): Promise<any> => {
+  // Fetch all patients for the current specialist and find the one we need
+  const response = await authenticatedFetch(`${API_URL}/specialist/patients/`);
+  if (!response.ok) throw new Error("Failed to fetch patient");
+  const patients = await response.json();
+  const patient = patients.find((p: any) => p.id === patientId);
+  if (!patient) throw new Error("Patient not found");
+  return patient;
+};
+
 export const createWound = async (data: Partial<Wound>): Promise<Wound> => {
   const response = await authenticatedFetch(`${API_URL}/wounds/`, {
     method: "POST",
