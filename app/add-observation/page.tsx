@@ -3,6 +3,7 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createObservation } from "@/lib/api";
+import { toast } from "@/components/Toast";
 import { ApiValidationError } from "@/lib/errors";
 import { useUserStore } from "@/store/userStore";
 import { ChevronLeft, Loader2 } from "lucide-react";
@@ -26,6 +27,7 @@ function AddObservationContent() {
 
     try {
       await createObservation(parseInt(woundId), formData);
+      toast("Observação registrada com sucesso!");
       router.back();
     } catch (err) {
       if (err instanceof ApiValidationError) {
