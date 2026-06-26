@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { fetchObservations } from "@/lib/api";
 import type { Observation } from "@/lib/types";
+import { woundSeenKey } from "@/lib/storage-keys";
 import { useUserStore } from "@/store/userStore";
 import { ChevronLeft, Activity, Calendar, User, Clock, Loader2, MessageSquare, Thermometer, Droplets, ZoomIn } from "lucide-react";
 import { ImageViewer } from "@/components/ImageViewer";
@@ -41,7 +42,7 @@ function WoundDetailContent() {
           // Dismiss notifications for this specific wound
           if (specialistId && woundId && typeof window !== "undefined") {
             localStorage.setItem(
-              `specialist_seen_wound_${specialistId}_${woundId}`,
+              woundSeenKey(specialistId, woundId),
               new Date().toISOString()
             );
           }

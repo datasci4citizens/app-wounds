@@ -7,9 +7,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { fetchWounds, fetchObservations } from "@/lib/api";
 import type { Wound, Observation, Patient, UserProfile, Comorbidity } from "@/lib/types";
 import { calculateAge, formatGender, formatSmoking, formatAlcohol } from "@/lib/format";
-
-const LS_LAST_CHECK_PREFIX = "specialist_last_check_";
-const LS_PATIENT_SEEN_PREFIX = "specialist_seen_patient_";
+import { lastCheckKey, patientSeenKey, woundSeenKey } from "@/lib/storage-keys";
 
 interface SpecialistDashboardProps {
   profile: UserProfile;
@@ -28,7 +26,7 @@ export function SpecialistDashboard({ profile, patients }: SpecialistDashboardPr
   const [patientHasFever, setPatientHasFever] = useState<Record<number, boolean>>({});
   const [searchQuery, setSearchQuery] = useState("");
 
-  const storageKey = `${LS_LAST_CHECK_PREFIX}${profile.id}`;
+  const storageKey = lastCheckKey(profile.id);
   const thresholdRef = useRef<string>("");
 
   /* ─── Load last-check timestamp & fetch everything ─── */
@@ -92,10 +90,10 @@ export function SpecialistDashboard({ profile, patients }: SpecialistDashboardPr
 
         // Per-patient + per-wound dismissal timestamps override global lastCheck
         const patientSeenRaw = typeof window !== "undefined"
-          ? localStorage.getItem(`${LS_PATIENT_SEEN_PREFIX}${profile.id}_${patientId}`)
+          ? localStorage.getItem(patientSeenKey(profile.id, patientId))
           : null;
         const woundSeenRaw = typeof window !== "undefined"
-          ? localStorage.getItem(`specialist_seen_wound_${profile.id}_${w.id}`)
+          ? localStorage.getItem(woundSeenKey(profile.id, w.id))
           : null;
         const threshold = new Date(Math.max(
           lastCheck.getTime(),

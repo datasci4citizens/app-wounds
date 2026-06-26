@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { fetchWounds, fetchObservations, createWound } from "@/lib/api";
 import type { Wound, Observation } from "@/lib/types";
+import { lastCheckKey, patientSeenKey, woundSeenKey } from "@/lib/storage-keys";
 import { ChevronLeft, Plus, Activity, MapPin, Loader2, CheckCircle2, Bell, Thermometer } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,10 +48,10 @@ function PatientWoundsContent() {
         if (specialistId && data.length > 0) {
           const since = sinceParam ? new Date(sinceParam).getTime() : 0;
           const globalCheck = new Date(
-            localStorage.getItem(`specialist_last_check_${specialistId}`) || 0
+            localStorage.getItem(lastCheckKey(specialistId)) || 0
           ).getTime();
           const patientSeen = new Date(
-            localStorage.getItem(`specialist_seen_patient_${specialistId}_${patientId}`) || 0
+            localStorage.getItem(patientSeenKey(specialistId, patientId!)) || 0
           ).getTime();
 
           const obsResults = await Promise.allSettled(
@@ -63,7 +64,7 @@ function PatientWoundsContent() {
             if (r.status !== "fulfilled") return;
             // Per-wound dismissal
             const woundSeen = new Date(
-              localStorage.getItem(`specialist_seen_wound_${specialistId}_${w.id}`) || 0
+              localStorage.getItem(woundSeenKey(specialistId, w.id)) || 0
             ).getTime();
             const threshold = new Date(Math.max(since, woundSeen, patientSeen, globalCheck));
             const count = r.value.filter(
