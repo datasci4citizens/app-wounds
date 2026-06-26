@@ -1,37 +1,11 @@
 import { authenticatedFetch } from "@/store/authStore";
 import { handleApiResponse } from "@/lib/errors";
+import type { Wound, Observation, Patient } from "@/lib/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-export interface Wound {
-  id: number;
-  patient: number;
-  patient_name: string;
-  etiology: string;
-  location: string;
-  created_at: string;
-  is_healed: boolean;
-}
-
-export interface Observation {
-  id: number;
-  wound: number;
-  author: number;
-  author_name: string;
-  author_role: string;
-  created_at: string;
-  pain_level: number;
-  exudate_amount: string;
-  exudate_type: string;
-  tissue_type: string;
-  dressing_changes: number;
-  periwound_skin: string;
-  wound_edge: string;
-  fever_24h: boolean;
-  extra_notes: string | null;
-  patient_guidelines: string | null;
-  image: string | null;
-}
+// Re-export types for convenience
+export type { Wound, Observation, Patient };
 
 export const fetchWounds = async (patientId?: number): Promise<Wound[]> => {
   const url = patientId 
@@ -49,12 +23,12 @@ export const fetchObservations = async (woundId: number): Promise<Observation[]>
   return response.json();
 };
 
-export const fetchPatientById = async (patientId: number): Promise<any> => {
+export const fetchPatientById = async (patientId: number): Promise<Patient> => {
   // Fetch all patients for the current specialist and find the one we need
   const response = await authenticatedFetch(`${API_URL}/specialist/patients/`);
   if (!response.ok) throw new Error("Failed to fetch patient");
-  const patients = await response.json();
-  const patient = patients.find((p: any) => p.id === patientId);
+  const patients: Patient[] = await response.json();
+  const patient = patients.find((p) => p.id === patientId);
   if (!patient) throw new Error("Patient not found");
   return patient;
 };

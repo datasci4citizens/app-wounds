@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AsyncComorbiditySearch } from "@/components/AsyncComorbiditySearch";
+import type { Comorbidity } from "@/lib/types";
 
 interface IBGEState {
   id: number;
@@ -34,7 +35,7 @@ export interface PatientFormData {
 
 interface PatientFormProps {
   initialData: PatientFormData;
-  initialComorbidities?: any[];
+  initialComorbidities?: Comorbidity[];
   onSubmit: (data: PatientFormData) => void;
   isSubmitting: boolean;
   submitIcon?: React.ReactNode;

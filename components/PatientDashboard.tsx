@@ -5,44 +5,8 @@ import { LogOut, User, Activity, Calendar, MapPin, Heart, List, Users, Pencil, C
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { PatientProfileReview } from "./PatientProfileReview";
-import { fetchWounds, Wound } from "@/lib/api";
-
-interface SpecialistData {
-  id: number;
-  name: string;
-  professional_id: string;
-  contact_phone: string;
-  contact_email: string;
-}
-
-interface PatientData {
-  id: number;
-  name: string;
-  birth_date: string | null;
-  state: string | null;
-  city: string | null;
-  contact_phone: string | null;
-  contact_email: string | null;
-  gender: string | null;
-  height: string | null;
-  weight: string | null;
-  smoking_status: string | null;
-  alcohol_consumption: string | null;
-  assigned_specialists: SpecialistData[];
-  comorbidities: Array<{ concept_id: string; code: string; name: string }>;
-}
-
-interface UserProfile {
-  id: number;
-  email: string;
-  name: string | null;
-  birth_date: string | null;
-  state: string | null;
-  city: string | null;
-  role: string | null;
-  registration_complete: boolean;
-  patient?: PatientData | null;
-}
+import { fetchWounds } from "@/lib/api";
+import type { Wound, UserProfile, Observation, AssignedSpecialist } from "@/lib/types";
 
 interface PatientDashboardProps {
   profile: UserProfile;
@@ -57,7 +21,7 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
   const [profile, setProfile] = useState(initialProfile);
   const [wounds, setWounds] = useState<Wound[]>([]);
   const [isLoadingWounds, setIsLoadingWounds] = useState(true);
-  const [observationsCache, setObservationsCache] = useState<Record<number, any[]>>({});
+  const [observationsCache, setObservationsCache] = useState<Record<number, Observation[]>>({});
 
   // Collapsible UI state
   const [showWoundPicker, setShowWoundPicker] = useState(false);

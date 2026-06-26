@@ -6,6 +6,7 @@ import { authenticatedFetch } from "@/store/authStore";
 import { handleApiResponse, ApiValidationError } from "@/lib/errors";
 import { ChevronLeft, Loader2, Save } from "lucide-react";
 import { PatientForm, PatientFormData } from "@/components/PatientForm";
+import type { Comorbidity } from "@/lib/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -37,7 +38,7 @@ function UpdatePatientContent() {
             gender: data.gender || "",
             height: data.height?.toString() || "",
             weight: data.weight?.toString() || "",
-            comorbidities: data.comorbidities?.map((c: any) => c.concept_id) || [],
+            comorbidities: data.comorbidities?.map((c: Comorbidity) => c.concept_id) || [],
             smokingStatus: data.smoking_status || "",
             alcoholConsumption: Array.isArray(data.alcohol_consumption) ? data.alcohol_consumption : [data.alcohol_consumption].filter(Boolean),
           });

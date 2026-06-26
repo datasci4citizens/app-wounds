@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { TransformWrapper, TransformComponent, useTransformContext } from "react-zoom-pan-pinch";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { X, ZoomIn, ZoomOut, Maximize, RotateCcw } from "lucide-react";
 
 interface ImageViewerProps {
@@ -34,7 +34,7 @@ export function ImageViewer({ src, onClose }: ImageViewerProps) {
           minScale={1}
           maxScale={8}
         >
-          {({ zoomIn, zoomOut, resetTransform }: any) => (
+          {({ zoomIn, zoomOut, resetTransform }: { zoomIn: () => void; zoomOut: () => void; resetTransform: () => void }) => (
             <>
               <TransformComponent 
                 wrapperClass="!w-full !h-full" 

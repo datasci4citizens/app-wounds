@@ -1,3 +1,5 @@
+import type { Comorbidity } from "@/lib/types";
+
 export class ApiValidationError extends Error {
   public fieldErrors: Record<string, string[]>;
 
@@ -20,7 +22,8 @@ export async function handleApiResponse(response: Response, fallbackMessage: str
     return response;
   }
 
-  let errorData: any = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let errorData: Record<string, any> = {};
   try {
     errorData = await response.json();
   } catch {

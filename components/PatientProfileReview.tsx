@@ -4,11 +4,12 @@ import { useState } from "react";
 import { authenticatedFetch } from "@/store/authStore";
 import { CheckCircle2 } from "lucide-react";
 import { PatientForm, PatientFormData } from "@/components/PatientForm";
+import type { UserProfile, Comorbidity } from "@/lib/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 interface PatientProfileReviewProps {
-  profile: any;
+  profile: UserProfile;
   onComplete: () => void;
   title?: string;
   description?: string;
@@ -22,7 +23,7 @@ export function PatientProfileReview({
   description = "Por favor, revise e complete as informações abaixo para começar.",
   submitLabel = "Confirmar e Entrar"
 }: PatientProfileReviewProps) {
-  const patient = profile.patient || {};
+  const patient = profile.patient;
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,14 +33,16 @@ export function PatientProfileReview({
     birthDate: profile.birth_date || "",
     state: profile.state || "",
     city: profile.city || "",
-    contactPhone: patient.contact_phone || "",
-    contactEmail: patient.contact_email || profile.email || "",
-    gender: patient.gender || "",
-    height: patient.height?.toString() || "",
-    weight: patient.weight?.toString() || "",
-    comorbidities: patient.comorbidities?.map((c: any) => c.concept_id) || [],
-    smokingStatus: patient.smoking_status || "",
-    alcoholConsumption: Array.isArray(patient.alcohol_consumption) ? patient.alcohol_consumption : [patient.alcohol_consumption].filter(Boolean),
+    contactPhone: patient?.contact_phone || "",
+    contactEmail: patient?.contact_email || profile.email || "",
+    gender: patient?.gender || "",
+    height: patient?.height?.toString() || "",
+    weight: patient?.weight?.toString() || "",
+    comorbidities: patient?.comorbidities?.map((c: Comorbidity) => c.concept_id) || [],
+    smokingStatus: patient?.smoking_status || "",
+    alcoholConsumption: Array.isArray(patient?.alcohol_consumption)
+      ? patient.alcohol_consumption
+      : [patient?.alcohol_consumption].filter(Boolean) as string[],
   };
 
   const handleSubmit = async (formData: PatientFormData) => {
@@ -101,7 +104,7 @@ export function PatientProfileReview({
 
           <PatientForm
             initialData={initialData}
-            initialComorbidities={patient.comorbidities || []}
+            initialComorbidities={patient?.comorbidities || []}
             onSubmit={handleSubmit}
             isSubmitting={isSubmitting}
             submitLabel={submitLabel}

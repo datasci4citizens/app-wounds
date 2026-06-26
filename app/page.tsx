@@ -7,17 +7,18 @@ import { Loader2 } from "lucide-react";
 import { SpecialistDashboard } from "@/components/SpecialistDashboard";
 import { PatientDashboard } from "@/components/PatientDashboard";
 import { PatientProfileReview } from "@/components/PatientProfileReview";
+import type { UserProfile, Patient } from "@/lib/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export default function AppHome() {
   const router = useRouter();
   const tokens = useAuthStore((state) => state.tokens);
-  const [profile, setProfile] = useState<any | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
-  const [patients, setPatients] = useState<any[]>([]);
+  const [patients, setPatients] = useState<Patient[]>([]);
 
   // Force re-fetch after review
   const [refreshKey, setRefreshKey] = useState(0);

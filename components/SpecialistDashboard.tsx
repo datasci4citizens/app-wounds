@@ -4,33 +4,15 @@ import { useLogout } from "@/features/auth/useLogout";
 import { LogOut, User, Users, Plus, Briefcase, Activity, TrendingUp, Phone, Mail, ChevronLeft, Pencil, Loader2, Bell, Search, Calendar, Ruler, Weight, Wind, Wine, MapPin, Thermometer } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useMemo, useRef } from "react";
-import { fetchWounds, fetchObservations, Wound, Observation } from "@/lib/api";
+import { fetchWounds, fetchObservations } from "@/lib/api";
+import type { Wound, Observation, Patient, UserProfile, Comorbidity } from "@/lib/types";
 
 const LS_LAST_CHECK_PREFIX = "specialist_last_check_";
 const LS_PATIENT_SEEN_PREFIX = "specialist_seen_patient_";
 
-interface SpecialistData {
-  id: number;
-  professional_id: string;
-  contact_phone: string;
-  contact_email: string;
-}
-
-interface UserProfile {
-  id: number;
-  email: string;
-  name: string | null;
-  birth_date: string | null;
-  state: string | null;
-  city: string | null;
-  role: string | null;
-  registration_complete: boolean;
-  specialist: SpecialistData | null;
-}
-
 interface SpecialistDashboardProps {
   profile: UserProfile;
-  patients: any[];
+  patients: Patient[];
 }
 
 export function SpecialistDashboard({ profile, patients }: SpecialistDashboardProps) {
@@ -63,7 +45,7 @@ export function SpecialistDashboard({ profile, patients }: SpecialistDashboardPr
     const loadAll = async () => {
       /* 1. Fetch all wounds */
       const results = await Promise.allSettled(
-        patients.map((p: any) => fetchWounds(p.id))
+        patients.map((p) => fetchWounds(p.id))
       );
       const wounds: Wound[] = [];
       results.forEach((r) => {
@@ -160,7 +142,7 @@ export function SpecialistDashboard({ profile, patients }: SpecialistDashboardPr
   /* ─── Per-patient wound counts ─── */
   const patientWoundMap = useMemo(() => {
     const map: Record<number, { total: number; active: number; healed: number }> = {};
-    patients.forEach((p: any) => {
+    patients.forEach((p) => {
       map[p.id] = { total: 0, active: 0, healed: 0 };
     });
     allWounds.forEach((w) => {
@@ -180,7 +162,7 @@ export function SpecialistDashboard({ profile, patients }: SpecialistDashboardPr
   const filteredPatients = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
 
-    let list = [...patients].sort((a: any, b: any) => {
+    let list = [...patients].sort((a, b) => {
       // Fever patients first (highest priority)
       const aFever = patientHasFever[a.id] ? 1 : 0;
       const bFever = patientHasFever[b.id] ? 1 : 0;
@@ -198,7 +180,7 @@ export function SpecialistDashboard({ profile, patients }: SpecialistDashboardPr
     });
 
     if (query) {
-      list = list.filter((p: any) =>
+      list = list.filter((p) =>
         (p.name || '').toLowerCase().includes(query)
       );
     }
@@ -332,7 +314,7 @@ export function SpecialistDashboard({ profile, patients }: SpecialistDashboardPr
           <div className="p-4">
             {filteredPatients.length > 0 ? (
               <div className="space-y-3">
-                {filteredPatients.map((p: any) => (
+                {filteredPatients.map((p) => (
                   <PatientCard
                     key={p.id}
                     patient={p}
@@ -471,7 +453,7 @@ function PatientCard({
   onViewWounds,
   onEdit,
 }: {
-  patient: any;
+  patient: Patient;
   woundCounts: { total: number; active: number; healed: number };
   newObsCount: number;
   hasFever: boolean;
@@ -528,7 +510,7 @@ function PatientCard({
           )}
           {patient.comorbidities && patient.comorbidities.length > 0 && (
             <>
-              {patient.comorbidities.map((c: any) => (
+              {patient.comorbidities.map((c: Comorbidity) => (
                 <Chip key={c.concept_id} text={c.name} />
               ))}
             </>

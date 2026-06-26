@@ -2,7 +2,8 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { fetchWounds, fetchObservations, Wound, Observation, createWound } from "@/lib/api";
+import { fetchWounds, fetchObservations, createWound } from "@/lib/api";
+import type { Wound, Observation } from "@/lib/types";
 import { ChevronLeft, Plus, Activity, MapPin, Loader2, CheckCircle2, Bell, Thermometer } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

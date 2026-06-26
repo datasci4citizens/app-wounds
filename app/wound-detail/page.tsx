@@ -2,7 +2,8 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { fetchObservations, Observation } from "@/lib/api";
+import { fetchObservations } from "@/lib/api";
+import type { Observation } from "@/lib/types";
 import { useUserStore } from "@/store/userStore";
 import { ChevronLeft, Activity, Calendar, User, Clock, Loader2, MessageSquare, Thermometer, Droplets, ZoomIn } from "lucide-react";
 import { ImageViewer } from "@/components/ImageViewer";
