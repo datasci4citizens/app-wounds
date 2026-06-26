@@ -1,8 +1,8 @@
 "use client";
 
 import { useLogout } from "@/features/auth/useLogout";
-import { LogOut, User, Activity, Calendar, MapPin, Heart, List, Users, Pencil, ChevronLeft } from "lucide-react";
-import { useState, useEffect } from "react";
+import { LogOut, User, Activity, Calendar, MapPin, Heart, List, Users, Pencil, ChevronLeft, Camera, Clock, ChevronDown, ChevronUp, Wind, Wine } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { PatientProfileReview } from "./PatientProfileReview";
 import { fetchWounds, Wound } from "@/lib/api";
@@ -48,6 +48,8 @@ interface PatientDashboardProps {
   profile: UserProfile;
 }
 
+const STALE_DAYS = 3;
+
 export function PatientDashboard({ profile: initialProfile }: PatientDashboardProps) {
   const router = useRouter();
   const { logout } = useLogout();
@@ -55,6 +57,11 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
   const [profile, setProfile] = useState(initialProfile);
   const [wounds, setWounds] = useState<Wound[]>([]);
   const [isLoadingWounds, setIsLoadingWounds] = useState(true);
+  const [observationsCache, setObservationsCache] = useState<Record<number, any[]>>({});
+
+  // Collapsible UI state
+  const [showWoundPicker, setShowWoundPicker] = useState(false);
+
   const patient = profile.patient;
 
   useEffect(() => {
@@ -62,6 +69,13 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
       try {
         const data = await fetchWounds();
         setWounds(data);
+        data.forEach(async (w) => {
+          try {
+            const { fetchObservations } = await import("@/lib/api");
+            const obs = await fetchObservations(w.id);
+            setObservationsCache(prev => ({ ...prev, [w.id]: obs }));
+          } catch { /* silently ignore */ }
+        });
       } catch (err) {
         console.error("Error fetching wounds:", err);
       } finally {
@@ -71,15 +85,44 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
     getWounds();
   }, []);
 
+  const activeWounds = useMemo(() => wounds.filter(w => !w.is_healed), [wounds]);
+  const healedWounds = useMemo(() => wounds.filter(w => w.is_healed), [wounds]);
+
+  const getLastObservation = (woundId: number) => {
+    const obs = observationsCache[woundId];
+    if (!obs || obs.length === 0) return null;
+    return obs[0];
+  };
+
+  const isStale = (woundId: number) => {
+    const last = getLastObservation(woundId);
+    if (!last) return false;
+    const daysSince = (Date.now() - new Date(last.created_at).getTime()) / (1000 * 60 * 60 * 24);
+    return daysSince > STALE_DAYS;
+  };
+
+  const getLastObsText = (woundId: number) => {
+    const last = getLastObservation(woundId);
+    if (!last) return null;
+    const days = Math.floor((Date.now() - new Date(last.created_at).getTime()) / (1000 * 60 * 60 * 24));
+    if (days === 0) return "Hoje";
+    if (days === 1) return "Ontem";
+    return `${days} dias`;
+  };
+
+  const handleRegisterEvolution = (woundId?: number) => {
+    setShowWoundPicker(false);
+    if (woundId) {
+      router.push(`/add-observation?woundId=${woundId}`);
+    }
+  };
+
   if (isEditing) {
     return (
       <div className="relative min-h-screen bg-background">
         <header className="sticky top-0 z-20 flex items-center h-16 px-4 bg-background border-b border-border pt-safe">
-          <button
-            data-back-override
-            onClick={() => setIsEditing(false)}
-            className="p-2 -ml-2 rounded-full hover:bg-muted active:bg-accent text-foreground transition-colors"
-          >
+          <button data-back-override onClick={() => setIsEditing(false)}
+            className="p-2 -ml-2 rounded-full hover:bg-muted active:bg-accent text-foreground transition-colors">
             <ChevronLeft className="w-6 h-6" />
           </button>
           <h2 className="ml-2 font-bold text-foreground">Editar Perfil</h2>
@@ -89,10 +132,7 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
           title="Editar Perfil"
           description="Atualize suas informações de saúde e contato."
           submitLabel="Salvar Alterações"
-          onComplete={() => {
-            setIsEditing(false);
-            window.location.reload();
-          }}
+          onComplete={() => { setIsEditing(false); window.location.reload(); }}
         />
       </div>
     );
@@ -108,35 +148,122 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
           <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-0.5">
             Painel do Paciente
           </span>
-          <h1 className="text-2xl font-bold font-heading text-primary">
-            Cicatrizando
-          </h1>
+          <h1 className="text-2xl font-bold font-heading text-primary">Cicatrizando</h1>
         </div>
-        <button
-          onClick={logout}
-          className="p-2 rounded-full bg-muted hover:bg-accent transition-colors active:scale-95"
-          title="Sair"
-        >
+        <button onClick={logout} className="p-2 rounded-full bg-muted hover:bg-accent transition-colors active:scale-95" title="Sair">
           <LogOut className="w-5 h-5 text-foreground" />
         </button>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 px-5 py-6 space-y-6">
+      <main className="flex-1 px-5 py-6 space-y-5">
 
-        {/* Welcome Section */}
+        {/* ─── Welcome ─── */}
         <section>
           <h2 className="text-xl font-bold text-foreground">
             {profile.name ? `Olá, ${profile.name}!` : "Olá!"}
           </h2>
-          <p className="text-sm text-muted-foreground">Acompanhe aqui o estado das suas feridas e seu perfil de saúde.</p>
         </section>
 
+        {/* ─── Hero CTA: Registrar Evolução (with inline picker) ─── */}
+        {activeWounds.length === 1 ? (
+          <button
+            onClick={() => handleRegisterEvolution(activeWounds[0].id)}
+            className="w-full flex items-center gap-4 p-4 bg-primary text-primary-foreground rounded-2xl shadow-sm hover:opacity-95 transition-opacity active:scale-[0.98]"
+          >
+            <div className="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+              <Camera className="w-5 h-5" />
+            </div>
+            <div className="text-left">
+              <p className="font-bold text-sm">Registrar Evolução</p>
+              <p className="text-xs opacity-80">{activeWounds[0].etiology} · {activeWounds[0].location}</p>
+            </div>
+            <ChevronLeft className="w-5 h-5 ml-auto rotate-180" />
+          </button>
+        ) : activeWounds.length > 1 ? (
+          <div>
+            <button
+              onClick={() => setShowWoundPicker(!showWoundPicker)}
+              className="w-full flex items-center gap-4 p-4 bg-primary text-primary-foreground rounded-2xl shadow-sm hover:opacity-95 transition-opacity active:scale-[0.98]"
+            >
+              <div className="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+                <Camera className="w-5 h-5" />
+              </div>
+              <div className="text-left">
+                <p className="font-bold text-sm">Registrar Evolução</p>
+                <p className="text-xs opacity-80">Escolha qual ferida atualizar</p>
+              </div>
+              {showWoundPicker
+                ? <ChevronUp className="w-5 h-5 ml-auto" />
+                : <ChevronDown className="w-5 h-5 ml-auto" />
+              }
+            </button>
+
+            {showWoundPicker && (
+              <div className="mt-2 bg-white dark:bg-card rounded-2xl border border-border shadow-sm overflow-hidden animate-in slide-in-from-top-2 duration-200">
+                {activeWounds.map(w => {
+                  const stale = isStale(w.id);
+                  const lastText = getLastObsText(w.id);
+                  return (
+                    <button
+                      key={w.id}
+                      onClick={() => handleRegisterEvolution(w.id)}
+                      className="w-full flex items-center gap-3 p-4 hover:bg-muted/10 transition-colors active:bg-muted/20 border-b border-border last:border-0 text-left"
+                    >
+                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${stale ? 'bg-status-warning' : 'bg-status-success'}`} />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm text-foreground truncate">{w.etiology}</p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {w.location}{lastText ? ` · ${lastText}` : ''}
+                        </p>
+                      </div>
+                      <ChevronLeft className="w-4 h-4 text-muted-foreground rotate-180 flex-shrink-0" />
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        ) : null}
+
+        {/* ─── Minhas Feridas ─── */}
+        <button
+          onClick={() => router.push("/patient-wounds")}
+          className="w-full flex items-center gap-4 p-4 bg-white dark:bg-card rounded-2xl border border-border shadow-sm hover:bg-muted/10 transition-colors active:scale-[0.98]"
+        >
+          <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <List className="w-5 h-5 text-primary" />
+          </div>
+          <div className="text-left">
+            <p className="font-bold text-sm text-foreground">Minhas Feridas</p>
+            <p className="text-xs text-muted-foreground">Histórico completo das suas feridas</p>
+          </div>
+          <ChevronLeft className="w-5 h-5 ml-auto rotate-180 text-muted-foreground" />
+        </button>
+
+        {/* ─── Loading / Empty ─── */}
+        {isLoadingWounds && (
+          <div className="flex justify-center py-4">
+            <Activity className="w-6 h-6 animate-pulse text-muted-foreground" />
+          </div>
+        )}
+        {!isLoadingWounds && wounds.length === 0 && (
+          <div className="bg-white dark:bg-card rounded-2xl shadow-sm border border-border p-8 text-center space-y-3">
+            <div className="w-14 h-14 bg-muted rounded-full flex items-center justify-center mx-auto">
+              <Activity className="w-7 h-7 text-muted-foreground opacity-50" />
+            </div>
+            <p className="font-bold text-foreground">Nenhuma ferida registrada</p>
+            <p className="text-sm text-muted-foreground">
+              Seu especialista irá registrar suas feridas aqui para acompanhamento.
+            </p>
+          </div>
+        )}
+
+        {/* ─── Health Profile ─── */}
         <section className="bg-white dark:bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
           <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30">
             <div className="flex items-center gap-3">
               <User className="w-5 h-5 text-primary" />
-              <h2 className="font-bold text-foreground">Meu Perfil de Saúde</h2>
+              <h2 className="font-bold text-foreground">Perfil de Saúde</h2>
             </div>
             <button
               onClick={() => setIsEditing(true)}
@@ -147,155 +274,93 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
             </button>
           </div>
           <div className="p-4 space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <MetricCard icon={<Activity className="w-4 h-4" />} label="Altura" value={patient?.height ? `${patient.height}m` : '—'} />
-              <MetricCard icon={<Activity className="w-4 h-4" />} label="Peso" value={patient?.weight ? `${patient.weight}kg` : '—'} />
-              <MetricCard icon={<Calendar className="w-4 h-4" />} label="Nascimento" value={profile.birth_date || '—'} />
-              <MetricCard icon={<MapPin className="w-4 h-4" />} label="Cidade" value={profile.city || '—'} />
-            </div>
-
-            <div className="pt-2 border-t border-border">
-              <p className="text-xs font-bold text-muted-foreground uppercase mb-2">Hábitos</p>
-              <div className="space-y-2">
-                <DataRow label="Tabagismo" value={formatSmoking(patient?.smoking_status || null)} />
-                <DataRow label="Consumo de álcool" value={formatAlcohol(patient?.alcohol_consumption || null)} />
+              <div className="grid grid-cols-2 gap-3">
+                <MetricChip icon={<Activity className="w-3.5 h-3.5" />} label="Altura" value={patient?.height ? `${patient.height}m` : '—'} />
+                <MetricChip icon={<Activity className="w-3.5 h-3.5" />} label="Peso" value={patient?.weight ? `${patient.weight}kg` : '—'} />
+                <MetricChip icon={<Calendar className="w-3.5 h-3.5" />} label="Nascimento" value={formatDate(profile.birth_date)} />
+                <MetricChip icon={<MapPin className="w-3.5 h-3.5" />} label="Localidade" value={profile.city && profile.state ? `${profile.city} - ${profile.state}` : profile.city || profile.state || '—'} />
+                <MetricChip icon={<Wind className="w-3.5 h-3.5" />} label="Tabagismo" value={formatSmoking(patient?.smoking_status ?? null)} />
+                <MetricChip icon={<Wine className="w-3.5 h-3.5" />} label="Álcool" value={formatAlcohol(patient?.alcohol_consumption ?? null)} />
               </div>
-            </div>
-
-            <div className="pt-2 border-t border-border">
-              <p className="text-xs font-bold text-muted-foreground uppercase mb-2 flex items-center gap-1">
-                <Heart className="w-3 h-3 text-status-error" /> Comorbidades
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {patient?.comorbidities && patient.comorbidities.length > 0 ? (
-                  patient.comorbidities.map(c => (
-                    <Badge key={c.concept_id} label={c.name} code={c.code} />
-                  ))
-                ) : (
-                  <p className="text-xs text-muted-foreground italic">Nenhuma informada.</p>
-                )}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Specialists Card */}
-        <section className="bg-white dark:bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
-          <div className="flex items-center gap-3 p-4 border-b border-border bg-muted/30">
-            <Users className="w-5 h-5 text-primary" />
-            <h2 className="font-bold text-foreground">Especialistas Acompanhando</h2>
-          </div>
-          <div className="p-4 space-y-3">
-            {patient?.assigned_specialists && patient.assigned_specialists.length > 0 ? (
-              patient.assigned_specialists.map(s => (
-                <div key={s.id} className="p-3 border border-border rounded-xl bg-muted/10">
-                  <p className="font-bold text-primary">{s.name}</p>
-                  <p className="text-xs text-muted-foreground">Reg: {s.professional_id}</p>
+              <div className="pt-2 border-t border-border">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase mb-2 flex items-center gap-1">
+                  <Heart className="w-3 h-3 text-status-error" /> Comorbidades
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {patient?.comorbidities && patient.comorbidities.length > 0 ? (
+                    patient.comorbidities.map(c => (
+                      <Badge key={c.concept_id} label={c.name} code={c.code} />
+                    ))
+                  ) : (
+                    <p className="text-xs text-muted-foreground italic">Nenhuma informada.</p>
+                  )}
                 </div>
-              ))
-            ) : (
-              <p className="text-sm text-muted-foreground italic">Você ainda não tem especialistas atribuídos.</p>
-            )}
+              </div>
           </div>
         </section>
 
-        {/* Wounds List */}
-        <section className="bg-white dark:bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
-          <div className="flex items-center gap-3 p-4 border-b border-border bg-muted/30">
-            <List className="w-5 h-5 text-primary" />
-            <h2 className="font-bold text-foreground">Minhas Feridas</h2>
-          </div>
-          <div className="p-4 space-y-4">
-            {isLoadingWounds ? (
-              <div className="flex justify-center py-8">
-                <Activity className="w-6 h-6 animate-pulse text-muted-foreground" />
-              </div>
-            ) : wounds.length > 0 ? (
-              <div className="space-y-3">
-                {wounds.map(w => (
-                  <div
-                    key={w.id}
-                    onClick={() => router.push(`/wound-detail?id=${w.id}`)}
-                    className="p-4 border border-border rounded-xl bg-card hover:bg-muted/10 transition-colors active:scale-[0.99] cursor-pointer"
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-bold text-primary">{w.etiology}</h3>
-                      {w.is_healed ? (
-                        <span className="text-[10px] bg-status-success/10 text-status-success px-2 py-0.5 rounded-full font-bold uppercase">Cicatrizada</span>
-                      ) : (
-                        <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold uppercase">Em Tratamento</span>
-                      )}
+        {/* ─── Specialists ─── */}
+        {patient?.assigned_specialists && patient.assigned_specialists.length > 0 && (
+          <section className="bg-white dark:bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
+            <div className="flex items-center gap-3 p-4 border-b border-border bg-muted/30">
+              <Users className="w-5 h-5 text-primary" />
+              <h2 className="font-bold text-foreground">Especialistas</h2>
+            </div>
+            <div className="p-4 space-y-3">
+                {patient.assigned_specialists.map(s => (
+                  <div key={s.id} className="flex items-center gap-3 p-3 border border-border rounded-xl bg-muted/5">
+                    <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <User className="w-4 h-4 text-primary" />
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <MapPin className="w-3.5 h-3.5" />
-                      <span>{w.location}</span>
-                    </div>
-                    <div className="mt-3 flex justify-end">
-                      <span className="text-xs font-bold text-primary flex items-center gap-1">
-                        Ver Detalhes <ChevronLeft className="w-3 h-3 rotate-180" />
-                      </span>
+                    <div>
+                      <p className="font-bold text-sm text-foreground">{s.name}</p>
+                      <p className="text-[10px] text-muted-foreground">Registro: {s.professional_id}</p>
                     </div>
                   </div>
                 ))}
-              </div>
-            ) : (
-              <div className="p-8 text-center space-y-2">
-                <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto opacity-50">
-                  <Activity className="w-6 h-6 text-muted-foreground" />
-                </div>
-                <p className="font-medium text-foreground">Nenhuma ferida registrada</p>
-                <p className="text-xs text-muted-foreground">Seu especialista irá registrar suas feridas aqui para acompanhamento.</p>
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* Raw JSON (for debugging) */}
-        <section className="bg-muted/50 rounded-2xl p-4">
-          <p className="text-xs font-mono text-muted-foreground mb-2">Raw API Response:</p>
-          <div className="space-y-4">
-            <div>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Profile:</p>
-              <pre className="text-xs font-mono text-foreground overflow-x-auto whitespace-pre-wrap break-all bg-card/50 p-2 rounded border border-border">
-                {JSON.stringify(profile, null, 2)}
-              </pre>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
+        {patient?.assigned_specialists && patient.assigned_specialists.length === 0 && (
+          <p className="text-xs text-muted-foreground text-center py-2">Você ainda não tem especialistas atribuídos.</p>
+        )}
       </main>
     </div>
   );
 }
 
-function MetricCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+/* ─── Sub-components ─── */
+
+function MetricChip({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="bg-muted/20 p-3 rounded-xl border border-border/50">
-      <div className="flex items-center gap-2 text-muted-foreground mb-1">
+    <div className="bg-muted/20 p-3 rounded-xl border border-border/40">
+      <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
         {icon}
         <span className="text-[10px] font-bold uppercase tracking-tight">{label}</span>
       </div>
-      <p className="text-lg font-bold text-primary">{value}</p>
+      <p className="text-base font-bold text-foreground truncate">{value}</p>
     </div>
   );
 }
 
-function DataRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between items-center py-1">
-      <span className="text-sm text-muted-foreground">{label}</span>
-      <span className="text-sm font-medium text-foreground">{value}</span>
-    </div>
-  );
-}
-
-function Badge({ label, code }: { label: string, code?: string }) {
+function Badge({ label, code }: { label: string; code?: string }) {
   return (
     <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-primary/10 text-primary border border-primary/20">
       {code && <span className="font-bold mr-1 opacity-70">[{code}]</span>}
       {label}
     </span>
   );
+}
+
+/* ─── Formatters ─── */
+
+function formatDate(dateStr: string | null): string {
+  if (!dateStr) return '—';
+  // Parse YYYY-MM-DD as local date (avoid UTC shift)
+  const [y, m, d] = dateStr.split('-').map(Number);
+  if (!y || !m || !d) return '—';
+  return new Date(y, m - 1, d).toLocaleDateString('pt-BR');
 }
 
 function formatSmoking(status: string | null) {
@@ -310,23 +375,13 @@ function formatSmoking(status: string | null) {
 
 function formatAlcohol(status: string | string[] | null) {
   if (!status || (Array.isArray(status) && status.length === 0)) return '—';
-  
   const maps: Record<string, string> = {
-    'NONE': 'Não bebe',
-    'EX': 'Ex-etilista',
-    'LT21_M': 'Menos de 21 doses/sem',
-    'GT21_M': 'Mais de 21 doses/sem',
-    'LT13_M': 'Menos de 13 latas/sem',
-    'GT13_M': 'Mais de 13 latas/sem',
-    'LT14_F': 'Menos de 14 doses/sem',
-    'GT14_F': 'Mais de 14 doses/sem',
-    'LT9_F': 'Menos de 9 latas/sem',
-    'GT9_F': 'Mais de 9 latas/sem',
+    'NONE': 'Não bebe', 'EX': 'Ex-etilista',
+    'LT21_M': 'Menos de 21 doses/sem', 'GT21_M': 'Mais de 21 doses/sem',
+    'LT13_M': 'Menos de 13 latas/sem', 'GT13_M': 'Mais de 13 latas/sem',
+    'LT14_F': 'Menos de 14 doses/sem', 'GT14_F': 'Mais de 14 doses/sem',
+    'LT9_F': 'Menos de 9 latas/sem', 'GT9_F': 'Mais de 9 latas/sem',
   };
-
-  if (Array.isArray(status)) {
-    return status.map(s => maps[s] || s).join(', ');
-  }
-
+  if (Array.isArray(status)) return status.map(s => maps[s] || s).join(', ');
   return maps[status] || status;
 }
