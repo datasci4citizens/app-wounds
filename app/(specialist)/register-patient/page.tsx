@@ -6,6 +6,7 @@ import { authenticatedFetch } from "@/store/authStore";
 import { handleApiResponse, ApiValidationError } from "@/lib/errors";
 import { ChevronLeft, CheckCircle2 } from "lucide-react";
 import { PatientForm, PatientFormData } from "@/components/PatientForm";
+import { toast } from "@/components/Toast";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -44,6 +45,7 @@ export default function RegisterPatientPage() {
 
       await handleApiResponse(response, 'Erro ao cadastrar paciente. Verifique os dados e tente novamente.');
 
+      toast("Paciente cadastrado com sucesso!");
       router.back();
     } catch (err) {
       if (err instanceof ApiValidationError) {
