@@ -11,31 +11,89 @@ function WoundDetailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const woundId = searchParams.get("id");
+  const specialistId = searchParams.get("specialistId");
+  const patientId = searchParams.get("patientId");
   const { user: currentUser } = useUserStore();
   
   const [observations, setObservations] = useState<Observation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadObservations = async () => {
-      if (!woundId) return;
+      // Guard: missing or invalid ID
+      if (!woundId || isNaN(parseInt(woundId))) {
+        setError("ID da ferida inválido ou ausente.");
+        setIsLoading(false);
+        return;
+      }
+
       try {
         const data = await fetchObservations(parseInt(woundId));
-        setObservations(data);
+        if (!cancelled) {
+          setObservations(data);
+          setError(null);
+
+          // Dismiss notifications for this specific wound
+          if (specialistId && woundId && typeof window !== "undefined") {
+            localStorage.setItem(
+              `specialist_seen_wound_${specialistId}_${woundId}`,
+              new Date().toISOString()
+            );
+          }
+        }
       } catch (err) {
-        console.error("Error loading observations:", err);
+        if (!cancelled) {
+          console.error("Error loading observations:", err);
+          setError(err instanceof Error ? err.message : "Erro ao carregar observações.");
+        }
       } finally {
-        setIsLoading(false);
+        if (!cancelled) {
+          setIsLoading(false);
+        }
       }
     };
     loadObservations();
+
+    return () => { cancelled = true; };
   }, [woundId]);
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="w-full max-w-lg flex flex-col flex-1 relative">
+        <header className="sticky top-0 z-20 flex items-center h-16 px-4 bg-background border-b border-border pt-safe">
+          <button
+            onClick={() => router.back()}
+            className="p-2 -ml-2 rounded-full hover:bg-muted active:bg-accent text-foreground transition-colors"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <h2 className="ml-2 font-bold text-foreground">Histórico da Ferida</h2>
+        </header>
+        <main className="flex-1 flex flex-col items-center justify-center px-6 py-20 text-center space-y-4">
+          <div className="w-14 h-14 bg-destructive/10 rounded-full flex items-center justify-center">
+            <Activity className="w-7 h-7 text-destructive" />
+          </div>
+          <p className="font-bold text-foreground">Erro ao carregar</p>
+          <p className="text-sm text-muted-foreground">{error}</p>
+          <button
+            onClick={() => router.back()}
+            className="px-5 py-2 bg-primary text-primary-foreground text-sm font-bold rounded-xl active:scale-95 transition-transform"
+          >
+            Voltar
+          </button>
+        </main>
       </div>
     );
   }
@@ -69,7 +127,11 @@ function WoundDetailContent() {
                   </div>
                   
                   {/* Content Card */}
-                  <div className="flex-1 bg-card border border-border rounded-2xl p-5 shadow-sm space-y-4">
+                  <div className={`flex-1 rounded-2xl p-5 space-y-4 ${
+                    obs.fever_24h
+                      ? "bg-card border-2 border-destructive/40 shadow-[0_0_20px_rgba(239,68,68,0.25)]"
+                      : "bg-card border border-border shadow-sm"
+                  }`}>
                       <div className="flex justify-between items-start border-b border-border/50 pb-3">
                           <div>
                               <p className="text-sm font-bold text-foreground">
@@ -97,8 +159,8 @@ function WoundDetailContent() {
 
                       <div className="space-y-2 pt-3 border-t border-border/50">
                           <div className="flex items-center gap-2">
-                              <Thermometer className={`w-3.5 h-3.5 ${obs.fever_24h ? 'text-status-error' : 'text-status-success'}`} />
-                              <span className="text-xs font-medium">Febre (24h): {obs.fever_24h ? 'Sim' : 'Não'}</span>
+                              <Thermometer className={`w-3.5 h-3.5 ${obs.fever_24h ? 'text-destructive' : 'text-status-success'}`} />
+                              <span className={`text-xs font-medium ${obs.fever_24h ? 'text-destructive font-bold' : ''}`}>Febre (24h): {obs.fever_24h ? 'Sim' : 'Não'}</span>
                           </div>
                           <div className="flex items-center gap-2">
                               <Droplets className="w-3.5 h-3.5 text-blue-500" />
