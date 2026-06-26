@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { createAppStorage } from '@/lib/storage';
 
 // Role values matching Django backend WoundsUser model
 export type UserRole = 'Pr' | 'Pa' | null; // Pr = Provider/Specialist, Pa = Patient
@@ -40,7 +41,7 @@ export const useUserStore = create<UserState>()(
     }),
     {
       name: 'user-storage',
-      storage: createJSONStorage(() => (typeof window !== 'undefined' ? localStorage : { getItem: () => null, setItem: () => {}, removeItem: () => {} })),
+      storage: createJSONStorage(createAppStorage),
     }
   )
 );

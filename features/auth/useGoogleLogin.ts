@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/authStore';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!;
+const OAUTH_REDIRECT_URI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI;
 
 interface BackendLoginResponse {
   access: string;
@@ -45,11 +46,14 @@ export const useGoogleLogin = () => {
     // For mobile platforms (Android/iOS), the redirect_uri must be an empty string
     // For web, it typically uses the origin or 'postmessage' (default in backend)
     const isNative = Capacitor.isNativePlatform();
-    const payload: any = { auth_code: authCode };
+    const payload: Record<string, string> = { auth_code: authCode };
     if (isNative) {
       payload.redirect_uri = '';
+    } else if (OAUTH_REDIRECT_URI) {
+      payload.redirect_uri = OAUTH_REDIRECT_URI;
     } else {
-      payload.redirect_uri = window.location.origin + window.location.pathname;
+      // Fallback for local development — derive from current origin
+      payload.redirect_uri = `${window.location.origin}/login`;
     }
 
     const response = await fetch(`${API_URL}/auth/google/`, {

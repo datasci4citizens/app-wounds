@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { createAppStorage } from '@/lib/storage';
 
 const IS_NGROK = process.env.NEXT_PUBLIC_API_URL?.includes('ngrok') ?? false;
 
@@ -25,7 +26,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
-      storage: createJSONStorage(() => (typeof window !== 'undefined' ? localStorage : { getItem: () => null, setItem: () => {}, removeItem: () => {} })),
+      storage: createJSONStorage(createAppStorage),
     }
   )
 );
