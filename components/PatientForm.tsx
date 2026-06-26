@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AsyncComorbiditySearch } from "@/components/AsyncComorbiditySearch";
 import type { Comorbidity } from "@/lib/types";
+import { formatPhone } from "@/lib/format";
 
 interface IBGEState {
   id: number;
@@ -143,15 +144,7 @@ export function PatientForm({
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let v = e.target.value.replace(/\D/g, "");
-    if (v.length > 11) v = v.substring(0, 11);
-    let formatted = v;
-    if (v.length > 2) formatted = `(${v.substring(0, 2)}) ${v.substring(2)}`;
-    if (v.length > 6) {
-      if (v.length === 11) formatted = `(${v.substring(0, 2)}) ${v.substring(2, 7)}-${v.substring(7)}`;
-      else formatted = `(${v.substring(0, 2)}) ${v.substring(2, 6)}-${v.substring(6)}`;
-    }
-    setFormData((prev) => ({ ...prev, contactPhone: formatted }));
+    setFormData((prev) => ({ ...prev, contactPhone: formatPhone(e.target.value) }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {

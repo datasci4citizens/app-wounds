@@ -8,6 +8,7 @@ import { handleApiResponse, ApiValidationError } from "@/lib/errors";
 import { ChevronLeft, CheckCircle2, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { formatPhone } from "@/lib/format";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -104,22 +105,7 @@ export default function RegisterSpecialistPage() {
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let v = e.target.value.replace(/\D/g, "");
-    if (v.length > 11) v = v.substring(0, 11);
-    
-    let formatted = v;
-    if (v.length > 2) {
-      formatted = `(${v.substring(0, 2)}) ${v.substring(2)}`;
-    }
-    if (v.length > 6) {
-      if (v.length === 11) {
-        formatted = `(${v.substring(0, 2)}) ${v.substring(2, 7)}-${v.substring(7)}`;
-      } else {
-        formatted = `(${v.substring(0, 2)}) ${v.substring(2, 6)}-${v.substring(6)}`;
-      }
-    }
-    
-    setFormData((prev) => ({ ...prev, professionalPhone: formatted }));
+    setFormData((prev) => ({ ...prev, professionalPhone: formatPhone(e.target.value) }));
     setError(null);
   };
 

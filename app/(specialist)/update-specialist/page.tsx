@@ -7,6 +7,7 @@ import { handleApiResponse, ApiValidationError } from "@/lib/errors";
 import { ChevronLeft, Loader2, Save } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { formatPhone } from "@/lib/format";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -314,18 +315,7 @@ function UpdateSpecialistContent() {
                 id="professionalPhone"
                 type="tel"
                 value={initialData.professionalPhone}
-                onChange={(e) => {
-                  let v = e.target.value.replace(/\D/g, "");
-                  if (v.length > 11) v = v.substring(0, 11);
-                  let formatted = v;
-                  if (v.length > 2) formatted = `(${v.substring(0, 2)}) ${v.substring(2)}`;
-                  if (v.length > 6) {
-                    formatted = v.length === 11
-                      ? `(${v.substring(0, 2)}) ${v.substring(2, 7)}-${v.substring(7)}`
-                      : `(${v.substring(0, 2)}) ${v.substring(2, 6)}-${v.substring(6)}`;
-                  }
-                  setInitialData(prev => prev ? { ...prev, professionalPhone: formatted } : null);
-                }}
+                onChange={(e) => setInitialData(prev => prev ? { ...prev, professionalPhone: formatPhone(e.target.value) } : null)}
                 maxLength={15}
                 placeholder="(00) 00000-0000"
                 disabled={isSubmitting}

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { PatientProfileReview } from "./PatientProfileReview";
 import { fetchWounds } from "@/lib/api";
 import type { Wound, UserProfile, Observation, AssignedSpecialist } from "@/lib/types";
+import { formatDate, formatSmoking, formatAlcohol } from "@/lib/format";
 
 interface PatientDashboardProps {
   profile: UserProfile;
@@ -315,37 +316,4 @@ function Badge({ label, code }: { label: string; code?: string }) {
       {label}
     </span>
   );
-}
-
-/* ─── Formatters ─── */
-
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return '—';
-  // Parse YYYY-MM-DD as local date (avoid UTC shift)
-  const [y, m, d] = dateStr.split('-').map(Number);
-  if (!y || !m || !d) return '—';
-  return new Date(y, m - 1, d).toLocaleDateString('pt-BR');
-}
-
-function formatSmoking(status: string | null) {
-  switch (status) {
-    case 'NEVER': return 'Não tabagista';
-    case 'LT10': return 'Menos de 10 cigarros/dia';
-    case 'GT10': return 'Mais de 10 cigarros/dia';
-    case 'EX': return 'Ex-tabagista';
-    default: return '—';
-  }
-}
-
-function formatAlcohol(status: string | string[] | null) {
-  if (!status || (Array.isArray(status) && status.length === 0)) return '—';
-  const maps: Record<string, string> = {
-    'NONE': 'Não bebe', 'EX': 'Ex-etilista',
-    'LT21_M': 'Menos de 21 doses/sem', 'GT21_M': 'Mais de 21 doses/sem',
-    'LT13_M': 'Menos de 13 latas/sem', 'GT13_M': 'Mais de 13 latas/sem',
-    'LT14_F': 'Menos de 14 doses/sem', 'GT14_F': 'Mais de 14 doses/sem',
-    'LT9_F': 'Menos de 9 latas/sem', 'GT9_F': 'Mais de 9 latas/sem',
-  };
-  if (Array.isArray(status)) return status.map(s => maps[s] || s).join(', ');
-  return maps[status] || status;
 }

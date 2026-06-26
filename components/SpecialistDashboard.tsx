@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { fetchWounds, fetchObservations } from "@/lib/api";
 import type { Wound, Observation, Patient, UserProfile, Comorbidity } from "@/lib/types";
+import { calculateAge, formatGender, formatSmoking, formatAlcohol } from "@/lib/format";
 
 const LS_LAST_CHECK_PREFIX = "specialist_last_check_";
 const LS_PATIENT_SEEN_PREFIX = "specialist_seen_patient_";
@@ -394,53 +395,6 @@ export function SpecialistDashboard({ profile, patients }: SpecialistDashboardPr
       </main>
     </div>
   );
-}
-
-/* ─── Helpers ─── */
-
-function calculateAge(birthDate: string | null): number | null {
-  if (!birthDate) return null;
-  const birth = new Date(birthDate);
-  if (isNaN(birth.getTime())) return null;
-  const today = new Date();
-  let age = today.getFullYear() - birth.getFullYear();
-  const m = today.getMonth() - birth.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-  return age;
-}
-
-function formatGender(g: string | null): string {
-  if (g === 'M') return 'Masc.';
-  if (g === 'F') return 'Fem.';
-  return '—';
-}
-
-function formatSmoking(status: string | null) {
-  switch (status) {
-    case 'NEVER': return 'Não tabagista';
-    case 'LT10': return '<10 cig/dia';
-    case 'GT10': return '>10 cig/dia';
-    case 'EX': return 'Ex-tabagista';
-    default: return '';
-  }
-}
-
-function formatAlcohol(status: string | string[] | null) {
-  if (!status || (Array.isArray(status) && status.length === 0)) return '';
-  const maps: Record<string, string> = {
-    'NONE': 'Não bebe',
-    'EX': 'Ex-etilista',
-    'LT21_M': '<21 doses/sem',
-    'GT21_M': '>21 doses/sem',
-    'LT13_M': '<13 latas/sem',
-    'GT13_M': '>13 latas/sem',
-    'LT14_F': '<14 doses/sem',
-    'GT14_F': '>14 doses/sem',
-    'LT9_F': '<9 latas/sem',
-    'GT9_F': '>9 latas/sem',
-  };
-  if (Array.isArray(status)) return status.map(s => maps[s] || s).join(', ');
-  return maps[status] || status;
 }
 
 /* ─── Patient Card ─── */
