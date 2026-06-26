@@ -1,7 +1,7 @@
 "use client";
 
 import { useLogout } from "@/features/auth/useLogout";
-import { LogOut, User, Activity, Calendar, MapPin, Heart, List, Users, Pencil, ChevronLeft, Camera, Clock, ChevronDown, ChevronUp, Wind, Wine } from "lucide-react";
+import { LogOut, User, Activity, Calendar, MapPin, Heart, List, Users, Pencil, ChevronLeft, Camera, Clock, ChevronDown, ChevronUp, Wind, Wine, Loader2 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { PatientProfileReview } from "./PatientProfileReview";
@@ -139,6 +139,13 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
 
       <main className="flex-1 px-5 py-6 space-y-5">
 
+        {isLoadingWounds ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        ) : (
+          <>
+
         {/* ─── Welcome ─── */}
         <section>
           <h2 className="text-xl font-bold text-foreground">
@@ -222,13 +229,8 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
           <ChevronLeft className="w-5 h-5 ml-auto rotate-180 text-muted-foreground" />
         </button>
 
-        {/* ─── Loading / Empty ─── */}
-        {isLoadingWounds && (
-          <div className="flex justify-center py-4">
-            <Activity className="w-6 h-6 animate-pulse text-muted-foreground" />
-          </div>
-        )}
-        {!isLoadingWounds && wounds.length === 0 && (
+        {/* ─── Empty state ─── */}
+        {wounds.length === 0 && (
           <div className="bg-white dark:bg-card rounded-2xl shadow-sm border border-border p-8 text-center space-y-3">
             <div className="w-14 h-14 bg-muted rounded-full flex items-center justify-center mx-auto">
               <Activity className="w-7 h-7 text-muted-foreground opacity-50" />
@@ -306,6 +308,9 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
 
         {patient?.assigned_specialists && patient.assigned_specialists.length === 0 && (
           <p className="text-xs text-muted-foreground text-center py-2">Você ainda não tem especialistas atribuídos.</p>
+        )}
+
+        </>
         )}
       </main>
     </div>

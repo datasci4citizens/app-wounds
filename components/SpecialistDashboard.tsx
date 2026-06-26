@@ -38,6 +38,12 @@ export function SpecialistDashboard({ profile, patients }: SpecialistDashboardPr
     <div className="flex flex-col min-h-screen bg-background">
       <title>Painel do Especialista - Cicatrizando</title>
 
+      {isNotifLoading ? (
+        <div className="flex items-center justify-center min-h-screen">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      ) : (
+        <>
       <header className="sticky top-0 z-10 flex items-center justify-between px-5 pt-8 pb-4 bg-white dark:bg-card border-b border-border shadow-sm">
         <div className="flex flex-col">
           <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-0.5">
@@ -69,12 +75,7 @@ export function SpecialistDashboard({ profile, patients }: SpecialistDashboardPr
               <p className="text-xs text-muted-foreground">Visão geral dos seus pacientes</p>
             </div>
           </div>
-          {isNotifLoading ? (
-            <div className="flex justify-center py-4">
-              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
-            </div>
-          ) : (
-            <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-3">
               <div className="bg-primary/5 rounded-xl p-3 text-center">
                 <p className="text-2xl font-bold text-primary">{metrics.totalPatients}</p>
                 <p className="text-[10px] font-bold uppercase text-muted-foreground leading-tight">Pacientes</p>
@@ -88,7 +89,6 @@ export function SpecialistDashboard({ profile, patients }: SpecialistDashboardPr
                 <p className="text-[10px] font-bold uppercase text-muted-foreground leading-tight">Novas atualizações</p>
               </div>
             </div>
-          )}
         </section>
 
         {/* Quick Action */}
@@ -144,6 +144,8 @@ export function SpecialistDashboard({ profile, patients }: SpecialistDashboardPr
           </section>
         )}
       </main>
+        </>
+      )}
     </div>
   );
 }
