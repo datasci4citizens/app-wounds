@@ -5,7 +5,7 @@ import { LogOut, User, Activity, Calendar, MapPin, Heart, List, Users, Pencil, C
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { PatientProfileReview } from "./PatientProfileReview";
-import { fetchWounds } from "@/lib/api";
+import { fetchWounds, fetchObservations } from "@/lib/api";
 import type { Wound, UserProfile, Observation, AssignedSpecialist } from "@/lib/types";
 import { formatDate, formatSmoking, formatAlcohol } from "@/lib/format";
 
@@ -30,24 +30,41 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
   const patient = profile.patient;
 
   useEffect(() => {
-    const getWounds = async () => {
+    let cancelled = false;
+
+    const load = async () => {
       try {
         const data = await fetchWounds();
+        if (cancelled) return;
         setWounds(data);
-        data.forEach(async (w) => {
-          try {
-            const { fetchObservations } = await import("@/lib/api");
-            const obs = await fetchObservations(w.id);
-            setObservationsCache(prev => ({ ...prev, [w.id]: obs }));
-          } catch { /* silently ignore */ }
+
+        // Fetch observations for all wounds in parallel with proper error handling
+        const results = await Promise.allSettled(
+          data.map(w => fetchObservations(w.id))
+        );
+        if (cancelled) return;
+
+        const cache: Record<number, Observation[]> = {};
+        data.forEach((w, i) => {
+          const r = results[i];
+          if (r.status === 'fulfilled') {
+            cache[w.id] = r.value as Observation[];
+          }
         });
+        setObservationsCache(cache);
       } catch (err) {
-        console.error("Error fetching wounds:", err);
+        if (!cancelled) {
+          console.error("Error fetching wounds:", err);
+        }
       } finally {
-        setIsLoadingWounds(false);
+        if (!cancelled) {
+          setIsLoadingWounds(false);
+        }
       }
     };
-    getWounds();
+    load();
+
+    return () => { cancelled = true; };
   }, []);
 
   const activeWounds = useMemo(() => wounds.filter(w => !w.is_healed), [wounds]);

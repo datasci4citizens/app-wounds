@@ -31,8 +31,8 @@ function PatientWoundsContent() {
 
   const isSpecialistView = !!patientId;
 
-  const loadWounds = async () => {
-    const data = await fetchWounds(patientId ? parseInt(patientId) : undefined);
+  const loadWounds = async (id: string | null) => {
+    const data = await fetchWounds(id ? parseInt(id) : undefined);
     setWounds(data);
   };
 
@@ -102,7 +102,7 @@ function PatientWoundsContent() {
       });
       setIsAdding(false);
       setNewWound({ etiology: "", location: "" });
-      loadWounds();
+      loadWounds(patientId);
     } catch (err) {
       console.error("Error creating wound:", err);
     } finally {
