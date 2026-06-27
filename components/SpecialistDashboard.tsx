@@ -7,6 +7,7 @@ import { useMemo } from "react";
 import type { Patient, UserProfile } from "@/lib/types";
 import { useSpecialistNotifications } from "@/hooks/useSpecialistNotifications";
 import { PatientList } from "@/components/PatientList";
+import { useNavigationContext } from "@/store/navigationStore";
 
 interface SpecialistDashboardProps {
   profile: UserProfile;
@@ -16,6 +17,7 @@ interface SpecialistDashboardProps {
 export function SpecialistDashboard({ profile, patients }: SpecialistDashboardProps) {
   const router = useRouter();
   const { logout } = useLogout();
+  const setContext = useNavigationContext((s) => s.setContext);
 
   const {
     allWounds,
@@ -115,7 +117,8 @@ export function SpecialistDashboard({ profile, patients }: SpecialistDashboardPr
           patientNewObsMap={patientNewObsMap}
           patientHasFever={patientHasFever}
           onViewWounds={(p) => {
-            router.push(`/patient-wounds?id=${p.id}&specialistId=${profile.id}&since=${encodeURIComponent(thresholdRef.current)}`);
+            setContext({ specialistId: profile.id, threshold: thresholdRef.current });
+            router.push(`/patient-wounds?id=${p.id}`);
           }}
           onEdit={(p) => router.push(`/update-patient?id=${p.id}`)}
         />

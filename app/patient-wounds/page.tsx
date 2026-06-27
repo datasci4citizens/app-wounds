@@ -1,24 +1,20 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { fetchWounds, fetchObservations, createWound } from "@/lib/api";
 import type { Wound, Observation } from "@/lib/types";
 import { lastCheckKey, patientSeenKey, woundSeenKey } from "@/lib/storage-keys";
+import { useNavigationContext } from "@/store/navigationStore";
+import { useNumericParam } from "@/hooks/useNumericParam";
 import { ChevronLeft, Plus, Activity, MapPin, Loader2, CheckCircle2, Bell, Thermometer } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 function PatientWoundsContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const patientId = searchParams.get("id");
-  const specialistId = searchParams.get("specialistId");
-  const sinceParam = searchParams.get("since");
-
-  // Parse and validate patientId once
-  const parsedPatientId = patientId ? parseInt(patientId) : null;
-  const isInvalidId = patientId !== null && (parsedPatientId === null || isNaN(parsedPatientId));
+  const patientId = useNumericParam("id");
+  const { specialistId, threshold: sinceParam } = useNavigationContext();
   
   const [wounds, setWounds] = useState<Wound[]>([]);
   const [woundNewObs, setWoundNewObs] = useState<Record<number, number>>({});
@@ -33,7 +29,7 @@ function PatientWoundsContent() {
     location: ""
   });
 
-  const isSpecialistView = !!patientId;
+  const isSpecialistView = patientId !== null;
 
   const loadWounds = async (id: number | null) => {
     const data = await fetchWounds(id ?? undefined);
@@ -45,7 +41,7 @@ function PatientWoundsContent() {
       setIsLoading(true);
       setError(null);
       try {
-        const data = await fetchWounds(parsedPatientId ?? undefined);
+        const data = await fetchWounds(patientId ?? undefined);
         setWounds(data);
 
         // If specialist viewing, check for new observations per wound
@@ -96,17 +92,17 @@ function PatientWoundsContent() {
 
   const handleCreateWound = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (parsedPatientId === null || isInvalidId) return;
+    if (patientId === null) return;
     setIsSubmitting(true);
     try {
       await createWound({
-        patient: parsedPatientId,
+        patient: patientId,
         etiology: newWound.etiology,
         location: newWound.location
       });
       setIsAdding(false);
       setNewWound({ etiology: "", location: "" });
-      loadWounds(parsedPatientId);
+      loadWounds(patientId);
     } catch (err) {
       console.error("Error creating wound:", err);
     } finally {
@@ -118,29 +114,6 @@ function PatientWoundsContent() {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (isInvalidId) {
-    return (
-      <div className="w-full max-w-lg flex flex-col flex-1 relative">
-        <header className="sticky top-0 z-20 flex items-center h-16 px-4 bg-background border-b border-border pt-safe">
-          <button onClick={() => router.back()} className="p-2 -ml-2 rounded-full hover:bg-muted active:bg-accent text-foreground transition-colors">
-            <ChevronLeft className="w-6 h-6" />
-          </button>
-          <h2 className="ml-2 font-bold text-foreground">Feridas do Paciente</h2>
-        </header>
-        <main className="flex-1 flex flex-col items-center justify-center px-6 py-20 text-center space-y-4">
-          <div className="w-14 h-14 bg-destructive/10 rounded-full flex items-center justify-center">
-            <Activity className="w-7 h-7 text-destructive" />
-          </div>
-          <p className="font-bold text-foreground">ID inválido</p>
-          <p className="text-sm text-muted-foreground">O identificador do paciente não é válido.</p>
-          <button onClick={() => router.back()} className="px-5 py-2 bg-primary text-primary-foreground text-sm font-bold rounded-xl active:scale-95 transition-transform">
-            Voltar
-          </button>
-        </main>
       </div>
     );
   }
