@@ -149,7 +149,7 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
         {/* ─── Welcome ─── */}
         <section>
           <h2 className="text-xl font-bold text-foreground">
-            {profile.name ? `Olá, ${profile.name}!` : "Olá!"}
+            {profile.name ? `Olá, ${profile.name.split(' ')[0]}!` : "Olá!"}
           </h2>
         </section>
 

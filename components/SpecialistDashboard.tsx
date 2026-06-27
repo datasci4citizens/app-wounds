@@ -61,7 +61,7 @@ export function SpecialistDashboard({ profile, patients }: SpecialistDashboardPr
       <main className="flex-1 px-5 py-6 space-y-5">
         <section>
           <h2 className="text-xl font-bold text-foreground">
-            {profile.name ? `Olá, ${profile.name}!` : "Olá!"}
+            {profile.name ? `Olá, ${profile.name.split(' ')[0]}!` : "Olá!"}
           </h2>
           <p className="text-sm text-muted-foreground">Resumo dos seus pacientes e feridas.</p>
         </section>

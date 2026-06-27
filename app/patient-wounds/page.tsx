@@ -7,7 +7,7 @@ import type { Wound, Observation } from "@/lib/types";
 import { lastCheckKey, patientSeenKey, woundSeenKey } from "@/lib/storage-keys";
 import { useNavigationContext } from "@/store/navigationStore";
 import { useNumericParam } from "@/hooks/useNumericParam";
-import { ChevronLeft, Plus, Activity, MapPin, Loader2, CheckCircle2, Bell, Thermometer } from "lucide-react";
+import { ChevronLeft, Activity, MapPin, Loader2, CheckCircle2, Bell, Thermometer } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -151,8 +151,8 @@ function PatientWoundsContent() {
           <h2 className="ml-2 font-bold text-foreground">Feridas do Paciente</h2>
         </div>
         {isSpecialistView && !isAdding && (
-          <button onClick={() => setIsAdding(true)} className="p-2 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
-            <Plus className="w-5 h-5" />
+          <button onClick={() => setIsAdding(true)} className="ml-auto bg-primary text-primary-foreground text-[10px] font-bold px-3 py-1.5 rounded-lg active:scale-95 transition-transform">
+            NOVA FERIDA
           </button>
         )}
       </header>
