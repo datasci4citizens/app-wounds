@@ -14,7 +14,6 @@ function WoundDetailContent() {
   const searchParams = useSearchParams();
   const woundId = searchParams.get("id");
   const specialistId = searchParams.get("specialistId");
-  const patientId = searchParams.get("patientId");
   const { user: currentUser } = useUserStore();
   
   const [observations, setObservations] = useState<Observation[]>([]);

@@ -1,5 +1,3 @@
-import type { Comorbidity } from "@/lib/types";
-
 export class ApiValidationError extends Error {
   public fieldErrors: Record<string, string[]>;
 

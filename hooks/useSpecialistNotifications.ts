@@ -65,6 +65,9 @@ export function useSpecialistNotifications(
       thresholdRef.current = lastCheck.toISOString();
 
       // 3. Fetch observations for all wounds
+      // TODO: Replace with a backend aggregate endpoint
+      // (e.g. GET /specialist/dashboard-stats/?since=...)
+      // to avoid N×M requests for larger patient panels.
       const obsResults = await Promise.allSettled(
         wounds.map(w => fetchObservations(w.id))
       );

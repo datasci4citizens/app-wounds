@@ -263,8 +263,8 @@ export function PatientDashboard({ profile: initialProfile }: PatientDashboardPr
                 <MetricChip icon={<Activity className="w-3.5 h-3.5" />} label="Peso" value={patient?.weight ? `${patient.weight}kg` : '—'} />
                 <MetricChip icon={<Calendar className="w-3.5 h-3.5" />} label="Nascimento" value={formatDate(profile.birth_date)} />
                 <MetricChip icon={<MapPin className="w-3.5 h-3.5" />} label="Localidade" value={profile.city && profile.state ? `${profile.city} - ${profile.state}` : profile.city || profile.state || '—'} />
-                <MetricChip icon={<Wind className="w-3.5 h-3.5" />} label="Tabagismo" value={formatSmoking(patient?.smoking_status ?? null)} />
-                <MetricChip icon={<Wine className="w-3.5 h-3.5" />} label="Álcool" value={formatAlcohol(patient?.alcohol_consumption ?? null)} />
+                <MetricChip icon={<Wind className="w-3.5 h-3.5" />} label="Tabagismo" value={formatSmoking(patient?.smoking_status ?? null) || '—'} />
+                <MetricChip icon={<Wine className="w-3.5 h-3.5" />} label="Álcool" value={formatAlcohol(patient?.alcohol_consumption ?? null) || '—'} />
               </div>
               <div className="pt-2 border-t border-border">
                 <p className="text-[10px] font-bold text-muted-foreground uppercase mb-2 flex items-center gap-1">

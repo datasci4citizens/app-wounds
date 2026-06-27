@@ -1,11 +1,10 @@
 import { authenticatedFetch } from "@/store/authStore";
 import { handleApiResponse } from "@/lib/errors";
-import type { Wound, Observation, Patient } from "@/lib/types";
+import type { Wound, Observation } from "@/lib/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-// Re-export types for convenience
-export type { Wound, Observation, Patient };
+export type { Wound, Observation };
 
 export const fetchWounds = async (patientId?: number): Promise<Wound[]> => {
   const url = patientId 
@@ -21,16 +20,6 @@ export const fetchObservations = async (woundId: number): Promise<Observation[]>
   const response = await authenticatedFetch(`${API_URL}/wounds/${woundId}/observations/`);
   if (!response.ok) throw new Error("Failed to fetch observations");
   return response.json();
-};
-
-export const fetchPatientById = async (patientId: number): Promise<Patient> => {
-  // Fetch all patients for the current specialist and find the one we need
-  const response = await authenticatedFetch(`${API_URL}/specialist/patients/`);
-  if (!response.ok) throw new Error("Failed to fetch patient");
-  const patients: Patient[] = await response.json();
-  const patient = patients.find((p) => p.id === patientId);
-  if (!patient) throw new Error("Patient not found");
-  return patient;
 };
 
 export const createWound = async (data: Partial<Wound>): Promise<Wound> => {
