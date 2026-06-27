@@ -54,16 +54,16 @@ export default function RoleSelectionPage() {
           </button>
 
           <button
-            disabled
-            className="w-full flex items-center p-4 border border-border rounded-2xl bg-muted/50 dark:bg-muted/20 cursor-not-allowed opacity-60 text-left shadow-sm"
+            onClick={() => router.push("/patient-info")}
+            className="w-full flex items-center p-4 border border-border rounded-2xl bg-white dark:bg-card active:scale-[0.98] transition-all group text-left shadow-sm"
           >
-            <div className="w-14 h-14 bg-muted text-muted-foreground rounded-xl flex items-center justify-center mr-4">
+            <div className="w-14 h-14 bg-primary/10 text-primary rounded-xl flex items-center justify-center mr-4 transition-colors">
               <UserCircle className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-lg font-bold font-heading text-muted-foreground">Paciente</h2>
+              <h2 className="text-lg font-bold font-heading text-foreground transition-colors">Paciente</h2>
               <p className="text-sm text-muted-foreground leading-tight">
-                Em breve
+                Acesso via convite do especialista
               </p>
             </div>
           </button>

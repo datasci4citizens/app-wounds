@@ -59,7 +59,7 @@ export function SpecialistDashboard({ profile, patients }: SpecialistDashboardPr
       <main className="flex-1 px-5 py-6 space-y-5">
         <section>
           <h2 className="text-xl font-bold text-foreground">
-            {profile.name ? `Olá, Dr(a). ${profile.name}!` : "Olá!"}
+            {profile.name ? `Olá, ${profile.name}!` : "Olá!"}
           </h2>
           <p className="text-sm text-muted-foreground">Resumo dos seus pacientes e feridas.</p>
         </section>
@@ -129,7 +129,7 @@ export function SpecialistDashboard({ profile, patients }: SpecialistDashboardPr
                 <h2 className="font-bold text-foreground">Dados Profissionais</h2>
               </div>
               <button
-                onClick={() => router.push("/register-specialist")}
+                onClick={() => router.push("/update-specialist")}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-all active:scale-95 text-xs font-bold"
               >
                 <PencilIcon className="w-3 h-3" />
