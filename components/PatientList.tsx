@@ -166,7 +166,7 @@ function PatientCard({
 
         {/* Clinical info — dot-separated, wraps to fill width */}
         {parts.length > 0 && (
-          <p className="text-[11px] text-muted-foreground leading-relaxed mt-2 flex flex-wrap items-center gap-x-1">
+          <p className="text-sm text-muted-foreground leading-relaxed mt-2 flex flex-wrap items-center gap-x-1">
             {parts.reduce((acc, part, i) => (
               <>{acc}{i > 0 && <Dot />}{part}</>
             ), null as React.ReactNode)}
