@@ -8,6 +8,7 @@ import { ChevronLeft, Loader2, Save } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatPhone } from "@/lib/format";
+import { toast } from "@/components/Toast";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -127,6 +128,7 @@ function UpdateSpecialistContent() {
 
       await handleApiResponse(response, "Erro ao atualizar dados. Verifique e tente novamente.");
 
+      toast("Dados profissionais atualizados com sucesso!");
       router.back();
     } catch (err) {
       if (err instanceof ApiValidationError) {

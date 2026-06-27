@@ -6,6 +6,7 @@ import { authenticatedFetch } from "@/store/authStore";
 import { handleApiResponse, ApiValidationError } from "@/lib/errors";
 import { ChevronLeft, Loader2, Save } from "lucide-react";
 import { PatientForm, PatientFormData } from "@/components/PatientForm";
+import { toast } from "@/components/Toast";
 import type { Comorbidity } from "@/lib/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -88,6 +89,7 @@ function UpdatePatientContent() {
 
       await handleApiResponse(response, 'Erro ao atualizar paciente. Verifique os dados e tente novamente.');
 
+      toast("Paciente atualizado com sucesso!");
       router.back();
     } catch (err) {
       if (err instanceof ApiValidationError) {
