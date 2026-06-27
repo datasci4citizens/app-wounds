@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Users, Search, Activity, Pencil, Bell, Thermometer, Calendar, Ruler, Weight, Wind, Wine, MapPin, User } from "lucide-react";
+import { Users, Search, Activity, Pencil, Bell, Thermometer, Calendar, Ruler, Weight, Wind, Wine, MapPin } from "lucide-react";
 import type { Patient, Comorbidity } from "@/lib/types";
 import { calculateAge, formatGender, formatSmoking, formatAlcohol } from "@/lib/format";
 
@@ -151,50 +151,44 @@ function PatientCard({
           )}
         </div>
 
-        {/* Clinical info grid */}
-        <div className="grid grid-cols-3 gap-1.5 mt-3">
-          {age !== null && (
-            <MiniMetric icon={<Calendar className="w-2.5 h-2.5" />} label="Idade" value={`${age}a`} />
+        {/* Clinical info — dot-separated rows */}
+        <div className="space-y-1 mt-2">
+          {/* Row 1: age, gender, location */}
+          {(age !== null || patient.gender || patient.city || patient.state) && (
+            <p className="text-[11px] text-muted-foreground leading-snug">
+              {age !== null && <><Calendar className="w-3 h-3 inline -mt-0.5" /> {age}a</>}
+              {age !== null && (patient.gender || patient.city || patient.state) && <Dot />}
+              {patient.gender && <>{formatGender(patient.gender)}</>}
+              {patient.gender && (patient.city || patient.state) && <Dot />}
+              {(patient.city || patient.state) && <><MapPin className="w-3 h-3 inline -mt-0.5" /> {patient.city || ''}{patient.state ? ` - ${patient.state}` : ''}</>}
+            </p>
           )}
-          {patient.gender && (
-            <MiniMetric icon={<User className="w-2.5 h-2.5" />} label="Sexo" value={formatGender(patient.gender)} />
+
+          {/* Row 2: height, weight */}
+          {(patient.height != null || patient.weight != null) && (
+            <p className="text-[11px] text-muted-foreground leading-snug">
+              {patient.height != null && <><Ruler className="w-3 h-3 inline -mt-0.5" /> {patient.height}m</>}
+              {patient.height != null && patient.weight != null && <Dot />}
+              {patient.weight != null && <><Weight className="w-3 h-3 inline -mt-0.5" /> {patient.weight}kg</>}
+            </p>
           )}
-          {(patient.city || patient.state) ? (
-            <MiniMetric icon={<MapPin className="w-2.5 h-2.5" />} label="Local" value={`${patient.city || ''}${patient.state ? `-${patient.state}` : ''}`} />
-          ) : (
-            <div />
+
+          {/* Row 3: habits */}
+          {(smoking || alcohol) && (
+            <p className="text-[11px] text-muted-foreground leading-snug">
+              {smoking && <><Wind className="w-3 h-3 inline -mt-0.5" /> {smoking}</>}
+              {smoking && alcohol && <Dot />}
+              {alcohol && <><Wine className="w-3 h-3 inline -mt-0.5" /> {alcohol}</>}
+            </p>
           )}
-          {patient.height != null ? (
-            <MiniMetric icon={<Ruler className="w-2.5 h-2.5" />} label="Altura" value={`${patient.height}m`} />
-          ) : (
-            <div />
-          )}
-          {patient.weight != null ? (
-            <MiniMetric icon={<Weight className="w-2.5 h-2.5" />} label="Peso" value={`${patient.weight}kg`} />
-          ) : (
-            <div />
-          )}
-          {smoking ? (
-            <MiniMetric icon={<Wind className="w-2.5 h-2.5" />} label="Tabagismo" value={smoking} />
-          ) : (
-            <div />
-          )}
-          {alcohol ? (
-            <MiniMetric icon={<Wine className="w-2.5 h-2.5" />} label="Álcool" value={alcohol} />
-          ) : (
-            <div />
+
+          {/* Comorbidities */}
+          {patient.comorbidities && patient.comorbidities.length > 0 && (
+            <p className="text-[11px] text-muted-foreground leading-snug">
+              {patient.comorbidities.map((c: Comorbidity) => c.name).join(', ')}
+            </p>
           )}
         </div>
-
-        {patient.comorbidities && patient.comorbidities.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-2">
-            {patient.comorbidities.map((c: Comorbidity) => (
-              <span key={c.concept_id} className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-medium bg-muted/60 text-muted-foreground border border-border/40 whitespace-nowrap">
-                {c.name}
-              </span>
-            ))}
-          </div>
-        )}
       </div>
 
       <div className="grid grid-cols-2 border-t border-border">
@@ -213,14 +207,6 @@ function PatientCard({
   );
 }
 
-function MiniMetric({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-  return (
-    <div className="bg-muted/20 p-1.5 rounded-lg border border-border/30 text-center">
-      <div className="flex items-center justify-center gap-1 text-muted-foreground mb-0.5">
-        {icon}
-        <span className="text-[8px] font-bold uppercase tracking-tight truncate">{label}</span>
-      </div>
-      <p className="text-[11px] font-bold text-foreground truncate leading-tight">{value}</p>
-    </div>
-  );
+function Dot() {
+  return <span className="mx-1 text-muted-foreground/40 select-none">·</span>;
 }
