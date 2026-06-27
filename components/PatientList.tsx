@@ -47,6 +47,8 @@ export function PatientList({
     return list;
   }, [patients, patientWoundMap, patientNewObsMap, patientHasFever, searchQuery]);
 
+  const INITIAL_LIMIT = 5;
+
   return (
     <section className="bg-white dark:bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
       <div className="flex items-center gap-3 p-4 border-b border-border bg-muted/30">
@@ -82,7 +84,7 @@ export function PatientList({
 
       <div className="p-4">
         {filteredPatients.length > 0 ? (
-          <div className="space-y-3">
+          <div className={`space-y-3 ${filteredPatients.length > INITIAL_LIMIT && !searchQuery ? 'max-h-[420px] overflow-y-auto no-scrollbar' : ''}`}>
             {filteredPatients.map((p) => (
               <PatientCard
                 key={p.id}
