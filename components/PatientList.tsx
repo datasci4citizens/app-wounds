@@ -132,6 +132,19 @@ function PatientCard({
   const smoking = formatSmoking(patient.smoking_status);
   const alcohol = formatAlcohol(patient.alcohol_consumption);
 
+  const parts: React.ReactNode[] = [];
+
+  if (age !== null) parts.push(<span key="age" className="inline-flex items-center gap-1"><Calendar className="w-3 h-3" /> {age}a</span>);
+  if (patient.gender) parts.push(<span key="gender">{formatGender(patient.gender)}</span>);
+  if (patient.city || patient.state) parts.push(<span key="loc" className="inline-flex items-center gap-1"><MapPin className="w-3 h-3" /> {patient.city || ''}{patient.state ? ` - ${patient.state}` : ''}</span>);
+  if (patient.height != null) parts.push(<span key="h" className="inline-flex items-center gap-1"><Ruler className="w-3 h-3" /> {patient.height}m</span>);
+  if (patient.weight != null) parts.push(<span key="w" className="inline-flex items-center gap-1"><Weight className="w-3 h-3" /> {patient.weight}kg</span>);
+  if (smoking) parts.push(<span key="smoke" className="inline-flex items-center gap-1"><Wind className="w-3 h-3" /> {smoking}</span>);
+  if (alcohol) parts.push(<span key="alc" className="inline-flex items-center gap-1"><Wine className="w-3 h-3" /> {alcohol}</span>);
+  if (patient.comorbidities && patient.comorbidities.length > 0) {
+    parts.push(<span key="comorb">{patient.comorbidities.map((c: Comorbidity) => c.name).join(', ')}</span>);
+  }
+
   return (
     <div className="border border-border rounded-xl bg-muted/5 overflow-hidden">
       <div className="p-4">
@@ -151,44 +164,14 @@ function PatientCard({
           )}
         </div>
 
-        {/* Clinical info — dot-separated rows */}
-        <div className="space-y-1 mt-2">
-          {/* Row 1: age, gender, location */}
-          {(age !== null || patient.gender || patient.city || patient.state) && (
-            <p className="text-[11px] text-muted-foreground leading-snug">
-              {age !== null && <><Calendar className="w-3 h-3 inline -mt-0.5" /> {age}a</>}
-              {age !== null && (patient.gender || patient.city || patient.state) && <Dot />}
-              {patient.gender && <>{formatGender(patient.gender)}</>}
-              {patient.gender && (patient.city || patient.state) && <Dot />}
-              {(patient.city || patient.state) && <><MapPin className="w-3 h-3 inline -mt-0.5" /> {patient.city || ''}{patient.state ? ` - ${patient.state}` : ''}</>}
-            </p>
-          )}
-
-          {/* Row 2: height, weight */}
-          {(patient.height != null || patient.weight != null) && (
-            <p className="text-[11px] text-muted-foreground leading-snug">
-              {patient.height != null && <><Ruler className="w-3 h-3 inline -mt-0.5" /> {patient.height}m</>}
-              {patient.height != null && patient.weight != null && <Dot />}
-              {patient.weight != null && <><Weight className="w-3 h-3 inline -mt-0.5" /> {patient.weight}kg</>}
-            </p>
-          )}
-
-          {/* Row 3: habits */}
-          {(smoking || alcohol) && (
-            <p className="text-[11px] text-muted-foreground leading-snug">
-              {smoking && <><Wind className="w-3 h-3 inline -mt-0.5" /> {smoking}</>}
-              {smoking && alcohol && <Dot />}
-              {alcohol && <><Wine className="w-3 h-3 inline -mt-0.5" /> {alcohol}</>}
-            </p>
-          )}
-
-          {/* Comorbidities */}
-          {patient.comorbidities && patient.comorbidities.length > 0 && (
-            <p className="text-[11px] text-muted-foreground leading-snug">
-              {patient.comorbidities.map((c: Comorbidity) => c.name).join(', ')}
-            </p>
-          )}
-        </div>
+        {/* Clinical info — dot-separated, wraps to fill width */}
+        {parts.length > 0 && (
+          <p className="text-[11px] text-muted-foreground leading-relaxed mt-2 flex flex-wrap items-center gap-x-1">
+            {parts.reduce((acc, part, i) => (
+              <>{acc}{i > 0 && <Dot />}{part}</>
+            ), null as React.ReactNode)}
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-2 border-t border-border">
