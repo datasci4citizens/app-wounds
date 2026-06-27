@@ -23,6 +23,7 @@ export function PatientList({
   onEdit,
 }: PatientListProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [showAll, setShowAll] = useState(false);
 
   const filteredPatients = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
@@ -48,6 +49,10 @@ export function PatientList({
   }, [patients, patientWoundMap, patientNewObsMap, patientHasFever, searchQuery]);
 
   const INITIAL_LIMIT = 5;
+
+  const visiblePatients = showAll || searchQuery
+    ? filteredPatients
+    : filteredPatients.slice(0, INITIAL_LIMIT);
 
   return (
     <section className="bg-white dark:bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
@@ -84,8 +89,9 @@ export function PatientList({
 
       <div className="p-4">
         {filteredPatients.length > 0 ? (
-          <div className={`space-y-3 ${filteredPatients.length > INITIAL_LIMIT && !searchQuery ? 'max-h-[420px] overflow-y-auto no-scrollbar' : ''}`}>
-            {filteredPatients.map((p) => (
+          <>
+            <div className="space-y-3">
+            {visiblePatients.map((p) => (
               <PatientCard
                 key={p.id}
                 patient={p}
@@ -97,6 +103,16 @@ export function PatientList({
               />
             ))}
           </div>
+
+            {!showAll && !searchQuery && filteredPatients.length > INITIAL_LIMIT && (
+              <button
+                onClick={() => setShowAll(true)}
+                className="w-full mt-3 py-2.5 text-sm font-medium text-primary hover:bg-primary/5 rounded-xl transition-colors active:bg-primary/10"
+              >
+                Ver todos ({filteredPatients.length})
+              </button>
+            )}
+          </>
         ) : (
           <div className="py-8 text-center space-y-2">
             <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto">
