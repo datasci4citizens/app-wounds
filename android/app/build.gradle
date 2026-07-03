@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "br.unicamp.ic.cicatrizando"
+    namespace = "br.unicamp.ic.wounds"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "br.unicamp.ic.cicatrizando"
+        applicationId "br.unicamp.ic.wounds"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode 2001
+        versionName "2.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
