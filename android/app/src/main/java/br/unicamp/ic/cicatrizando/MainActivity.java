@@ -1,4 +1,4 @@
-package br.unicamp.ic.cicatrizando;
+package br.unicamp.ic.wounds;
 
 import ee.forgr.capacitor.social.login.GoogleProvider;
 import ee.forgr.capacitor.social.login.SocialLoginPlugin;
