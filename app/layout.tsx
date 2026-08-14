@@ -7,6 +7,9 @@ import { cn } from "@/lib/utils";
 import { AndroidBackButtonHandler } from "@/components/AndroidBackButtonHandler";
 import { ToastContainer } from "@/components/Toast";
 
+import { Capacitor } from "@capacitor/core";
+import { Fullscreen } from "@boengli/capacitor-fullscreen";
+
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-sans',
@@ -24,6 +27,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       defineCustomElements(window);
     };
     registerPWAElements();
+
+    const setupFullscreen = async () => {
+      if (Capacitor.isNativePlatform()) {
+        try {
+          await Fullscreen.activateImmersiveMode();
+        } catch (error) {
+          console.warn('Erro ao inicializar modo imersivo:', error);
+        }
+      }
+    };
+    setupFullscreen();
   }, []);
 
   return (

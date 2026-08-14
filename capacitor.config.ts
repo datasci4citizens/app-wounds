@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 import 'dotenv/config'; // Isso faz o Node ler o seu arquivo .env automaticamente!
 
 const config: CapacitorConfig = {
-  appId: 'br.unicamp.ic.cicatrizando',
+  appId: 'br.unicamp.ic.wounds',
   appName: 'Cicatrizando',
   webDir: 'out',
   plugins: {
