@@ -72,6 +72,19 @@ export interface UserProfile {
   patient?: Patient | null;
 }
 
+/**
+ * Mapeia o role retornado pela API (/auth/me/, 'specialist'|'patient') para o
+ * tipo usado internamente pelo frontend ('Pr'|'Pa', espelhando o banco Django).
+ *
+ * Fonte da verdade para checks de UI e privacidade: UserRole ('Pr'/'Pa') do store.
+ * UserProfile.role é apenas a representação da resposta da API.
+ */
+export const mapApiRoleToStoreRole = (role: 'specialist' | 'patient' | null): 'Pr' | 'Pa' | null => {
+  if (role === 'specialist') return 'Pr';
+  if (role === 'patient') return 'Pa';
+  return null;
+};
+
 /** A wound record from the /wounds/ endpoint */
 export interface Wound {
   id: number;
@@ -92,10 +105,18 @@ export interface Observation {
   author_role: string;
   created_at: string;
   pain_level: number;
+  pain_increased?: boolean;
+  odor_change?: boolean;
+  has_exudate?: boolean;
+  exudate_increased?: boolean;
+  change_in_exudate_color?: boolean;
+  exudate_color?: string;
+  has_swelling?: boolean;
+  redness_increased?: boolean;
   exudate_amount: string;
   exudate_type: string;
   tissue_type: string;
-  dressing_changes: number;
+  dressing_changes: number | null;
   periwound_skin: string;
   wound_edge: string;
   fever_24h: boolean;

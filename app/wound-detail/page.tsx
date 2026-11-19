@@ -6,7 +6,7 @@ import { fetchObservations } from "@/lib/api";
 import type { Observation } from "@/lib/types";
 import { woundSeenKey } from "@/lib/storage-keys";
 import { useUserStore } from "@/store/userStore";
-import { ChevronLeft, Activity, Calendar, User, Clock, Loader2, MessageSquare, Thermometer, Droplets, ZoomIn } from "lucide-react";
+import { ChevronLeft, Activity, Calendar, User, Clock, Loader2, MessageSquare, Thermometer, Droplets, ZoomIn, Wind, MoveHorizontal } from "lucide-react";
 import { ImageViewer } from "@/components/ImageViewer";
 
 function WoundDetailContent() {
@@ -153,9 +153,23 @@ function WoundDetailContent() {
 
                       <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                           <MetricItem label="Dor" value={`${obs.pain_level}/10`} color="text-status-error" />
-                          <MetricItem label="Exsudato" value={obs.exudate_amount} />
-                          <MetricItem label="Tecido" value={obs.tissue_type} />
-                          <MetricItem label="Trocas/Dia" value={obs.dressing_changes.toString()} />
+                          {obs.pain_increased && (
+                              <MetricItem label="Dor piorou" value="Sim" color="text-status-error" />
+                          )}
+                          <MetricItem label="Trocas/Dia" value={obs.dressing_changes != null ? String(obs.dressing_changes) : "—"} />
+                          {obs.exudate_amount ? <MetricItem label="Exsudato" value={obs.exudate_amount} /> : null}
+                          {obs.tissue_type ? <MetricItem label="Tecido" value={obs.tissue_type} /> : null}
+                          {obs.redness_increased && (
+                              <MetricItem
+                                  label="Vermelhidão"
+                                  value={obs.periwound_skin === "Eritema maior que 2 cm"
+                                      ? "Sim · acima de 2 cm"
+                                      : obs.periwound_skin === "Eritema menor que 2 cm"
+                                          ? "Sim · até 2 cm"
+                                          : "Sim"}
+                                  color="text-status-warning"
+                              />
+                          )}
                       </div>
 
                       <div className="space-y-2 pt-3 border-t border-border/50">
@@ -163,10 +177,34 @@ function WoundDetailContent() {
                               <Thermometer className={`w-3.5 h-3.5 ${obs.fever_24h ? 'text-destructive' : 'text-status-success'}`} />
                               <span className={`text-xs font-medium ${obs.fever_24h ? 'text-destructive font-bold' : ''}`}>Febre (24h): {obs.fever_24h ? 'Sim' : 'Não'}</span>
                           </div>
-                          <div className="flex items-center gap-2">
-                              <Droplets className="w-3.5 h-3.5 text-blue-500" />
-                              <span className="text-xs font-medium">{obs.exudate_type}</span>
-                          </div>
+                          {obs.exudate_type && (
+                              <div className="flex items-center gap-2">
+                                  <Droplets className="w-3.5 h-3.5 text-blue-500" />
+                                  <span className="text-xs font-medium">{obs.exudate_type}</span>
+                              </div>
+                          )}
+                          {obs.odor_change && (
+                              <div className="flex items-center gap-2">
+                                  <Wind className="w-3.5 h-3.5 text-status-warning" />
+                                  <span className="text-xs font-medium text-status-warning font-bold">Piora do cheiro: Sim</span>
+                              </div>
+                          )}
+                          {obs.has_exudate && (
+                              <div className="flex items-center gap-2">
+                                  <Droplets className="w-3.5 h-3.5 text-blue-500" />
+                                  <span className="text-xs font-medium">
+                                      Secreção: Sim
+                                      {obs.exudate_increased ? " · Aumentou a quantidade" : ""}
+                                      {obs.change_in_exudate_color && obs.exudate_color ? ` · Cor: ${obs.exudate_color}` : ""}
+                                  </span>
+                              </div>
+                          )}
+                          {obs.has_swelling && (
+                              <div className="flex items-center gap-2">
+                                  <MoveHorizontal className="w-3.5 h-3.5 text-status-warning" />
+                                  <span className="text-xs font-medium">Inchaço ao redor da ferida: Sim</span>
+                              </div>
+                          )}
                       </div>
 
                       {obs.image && (
@@ -187,13 +225,15 @@ function WoundDetailContent() {
                           </div>
                       )}
 
+                      {/* currentUser vem do store (UserRole: Pr/Pa), fonte da verdade para privacidade. */}
+                      {/* Não confundir com UserProfile.role (specialist/patient) da API. */}
                       {obs.extra_notes && !(currentUser?.role === 'Pa' && obs.author_role === 'Pr') && (
                           <div className="bg-muted/30 p-3 rounded-xl">
                               <div className="flex items-center gap-1.5 mb-1">
                                   <MessageSquare className="w-3 h-3 text-muted-foreground" />
                                   <span className="text-[10px] font-bold uppercase text-muted-foreground">Notas</span>
                               </div>
-                              <p className="text-xs text-foreground italic">"{obs.extra_notes}"</p>
+                              <p className="text-xs text-foreground italic">&quot;{obs.extra_notes}&quot;</p>
                           </div>
                       )}
                       
