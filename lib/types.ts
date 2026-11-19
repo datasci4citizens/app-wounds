@@ -72,6 +72,19 @@ export interface UserProfile {
   patient?: Patient | null;
 }
 
+/**
+ * Mapeia o role retornado pela API (/auth/me/, 'specialist'|'patient') para o
+ * tipo usado internamente pelo frontend ('Pr'|'Pa', espelhando o banco Django).
+ *
+ * Fonte da verdade para checks de UI e privacidade: UserRole ('Pr'/'Pa') do store.
+ * UserProfile.role é apenas a representação da resposta da API.
+ */
+export const mapApiRoleToStoreRole = (role: 'specialist' | 'patient' | null): 'Pr' | 'Pa' | null => {
+  if (role === 'specialist') return 'Pr';
+  if (role === 'patient') return 'Pa';
+  return null;
+};
+
 /** A wound record from the /wounds/ endpoint */
 export interface Wound {
   id: number;

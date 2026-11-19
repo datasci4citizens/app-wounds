@@ -132,6 +132,25 @@ export function ObservationForm({
     let val: string | boolean | number;
     if (type === 'checkbox') {
       val = (e.target as HTMLInputElement).checked;
+      // H1+H2: quando um campo-pai é desmarcado, resetar campos filhso
+      // para evitar dados contraditórios no estado e na API.
+      if (name === 'has_exudate' && !val) {
+        setFormData(prev => ({
+          ...prev,
+          exudate_increased: false,
+          change_in_exudate_color: false,
+          exudate_color: ""
+        }));
+        return;
+      }
+      if (name === 'change_in_exudate_color' && !val) {
+        setFormData(prev => ({ ...prev, exudate_color: "" }));
+        return;
+      }
+      if (name === 'redness_increased' && !val) {
+        setFormData(prev => ({ ...prev, periwound_erythema_gt2cm: false }));
+        return;
+      }
     } else if (type === 'number' || type === 'range') {
       val = value === "" ? 0 : Number(value);
     } else {
@@ -164,14 +183,24 @@ export function ObservationForm({
       data.append("periwound_skin", formData.periwound_skin);
       data.append("wound_edge", formData.wound_edge);
       data.append("patient_guidelines", formData.patient_guidelines);
+      // H3: consistência vermelhidão — se o especialista preencheu eritema,
+      // redness_increased deve ser true (senão grava false por default).
+      data.append(
+        "redness_increased",
+        String(
+          formData.periwound_skin === "Eritema menor que 2 cm"
+            || formData.periwound_skin === "Eritema maior que 2 cm"
+        )
+      );
     } else {
       // Patient: only the patient-facing questions
       data.append("pain_increased", String(formData.pain_increased));
       data.append("odor_change", String(formData.odor_change));
       data.append("has_exudate", String(formData.has_exudate));
-      data.append("exudate_increased", String(formData.exudate_increased));
-      data.append("change_in_exudate_color", String(formData.change_in_exudate_color));
-      data.append("exudate_color", formData.change_in_exudate_color ? formData.exudate_color : "");
+      // H1: derivar sub-campos do campo-pai para evitar dados contraditórios
+      data.append("exudate_increased", String(formData.has_exudate && formData.exudate_increased));
+      data.append("change_in_exudate_color", String(formData.has_exudate && formData.change_in_exudate_color));
+      data.append("exudate_color", (formData.has_exudate && formData.change_in_exudate_color) ? formData.exudate_color : "");
       data.append("has_swelling", String(formData.has_swelling));
       data.append("redness_increased", String(formData.redness_increased));
       data.append(
@@ -193,11 +222,6 @@ export function ObservationForm({
     return fieldErrors?.[field]
       ? "border-destructive focus-visible:ring-destructive bg-destructive/5"
       : "border-border";
-  };
-
-  const ErrorMsg = ({ field }: { field: string }) => {
-    if (!fieldErrors?.[field]) return null;
-    return <p className="text-destructive text-xs mt-1 font-medium ml-1">{fieldErrors[field][0]}</p>;
   };
 
   // Pain slider — always visible (pain_level is required by the API)
@@ -226,7 +250,7 @@ export function ObservationForm({
       <div className="flex justify-between px-1 text-[10px] font-bold text-muted-foreground">
           <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
       </div>
-      <ErrorMsg field="pain_level" />
+      <ErrorMsg fieldErrors={fieldErrors} field="pain_level" />
     </div>
   );
 
@@ -269,7 +293,7 @@ export function ObservationForm({
                 </span>
             </button>
         )}
-        <ErrorMsg field="image" />
+        <ErrorMsg fieldErrors={fieldErrors} field="image" />
     </div>
   );
 
@@ -290,7 +314,7 @@ export function ObservationForm({
                     <option value="Médio">Médio</option>
                     <option value="Muito">Muito</option>
                 </select>
-                <ErrorMsg field="exudate_amount" />
+                <ErrorMsg fieldErrors={fieldErrors} field="exudate_amount" />
             </div>
 
             {/* Exudate Type */}
@@ -302,7 +326,7 @@ export function ObservationForm({
                     <option value="Sanguinolento">Sanguinolento</option>
                     <option value="Serosanguinolento">Serosanguinolento</option>
                 </select>
-                <ErrorMsg field="exudate_type" />
+                <ErrorMsg fieldErrors={fieldErrors} field="exudate_type" />
             </div>
           </div>
 
@@ -317,7 +341,7 @@ export function ObservationForm({
                     <option value="Desvitalizado">Desvitalizado</option>
                     <option value="Necrótico">Necrótico</option>
                 </select>
-                <ErrorMsg field="tissue_type" />
+                <ErrorMsg fieldErrors={fieldErrors} field="tissue_type" />
             </div>
 
             {/* Dressing Changes */}
@@ -333,7 +357,7 @@ export function ObservationForm({
                     required
                     disabled={isSubmitting}
                 />
-                <ErrorMsg field="dressing_changes" />
+                <ErrorMsg fieldErrors={fieldErrors} field="dressing_changes" />
             </div>
           </div>
 
@@ -345,7 +369,7 @@ export function ObservationForm({
                   <option value="Eritema menor que 2 cm">Eritema menor que 2 cm</option>
                   <option value="Eritema maior que 2 cm">Eritema maior que 2 cm</option>
               </select>
-              <ErrorMsg field="periwound_skin" />
+              <ErrorMsg fieldErrors={fieldErrors} field="periwound_skin" />
           </div>
 
           {/* Wound Edge */}
@@ -358,7 +382,7 @@ export function ObservationForm({
                   <option value="Bem definidas, não aderidas à base, enrolada, espessada">Bem definidas, não aderidas, enroladas</option>
                   <option value="Bem definidas, fibróticas, com crostas e/ou hiperqueratose.">Bem definidas, fibróticas/crostas</option>
               </select>
-              <ErrorMsg field="wound_edge" />
+              <ErrorMsg fieldErrors={fieldErrors} field="wound_edge" />
           </div>
 
           {/* Fever Toggle */}
@@ -370,7 +394,7 @@ export function ObservationForm({
               disabled={isSubmitting}
               error={!!fieldErrors?.fever_24h}
             />
-            <ErrorMsg field="fever_24h" />
+            <ErrorMsg fieldErrors={fieldErrors} field="fever_24h" />
           </div>
 
           {/* Notes */}
@@ -384,7 +408,7 @@ export function ObservationForm({
                 className={`w-full h-24 rounded-xl border bg-background p-4 text-sm shadow-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 ${getErrorClass('extra_notes')}`}
                 disabled={isSubmitting}
               />
-              <ErrorMsg field="extra_notes" />
+              <ErrorMsg fieldErrors={fieldErrors} field="extra_notes" />
           </div>
 
           {/* Specialist only guidelines */}
@@ -398,7 +422,7 @@ export function ObservationForm({
                 className={`w-full h-24 rounded-xl border bg-primary/5 p-4 text-sm shadow-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 ${fieldErrors?.patient_guidelines ? 'border-destructive bg-destructive/5' : 'border-primary/20'}`}
                 disabled={isSubmitting}
             />
-            <ErrorMsg field="patient_guidelines" />
+            <ErrorMsg fieldErrors={fieldErrors} field="patient_guidelines" />
           </div>
 
           {photoSection}
@@ -416,7 +440,7 @@ export function ObservationForm({
               disabled={isSubmitting}
               error={!!fieldErrors?.pain_increased}
             />
-            <ErrorMsg field="pain_increased" />
+            <ErrorMsg fieldErrors={fieldErrors} field="pain_increased" />
           </div>
 
           {/* 1a. Pain score 0–10 (always visible) */}
@@ -431,7 +455,7 @@ export function ObservationForm({
               disabled={isSubmitting}
               error={!!fieldErrors?.odor_change}
             />
-            <ErrorMsg field="odor_change" />
+            <ErrorMsg fieldErrors={fieldErrors} field="odor_change" />
           </div>
 
           {/* 3. Exudate (+ conditional fields) */}
@@ -444,7 +468,7 @@ export function ObservationForm({
                 disabled={isSubmitting}
                 error={!!fieldErrors?.has_exudate}
               />
-              <ErrorMsg field="has_exudate" />
+              <ErrorMsg fieldErrors={fieldErrors} field="has_exudate" />
             </div>
 
             {formData.has_exudate && (
@@ -457,7 +481,7 @@ export function ObservationForm({
                     disabled={isSubmitting}
                     error={!!fieldErrors?.exudate_increased}
                   />
-                  <ErrorMsg field="exudate_increased" />
+                  <ErrorMsg fieldErrors={fieldErrors} field="exudate_increased" />
                 </div>
 
                 <div className="space-y-2">
@@ -468,7 +492,7 @@ export function ObservationForm({
                     disabled={isSubmitting}
                     error={!!fieldErrors?.change_in_exudate_color}
                   />
-                  <ErrorMsg field="change_in_exudate_color" />
+                  <ErrorMsg fieldErrors={fieldErrors} field="change_in_exudate_color" />
                 </div>
 
                 {formData.change_in_exudate_color && (
@@ -488,7 +512,7 @@ export function ObservationForm({
                       <option value="Amarronzado">Amarronzado</option>
                       <option value="Vermelho">Vermelho</option>
                     </select>
-                    <ErrorMsg field="exudate_color" />
+                    <ErrorMsg fieldErrors={fieldErrors} field="exudate_color" />
                   </div>
                 )}
               </>
@@ -508,7 +532,7 @@ export function ObservationForm({
               required
               disabled={isSubmitting}
             />
-            <ErrorMsg field="dressing_changes" />
+            <ErrorMsg fieldErrors={fieldErrors} field="dressing_changes" />
           </div>
 
           {/* 5. Swelling */}
@@ -520,7 +544,7 @@ export function ObservationForm({
               disabled={isSubmitting}
               error={!!fieldErrors?.has_swelling}
             />
-            <ErrorMsg field="has_swelling" />
+            <ErrorMsg fieldErrors={fieldErrors} field="has_swelling" />
           </div>
 
           {/* 6. Redness (+ conditional >2cm) */}
@@ -533,7 +557,7 @@ export function ObservationForm({
                 disabled={isSubmitting}
                 error={!!fieldErrors?.redness_increased}
               />
-              <ErrorMsg field="redness_increased" />
+              <ErrorMsg fieldErrors={fieldErrors} field="redness_increased" />
             </div>
 
             {formData.redness_increased && (
@@ -557,7 +581,7 @@ export function ObservationForm({
               disabled={isSubmitting}
               error={!!fieldErrors?.fever_24h}
             />
-            <ErrorMsg field="fever_24h" />
+            <ErrorMsg fieldErrors={fieldErrors} field="fever_24h" />
           </div>
 
           {/* 8. Extra notes */}
@@ -571,7 +595,7 @@ export function ObservationForm({
                 className={`w-full h-24 rounded-xl border bg-background p-4 text-sm shadow-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 ${getErrorClass('extra_notes')}`}
                 disabled={isSubmitting}
               />
-              <ErrorMsg field="extra_notes" />
+              <ErrorMsg fieldErrors={fieldErrors} field="extra_notes" />
           </div>
 
           {photoSection}
@@ -591,3 +615,9 @@ export function ObservationForm({
     </form>
   );
 }
+
+/** Componente de mensagem de erro extraído para fora do render (evita react-hooks/static-components). */
+const ErrorMsg = ({ field, fieldErrors }: { field: string; fieldErrors?: Record<string, string[]> }) => {
+  if (!fieldErrors?.[field]) return null;
+  return <p className="text-destructive text-xs mt-1 font-medium ml-1">{fieldErrors[field][0]}</p>;
+};

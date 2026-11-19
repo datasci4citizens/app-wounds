@@ -225,13 +225,15 @@ function WoundDetailContent() {
                           </div>
                       )}
 
+                      {/* currentUser vem do store (UserRole: Pr/Pa), fonte da verdade para privacidade. */}
+                      {/* Não confundir com UserProfile.role (specialist/patient) da API. */}
                       {obs.extra_notes && !(currentUser?.role === 'Pa' && obs.author_role === 'Pr') && (
                           <div className="bg-muted/30 p-3 rounded-xl">
                               <div className="flex items-center gap-1.5 mb-1">
                                   <MessageSquare className="w-3 h-3 text-muted-foreground" />
                                   <span className="text-[10px] font-bold uppercase text-muted-foreground">Notas</span>
                               </div>
-                              <p className="text-xs text-foreground italic">"{obs.extra_notes}"</p>
+                              <p className="text-xs text-foreground italic">&quot;{obs.extra_notes}&quot;</p>
                           </div>
                       )}
                       
