@@ -7,7 +7,7 @@ import { Camera as CapacitorCamera, CameraResultType, CameraSource } from "@capa
 import { Capacitor } from "@capacitor/core";
 
 export interface ObservationFormData {
-  // NOVOS_CAMPOS (paciente)
+  // patient-facing fields
   pain_increased: boolean;
   pain_level: number;
   odor_change: boolean;
@@ -21,7 +21,7 @@ export interface ObservationFormData {
   periwound_erythema_gt2cm: boolean;
   fever_24h: boolean;
   extra_notes: string;
-  // clínicos (especialista)
+  // clinical fields (specialist)
   exudate_amount: string;
   exudate_type: string;
   tissue_type: string;
@@ -46,7 +46,7 @@ interface YesNoFieldProps {
   error?: boolean;
 }
 
-/** Card de pergunta Sim/Não (padrão do projeto: checkbox marcado = Sim). */
+/** Yes/No question card (project pattern: checkbox checked = Yes). */
 function YesNoField({ label, checked, onChange, disabled, error = false }: YesNoFieldProps) {
   return (
     <div className={`flex items-center justify-between p-4 bg-muted/20 border rounded-xl ${error ? 'border-destructive bg-destructive/5' : 'border-border'}`}>
@@ -72,7 +72,6 @@ export function ObservationForm({
   const isSpecialist = authorRole === 'Pr';
 
   const [formData, setFormData] = useState<ObservationFormData>({
-    // NOVOS_CAMPOS
     pain_increased: false,
     pain_level: 0,
     odor_change: false,
@@ -86,7 +85,7 @@ export function ObservationForm({
     periwound_erythema_gt2cm: false,
     fever_24h: false,
     extra_notes: "",
-    // clínicos (especialista)
+    // clinical fields (specialist)
     exudate_amount: "Nenhum",
     exudate_type: "Seroso",
     tissue_type: "Granulação",
@@ -151,14 +150,14 @@ export function ObservationForm({
     // Create FormData for multipart upload
     const data = new FormData();
 
-    // Comum aos dois perfis (pain_level é obrigatório no backend)
+    // Shared by both roles (pain_level is required by the API)
     data.append("pain_level", formData.pain_level.toString());
     data.append("dressing_changes", formData.dressing_changes.toString());
     data.append("fever_24h", formData.fever_24h.toString());
     data.append("extra_notes", formData.extra_notes);
 
     if (isSpecialist) {
-      // Especialista: campos clínicos
+      // Specialist: clinical fields
       data.append("exudate_amount", formData.exudate_amount);
       data.append("exudate_type", formData.exudate_type);
       data.append("tissue_type", formData.tissue_type);
@@ -166,7 +165,7 @@ export function ObservationForm({
       data.append("wound_edge", formData.wound_edge);
       data.append("patient_guidelines", formData.patient_guidelines);
     } else {
-      // Paciente: apenas as perguntas do NOVOS_CAMPOS.md
+      // Patient: only the patient-facing questions
       data.append("pain_increased", String(formData.pain_increased));
       data.append("odor_change", String(formData.odor_change));
       data.append("has_exudate", String(formData.has_exudate));
@@ -201,7 +200,7 @@ export function ObservationForm({
     return <p className="text-destructive text-xs mt-1 font-medium ml-1">{fieldErrors[field][0]}</p>;
   };
 
-  // Slider de dor — sempre visível (pain_level é obrigatório na API)
+  // Pain slider — always visible (pain_level is required by the API)
   const painSlider = (
     <div className="space-y-3">
       <div className="flex justify-between items-center">
@@ -231,7 +230,7 @@ export function ObservationForm({
     </div>
   );
 
-  // Foto da ferida (comum aos dois perfis)
+  // Wound photo (shared by both roles)
   const photoSection = (
     <div className="space-y-3">
         <Label className="text-xs font-bold uppercase text-muted-foreground ml-1">Foto da Ferida</Label>
@@ -278,7 +277,7 @@ export function ObservationForm({
     <form onSubmit={handleSubmit} noValidate className="space-y-6">
       {isSpecialist ? (
         <>
-          {/* ===== Especialista: formulário clínico ===== */}
+          {/* ===== Specialist: clinical form ===== */}
           {painSlider}
 
           <div className="grid grid-cols-2 gap-4">
@@ -406,9 +405,9 @@ export function ObservationForm({
         </>
       ) : (
         <>
-          {/* ===== Paciente: perguntas do NOVOS_CAMPOS.md ===== */}
+          {/* ===== Patient-facing questions ===== */}
 
-          {/* 1. Piorou a dor */}
+          {/* 1. Pain worsened */}
           <div className="space-y-2">
             <YesNoField
               label="Piorou a dor?"
@@ -420,10 +419,10 @@ export function ObservationForm({
             <ErrorMsg field="pain_increased" />
           </div>
 
-          {/* 1a. Pontuação de dor 0–10 (sempre visível) */}
+          {/* 1a. Pain score 0–10 (always visible) */}
           {painSlider}
 
-          {/* 2. Piora do cheiro */}
+          {/* 2. Odor change */}
           <div className="space-y-2">
             <YesNoField
               label="Houve piora do cheiro?"
@@ -435,7 +434,7 @@ export function ObservationForm({
             <ErrorMsg field="odor_change" />
           </div>
 
-          {/* 3. Há secreção (+ condicionais) */}
+          {/* 3. Exudate (+ conditional fields) */}
           <div className="space-y-4">
             <div className="space-y-2">
               <YesNoField
@@ -496,7 +495,7 @@ export function ObservationForm({
             )}
           </div>
 
-          {/* 4. Trocas/dia */}
+          {/* 4. Dressing changes per day */}
           <div className="space-y-2">
             <Label className="text-xs font-bold uppercase text-muted-foreground ml-1">Trocas por dia</Label>
             <input
@@ -512,7 +511,7 @@ export function ObservationForm({
             <ErrorMsg field="dressing_changes" />
           </div>
 
-          {/* 5. Inchaço */}
+          {/* 5. Swelling */}
           <div className="space-y-2">
             <YesNoField
               label="Tem inchaço ao redor da ferida?"
@@ -524,7 +523,7 @@ export function ObservationForm({
             <ErrorMsg field="has_swelling" />
           </div>
 
-          {/* 6. Vermelhidão (+ condicional >2cm) */}
+          {/* 6. Redness (+ conditional >2cm) */}
           <div className="space-y-4">
             <div className="space-y-2">
               <YesNoField
@@ -549,7 +548,7 @@ export function ObservationForm({
             )}
           </div>
 
-          {/* 7. Febre */}
+          {/* 7. Fever */}
           <div className="space-y-2">
             <YesNoField
               label="Febre nas últimas 24h?"
@@ -561,7 +560,7 @@ export function ObservationForm({
             <ErrorMsg field="fever_24h" />
           </div>
 
-          {/* 8. Anotações extras */}
+          {/* 8. Extra notes */}
           <div className="space-y-2">
               <Label className="text-xs font-bold uppercase text-muted-foreground ml-1">Anotações Extras</Label>
               <textarea
